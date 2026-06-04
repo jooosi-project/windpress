@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.84] - 2026-06-04
+
+### Changed
+
+- Tested compatibility with WordPress 7.0.
+- [Gutenberg] Marked the Common Block content attribute for WordPress 7.0 pattern content editing.
+
 ## [3.3.83] - 2026-05-16
 
 ### Added
@@ -858,7 +865,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 🐣 Initial release.
 
-[unreleased]: https://github.com/wind-press/windpress/compare/v3.3.83...HEAD
+[unreleased]: https://github.com/wind-press/windpress/compare/v3.3.84...HEAD
+[3.3.84]: https://github.com/wind-press/windpress/compare/v3.3.83...v3.3.84
 [3.3.83]: https://github.com/wind-press/windpress/compare/v3.3.82...v3.3.83
 [3.3.82]: https://github.com/wind-press/windpress/compare/v3.3.81...v3.3.82
 [3.3.81]: https://github.com/wind-press/windpress/compare/v3.3.80...v3.3.81

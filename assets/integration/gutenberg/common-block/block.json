@@ -24,7 +24,8 @@
     },
     "content": {
       "type": "string",
-      "default": ""
+      "default": "",
+      "role": "content"
     },
     "selfClosing": {
       "type": "boolean",
