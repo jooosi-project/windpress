@@ -1,8 +1,14 @@
 allowBuilds:
   '@parcel/watcher': true
   '@swc/core': true
+  '@tailwindcss/oxide': true
   esbuild: true
   vue-demi: true
+
+patchedDependencies:
+  is-core-module@2.16.2: assets/patches/is-core-module@2.16.2.patch
+  tailwindcss@3.4.19: assets/patches/tailwindcss@3.4.19.patch
+  vm-browserify@1.1.2: assets/patches/vm-browserify@1.1.2.patch
 
 updateConfig:
   ignoreDependencies:

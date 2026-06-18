@@ -6,7 +6,7 @@
  * Plugin URI:          https://wind.press
  * Description:         Integrate Tailwind CSS into WordPress seamlessly, in just seconds. Works well with the block editor, page builders, plugins, themes, and custom code.
  * Text Domain:         windpress
- * Version:             3.3.84
+ * Version:             3.3.85
  * Requires at least:   6.0
  * Requires PHP:        7.4
  * Author:              WindPress

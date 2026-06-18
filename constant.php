@@ -26,7 +26,7 @@ class WIND_PRESS
     /**
      * @var string
      */
-    public const VERSION = '3.3.84';
+    public const VERSION = '3.3.85';
 
     /**
      * @var string
