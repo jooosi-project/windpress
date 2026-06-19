@@ -69,7 +69,7 @@ jobs:
           coverage: none
         # fixes https://github.com/rectorphp/rector/pull/4559/checks?check_run_id=1359814403, see https://github.com/shivammathur/setup-php#composer-github-oauth
         env:
-          COMPOSER_TOKEN: ${{ secrets.ORG_DEV_PAT }}
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # preparing translations
 
@@ -225,7 +225,7 @@ jobs:
           coverage: none
         # fixes https://github.com/rectorphp/rector/pull/4559/checks?check_run_id=1359814403, see https://github.com/shivammathur/setup-php#composer-github-oauth
         env:
-          COMPOSER_TOKEN: ${{ secrets.ORG_DEV_PAT }}
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # remove custom update library
       - run: composer remove rosua/edd-sl-plugin-updater --ansi
