@@ -90,6 +90,7 @@ export default defineConfig({
   },
   define: {
     __dirname: JSON.stringify("/"),
+    "process.versions.node": JSON.stringify("22.9.0"),
   },
   optimizeDeps: {
     exclude: ["@windpress/oxide-parser"],
