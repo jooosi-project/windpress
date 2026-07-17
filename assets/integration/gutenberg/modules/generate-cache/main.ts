@@ -20,7 +20,7 @@ const channel = new BroadcastChannel("windpress");
   const __fetch = window.fetch;
 
   window.fetch = function (input, init) {
-    const url = typeof input === "string" ? input : input.url;
+    const url = input instanceof Request ? input.url : String(input ?? "");
 
     // Check if preferences are enabled
     if (!isGenerateCacheOnSaveEnabled()) {
