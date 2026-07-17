@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Updated bundled Tailwind CSS v4 to 4.3.3.
+
 ### Fixed
 
 - [TW3] Browser compiler throws "Unable to determine current node version" [#78](https://github.com/wind-press/windpress/issues/78)
