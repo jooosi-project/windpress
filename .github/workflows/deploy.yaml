@@ -114,7 +114,7 @@ jobs:
       #     WP_I18N: 'false'
 
       # clean up the dev files
-      - run: rm -rf assets node_modules deno.lock package.json pnpm-lock.yaml vite.config.ts .npmrc tsconfig.json mago.toml eslint.config.js auto-imports.d.ts components.d.ts
+      - run: rm -rf assets node_modules deno.lock package.json pnpm-lock.yaml pnpm-workspace.yaml opencode.json README.md AGENTS.md vite.config.ts .npmrc tsconfig.json mago.toml eslint.config.js auto-imports.d.ts components.d.ts
       - run: rm -rf ecs.php rector.php
       - run: rm -rf CLAUDE.md .agents
       - run: rm -rf CHANGELOG.md
