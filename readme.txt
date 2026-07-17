@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/Q5Q75XSF7
 Tags: tailwind, tailwindcss, tailwind css, block
 Requires at least: 6.0
 Tested up to: 7.0
-Stable tag: 3.3.86
+Stable tag: 3.3.87
 Requires PHP: 7.4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
