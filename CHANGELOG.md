@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - [TW3] Browser compiler throws "Unable to determine current node version" [#78](https://github.com/wind-press/windpress/issues/78)
+- [Gutenberg] Fixed saving issues when WPML is enabled.
 
 ## [3.3.85] - 2026-06-18
 
