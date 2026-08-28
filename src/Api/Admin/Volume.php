@@ -77,9 +77,18 @@ class Volume extends AbstractApi implements ApiInterface
 
         $entries = $payload['volume']['entries'];
 
-        CoreVolume::save_entries($entries);
+        $result = CoreVolume::save_entries($entries);
+
+        if (! empty($result['errors']) || ! empty($result['skipped'])) {
+            return new WP_REST_Response([
+                'success' => false,
+                'message' => __('Some entries could not be saved.', 'windpress'),
+                'details' => $result,
+            ], empty($result['errors']) ? 400 : 500);
+        }
 
         return new WP_REST_Response([
+            'success' => true,
             'message' => __('data stored successfully', 'windpress'),
         ]);
     }

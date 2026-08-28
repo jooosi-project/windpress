@@ -170,9 +170,14 @@ export function useFileAction() {
         }
       })
       .catch((err) => {
+        const errorMessage =
+          err instanceof Error && err.message
+            ? err.message
+            : __('An error occurred while saving your changes.', 'windpress');
+
         toast.update("file-editor.doSave", {
           title: __("Error", "windpress"),
-          description: __("An error occurred while saving your changes.", "windpress"),
+          description: errorMessage,
           icon: "i-lucide-save",
           color: "error",
           duration: undefined,
