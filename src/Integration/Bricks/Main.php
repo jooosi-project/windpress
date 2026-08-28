@@ -66,7 +66,7 @@ class Main implements IntegrationInterface
             ,
             'enabled' => $this->is_enabled(),
             'type' => 'theme',
-            'homepage' => 'https://bricksbuilder.io/?ref=windpress',
+            'homepage' => 'https://bricksbuilder.io/?ref=jooosi',
             'is_installed_active' => static function () {
                 $is = -1;
                 $is += Common::is_theme_installed('Bricks') ? 1 : 0;

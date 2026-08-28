@@ -55,7 +55,7 @@ class Main implements IntegrationInterface
             ,
             'enabled' => $this->is_enabled(),
             'type' => 'plugin',
-            'homepage' => 'https://upstatement.com/timber/?ref=windpress',
+            'homepage' => 'https://upstatement.com/timber/?ref=jooosi',
             'is_installed_active' => static function () {
                 $is = -1;
                 $is += Common::is_plugin_installed('Timber') ? 1 : 0;

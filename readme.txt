@@ -1,5 +1,5 @@
 === WindPress - Tailwind CSS integration for WordPress ===
-Contributors: suabahasa, rosua
+Contributors: suasgn, suabahasa
 Donate link: https://ko-fi.com/Q5Q75XSF7
 Tags: tailwind, tailwindcss, tailwind css, block
 Requires at least: 6.0

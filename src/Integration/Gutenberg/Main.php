@@ -63,7 +63,7 @@ class Main implements IntegrationInterface
             ,
             'enabled' => $this->is_enabled(),
             'type' => 'custom',
-            'homepage' => 'https://wordpress.org/gutenberg/?ref=windpress',
+            'homepage' => 'https://wordpress.org/gutenberg/?ref=jooosi',
             'is_installed_active' => static function () {
                 $is = -1;
                 $is += function_exists('register_block_type') ? 1 : 0;

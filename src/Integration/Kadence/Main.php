@@ -56,7 +56,7 @@ class Main implements IntegrationInterface
                     : static fn() => []
             ,
             'type' => 'theme',
-            'homepage' => 'https://kadencewp.com/?ref=windpress',
+            'homepage' => 'https://kadencewp.com/?ref=jooosi',
             'is_installed_active' => static function () {
                 $is = -1;
                 $is += Common::is_theme_installed('Kadence') ? 1 : 0;

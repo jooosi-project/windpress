@@ -12,8 +12,8 @@ import {
   getClassList,
   candidatesToCss,
 } from "@/packages/core/tailwindcss";
-import * as monacoEditor from "monaco-editor/esm/vs/editor/editor.api";
-import { cssDefaults as monacoCssDefaults } from "monaco-editor/esm/vs/language/css/monaco.contribution.js";
+import * as monacoEditor from "monaco-editor/editor";
+import { cssDefaults as monacoCssDefaults } from "monaco-editor/languages/features/css/register";
 import Color from "colorjs.io";
 import { debounce, throttle } from "lodash-es";
 import { useThemeJsonStore } from "@/dashboard/stores/themeJson";
