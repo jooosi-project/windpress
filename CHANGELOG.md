@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- [Wizard] Reported volume save failures instead of displaying a false success message [#81](https://github.com/jooosi-project/windpress/issues/81)
+
 ## [3.3.86] - 2026-07-17
 
 ### Added
