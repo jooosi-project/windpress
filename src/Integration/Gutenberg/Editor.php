@@ -67,7 +67,7 @@ class Editor
         Vite::assets()->enqueue('resources/integration/gutenberg/block-editor.jsx', [
             'handle' => $handle,
             'in_footer' => true,
-            'dependencies' => ['wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-hooks', 'wp-i18n', 'react', 'react-dom'],
+            'dependencies' => ['wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-hooks', 'wp-i18n', 'react', 'react-dom', 'react-jsx-runtime'],
         ]);
 
         // Enqueue Common Block if enabled
@@ -75,7 +75,7 @@ class Editor
             Vite::assets()->enqueue('resources/integration/gutenberg/common-block/index.jsx', [
                 'handle' => WIND_PRESS::WP_OPTION . ':integration-gutenberg-common-block',
                 'in_footer' => true,
-                'dependencies' => ['wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-block-editor', 'wp-hooks', 'wp-i18n', 'wp-plugins', 'wp-data', 'react', 'react-dom', $handle],
+                'dependencies' => ['wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-block-editor', 'wp-hooks', 'wp-i18n', 'wp-plugins', 'wp-data', 'react', 'react-dom', 'react-jsx-runtime', $handle],
             ]);
         }
 
@@ -84,7 +84,7 @@ class Editor
             Vite::assets()->enqueue('resources/integration/gutenberg/modules/generate-cache/main.ts', [
                 'handle' => WIND_PRESS::WP_OPTION . ':integration-gutenberg-generate-cache',
                 'in_footer' => true,
-                'dependencies' => ['wp-data', 'wp-preferences', 'wp-components', 'wp-i18n', 'wp-plugins', 'wp-editor', 'wp-element', 'react', 'react-dom', $handle],
+                'dependencies' => ['wp-data', 'wp-preferences', 'wp-components', 'wp-i18n', 'wp-plugins', 'wp-editor', 'wp-element', 'react', 'react-dom', 'react-jsx-runtime', $handle],
             ]);
         }
 

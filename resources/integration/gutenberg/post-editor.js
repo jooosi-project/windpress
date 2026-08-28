@@ -27,8 +27,15 @@ logger("Loading...");
     return;
   }
 
-  // if the editor-visual-editor is not iframed, we can start the observer immediately
-  if (!editorVisualEditor.classList.contains("is-iframed")) {
+  // WordPress used to mark the visual editor with `is-iframed`. Newer
+  // versions expose the canvas only through the `editor-canvas` iframe.
+  logger("waiting for the iframeEl...");
+
+  iframeEl = document.querySelector('iframe[name="editor-canvas"]');
+
+  // Keep the legacy class check for older WordPress versions, but use the
+  // iframe as the source of truth when the class is no longer present.
+  if (!iframeEl && !editorVisualEditor.classList.contains("is-iframed")) {
     logger("editor-visual-editor is not iframed, starting the observer immediately...");
     if (window.twPlayObserverStart) {
       window.twPlayObserverStart();
@@ -37,9 +44,8 @@ logger("Loading...");
     return;
   }
 
-  logger("waiting for the iframeEl...");
-
-  // wait for the root container to be available
+  // Wait for the canvas when the legacy class is present before the iframe is
+  // mounted. In newer WordPress versions this loop is normally skipped.
   while (!iframeEl) {
     iframeEl = document.querySelector('iframe[name="editor-canvas"]');
     await new Promise((resolve) => setTimeout(resolve, 100));

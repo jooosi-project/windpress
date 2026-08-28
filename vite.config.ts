@@ -112,6 +112,13 @@ export default defineConfig({
   build: {
     target: "es2020",
   },
+  // WordPress's production JSX runtime exposes jsx/jsxs, but not jsxDEV.
+  // Keep automatic JSX on the shared runtime API during Vite development too.
+  oxc: {
+    jsx: {
+      development: false,
+    },
+  },
   plugins: [
     wasm(),
     topLevelAwait(),
@@ -123,7 +130,7 @@ export default defineConfig({
     }),
     vue(),
     react({
-      jsxRuntime: "classic",
+      jsxRuntime: "automatic",
     }),
     nuxtUi({
       autoImport: {
@@ -212,7 +219,7 @@ export default defineConfig({
       outDir: 'assets/dist',
       sourcemap: false,
     }),
-    wordpressExternals({ preset: 'wordpress' }),
+    wordpressExternals({ preset: 'wordpress+react' }),
     // httpsImports.default({}, function resolver(matcher) {
     //     return (id, importer) => {
     //         if (matcher(id)) {
