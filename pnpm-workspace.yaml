@@ -3,14 +3,8 @@ packages:
 
 minimumReleaseAge: 0
 
-# vite-plugin-top-level-await 1.6.0 emits AST nodes that SWC 1.16 rejects.
-overrides:
-  '@swc/core': 1.15.43
-  '@swc/wasm': 1.15.43
-
 allowBuilds:
   '@parcel/watcher': true
-  '@swc/core': true
   '@tailwindcss/oxide': true
   esbuild: true
   vue-demi: true

@@ -7,7 +7,69 @@
  * Shared dark mode hook for Gutenberg integration
  */
 
-import { useState, useEffect } from "@wordpress/element";
+import { useState, useEffect, useRef } from "@wordpress/element";
+
+const EDITOR_CANVAS_SELECTOR = [
+  '.editor-visual-editor iframe[name="editor-canvas"]',
+  "iframe.edit-site-visual-editor__editor-canvas",
+  'iframe[name="editor-canvas"]',
+].join(", ");
+
+function normalizeTheme(theme) {
+  return ["light", "dark", "system"].includes(theme) ? theme : "system";
+}
+
+function getEditorCanvas() {
+  return document.querySelector(EDITOR_CANVAS_SELECTOR);
+}
+
+function getStoredTheme() {
+  try {
+    return normalizeTheme(localStorage.getItem("windpress-theme") || "system");
+  } catch (e) {
+    return "system";
+  }
+}
+
+function storeTheme(theme) {
+  try {
+    localStorage.setItem("windpress-theme", theme);
+  } catch (e) {
+    // Silent fail
+  }
+}
+
+function applyThemeToDocument(targetDocument, newTheme) {
+  if (!targetDocument || !targetDocument.documentElement) {
+    return false;
+  }
+
+  const target = targetDocument.documentElement;
+
+  target.classList.remove("dark", "light");
+  target.style.removeProperty("color-scheme");
+  target.removeAttribute("data-theme");
+
+  if (newTheme === "light") {
+    target.classList.add("light");
+    target.style.colorScheme = "light";
+    target.setAttribute("data-theme", "light");
+  } else if (newTheme === "dark") {
+    target.classList.add("dark");
+    target.style.colorScheme = "dark";
+    target.setAttribute("data-theme", "dark");
+  } else {
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    target.style.colorScheme = prefersDark ? "dark" : "light";
+    target.setAttribute("data-theme", prefersDark ? "dark" : "light");
+
+    if (prefersDark) {
+      target.classList.add("dark");
+    }
+  }
+
+  return true;
+}
 
 /**
  * Custom hook for managing dark mode in Gutenberg editor
@@ -15,86 +77,80 @@ import { useState, useEffect } from "@wordpress/element";
  */
 export function useDarkMode() {
   const [theme, setTheme] = useState("system");
+  const themeRef = useRef("system");
 
   const applyTheme = (newTheme) => {
-    const iframe = document.querySelector('iframe[name="editor-canvas"]');
+    const nextTheme = normalizeTheme(newTheme);
 
-    if (!iframe || !iframe.contentDocument) {
-      return;
-    }
+    themeRef.current = nextTheme;
+    storeTheme(nextTheme);
+    setTheme(nextTheme);
 
-    const target = iframe.contentDocument.documentElement;
-
-    target.classList.remove("dark", "light");
-    target.style.removeProperty("color-scheme");
-    target.removeAttribute("data-theme");
-
-    if (newTheme === "light") {
-      target.classList.add("light");
-      target.style.colorScheme = "light";
-      target.setAttribute("data-theme", "light");
-    } else if (newTheme === "dark") {
-      target.classList.add("dark");
-      target.style.colorScheme = "dark";
-      target.setAttribute("data-theme", "dark");
-    } else {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      if (prefersDark) {
-        target.classList.add("dark");
-        target.setAttribute("data-theme", "dark");
-      }
-    }
-
-    try {
-      localStorage.setItem("windpress-theme", newTheme);
-    } catch (e) {
-      // Silent fail
-    }
-
-    setTheme(newTheme);
+    const iframe = getEditorCanvas();
+    applyThemeToDocument(iframe?.contentDocument, nextTheme);
 
     // Dispatch custom event to notify other components
     window.dispatchEvent(
-      new CustomEvent("windpress-theme-change", { detail: { theme: newTheme } }),
+      new CustomEvent("windpress-theme-change", { detail: { theme: nextTheme } }),
     );
   };
 
   useEffect(() => {
-    let savedTheme = "system";
-    try {
-      savedTheme = localStorage.getItem("windpress-theme") || "system";
-    } catch (e) {
-      // Silent fail
-    }
-
+    const savedTheme = getStoredTheme();
+    themeRef.current = savedTheme;
     setTheme(savedTheme);
 
-    const applyWithRetry = (attempts = 0) => {
-      const iframe = document.querySelector('iframe[name="editor-canvas"]');
+    let iframe = null;
+    let retryTimeout = null;
 
-      if (iframe && iframe.contentDocument) {
-        applyTheme(savedTheme);
-      } else if (attempts < 20) {
-        setTimeout(() => applyWithRetry(attempts + 1), 200);
+    function handleIframeLoad() {
+      applyThemeToDocument(iframe?.contentDocument, themeRef.current);
+    }
+
+    function syncIframe() {
+      const nextIframe = getEditorCanvas();
+
+      if (nextIframe !== iframe) {
+        if (iframe) {
+          iframe.removeEventListener("load", handleIframeLoad);
+        }
+
+        iframe = nextIframe;
+
+        if (iframe) {
+          iframe.addEventListener("load", handleIframeLoad);
+        }
       }
-    };
+
+      applyThemeToDocument(iframe?.contentDocument, themeRef.current);
+    }
+
+    function applyWithRetry(attempts = 0) {
+      syncIframe();
+
+      if ((!iframe || !iframe.contentDocument) && attempts < 20) {
+        retryTimeout = setTimeout(() => applyWithRetry(attempts + 1), 200);
+      }
+    }
 
     applyWithRetry();
 
-    const handleIframeLoad = () => {
-      applyTheme(savedTheme);
-    };
+    const iframeObserver = new MutationObserver(() => {
+      const currentIframe = getEditorCanvas();
+      if (currentIframe !== iframe) {
+        syncIframe();
+      }
+    });
 
-    const iframe = document.querySelector('iframe[name="editor-canvas"]');
-    if (iframe) {
-      iframe.addEventListener("load", handleIframeLoad);
+    if (document.body) {
+      iframeObserver.observe(document.body, { childList: true, subtree: true });
     }
 
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = () => {
-      const currentTheme = localStorage.getItem("windpress-theme") || "system";
-      if (currentTheme === "system") {
-        applyTheme("system");
+      if (themeRef.current === "system") {
+        const currentIframe = getEditorCanvas();
+        applyThemeToDocument(currentIframe?.contentDocument, "system");
       }
     };
 
@@ -102,12 +158,20 @@ export function useDarkMode() {
 
     // Listen for theme changes from other components
     const handleThemeChange = (event) => {
-      setTheme(event.detail.theme);
+      const nextTheme = normalizeTheme(event.detail?.theme);
+      themeRef.current = nextTheme;
+      setTheme(nextTheme);
+      const currentIframe = getEditorCanvas();
+      applyThemeToDocument(currentIframe?.contentDocument, nextTheme);
     };
 
     window.addEventListener("windpress-theme-change", handleThemeChange);
 
     return () => {
+      if (retryTimeout) {
+        clearTimeout(retryTimeout);
+      }
+      iframeObserver.disconnect();
       mediaQuery.removeEventListener("change", handleChange);
       window.removeEventListener("windpress-theme-change", handleThemeChange);
       if (iframe) {
@@ -117,9 +181,9 @@ export function useDarkMode() {
   }, []);
 
   const cycleTheme = () => {
-    if (theme === "light") {
+    if (themeRef.current === "light") {
       applyTheme("dark");
-    } else if (theme === "dark") {
+    } else if (themeRef.current === "dark") {
       applyTheme("system");
     } else {
       applyTheme("light");

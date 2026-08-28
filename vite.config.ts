@@ -4,7 +4,6 @@ import react from "@vitejs/plugin-react";
 import { wordpress, wordpressExternals } from "@nabasa/vp-wp";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 import wasm from "vite-plugin-wasm";
-import topLevelAwait from "vite-plugin-top-level-await";
 import path from "path";
 import svgr from "vite-plugin-svgr";
 import Icons from "unplugin-icons/vite";
@@ -110,7 +109,7 @@ export default defineConfig({
     exclude: ["@windpress/oxide-parser", "modern-monaco"],
   },
   build: {
-    target: "es2020",
+    target: "esnext",
   },
   // WordPress's production JSX runtime exposes jsx/jsxs, but not jsxDEV.
   // Keep automatic JSX on the shared runtime API during Vite development too.
@@ -121,7 +120,6 @@ export default defineConfig({
   },
   plugins: [
     wasm(),
-    topLevelAwait(),
     nodePolyfills({
       // Override the default polyfills for specific modules.
       overrides: {
