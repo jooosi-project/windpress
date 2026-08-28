@@ -1,0 +1,25 @@
+[package]
+name = "oxide-parser"
+version = "1.0.42"
+edition = "2021"
+authors = ["WindPress <hi@jooo.si>"]
+description = "Tailwind CSS Oxide parser WASM used internally by WindPress"
+license = "MIT"
+repository = "https://github.com/jooosi-project/windpress"
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ["-O3", "--enable-bulk-memory"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+tailwindcss-oxide = { git = "https://github.com/tailwindlabs/tailwindcss.git" }
+wasm-bindgen = "0.2.95"
+js-sys = "0.3.72"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true

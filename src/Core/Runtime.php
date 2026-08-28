@@ -208,13 +208,13 @@ class Runtime
         // Register the modules
         $loaded_modules = [];
         if ($can_load_modules) {
-            Vite::assets()->register('assets/packages/core/tailwindcss/play/intellisense.ts', [
+            Vite::assets()->register('resources/packages/core/tailwindcss/play/intellisense.ts', [
                 'handle' => WIND_PRESS::WP_OPTION . ':intellisense',
                 'in_footer' => true,
             ]);
             $loaded_modules[] = WIND_PRESS::WP_OPTION . ':intellisense';
 
-            Vite::assets()->register('assets/packages/core/tailwindcss/play/worker.ts', [
+            Vite::assets()->register('resources/packages/core/tailwindcss/play/worker.ts', [
                 'handle' => WIND_PRESS::WP_OPTION . ':worker',
                 'in_footer' => true,
             ]);
@@ -224,7 +224,7 @@ class Runtime
             $loaded_modules = apply_filters('f!windpress/core/runtime:enqueue_play_modules.loaded_modules', $loaded_modules);
         }
 
-        Vite::assets()->register('assets/packages/core/tailwindcss/play/observer.ts', [
+        Vite::assets()->register('resources/packages/core/tailwindcss/play/observer.ts', [
             'handle' => WIND_PRESS::WP_OPTION . ':observer',
             'in_footer' => true,
             'dependencies' => array_merge(['wp-i18n', 'wp-hooks'], is_array($loaded_modules) ? $loaded_modules : iterator_to_array($loaded_modules)),
@@ -236,14 +236,14 @@ class Runtime
         // Register the modules
         $loaded_modules = [];
         if ($can_load_modules) {
-            Vite::assets()->register('assets/packages/core/tailwindcss-v3/play/intellisense.ts', [
+            Vite::assets()->register('resources/packages/core/tailwindcss-v3/play/intellisense.ts', [
                 'handle' => WIND_PRESS::WP_OPTION . ':intellisense',
                 'in_footer' => true,
             ]);
             $loaded_modules[] = WIND_PRESS::WP_OPTION . ':intellisense';
         }
 
-        Vite::assets()->register('assets/packages/core/tailwindcss-v3/play/observer.ts', [
+        Vite::assets()->register('resources/packages/core/tailwindcss-v3/play/observer.ts', [
             'handle' => WIND_PRESS::WP_OPTION . ':observer',
             'in_footer' => true,
             'dependencies' => array_merge(['wp-i18n', 'wp-hooks'], is_array($loaded_modules) ? $loaded_modules : iterator_to_array($loaded_modules)),
@@ -254,7 +254,7 @@ class Runtime
     {
         $handle = WIND_PRESS::WP_OPTION . ':admin';
 
-        Vite::assets()->enqueue('assets/dashboard/main.ts', [
+        Vite::assets()->enqueue('resources/dashboard/main.ts', [
             'handle' => $handle,
             'in_footer' => true,
             'dependencies' => ['wp-i18n', 'wp-hooks'],

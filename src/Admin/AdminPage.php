@@ -69,14 +69,14 @@ class AdminPage
 
         $i18n_src = Vite::base_url('wp-i18n.js');
 
-        if (! is_file(dirname(WIND_PRESS::FILE) . '/build/wp-i18n.js')) {
-            $i18n_src = plugins_url('assets/wp-i18n.js', WIND_PRESS::FILE);
+        if (! is_file(dirname(WIND_PRESS::FILE) . '/assets/dist/wp-i18n.js')) {
+            $i18n_src = plugins_url('resources/wp-i18n.js', WIND_PRESS::FILE);
         }
 
         wp_enqueue_script($handle . '-i18n', $i18n_src, ['wp-i18n'], null);
         wp_set_script_translations($handle . '-i18n', 'windpress');
 
-        Vite::assets()->enqueue('assets/dashboard/main.ts', [
+        Vite::assets()->enqueue('resources/dashboard/main.ts', [
             'handle' => $handle,
             'in_footer' => true,
             'dependencies' => ['wp-hooks'],

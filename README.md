@@ -30,19 +30,19 @@
     </picture>
   </a>
   <br />
-  <a href="https://github.com/wind-press/windpress/releases">
+  <a href="https://github.com/jooosi-project/windpress/releases">
     <picture>
-    <img src="https://img.shields.io/github/v/release/wind-press/windpress.svg?logo=github" alt="GitHub Release" />
+    <img src="https://img.shields.io/github/v/release/jooosi-project/windpress.svg?logo=github" alt="GitHub Release" />
     </picture>
   </a>
-  <a href="https://github.com/wind-press/windpress/blob/master/LICENSE">
+  <a href="https://github.com/jooosi-project/windpress/blob/master/LICENSE">
     <picture>
-    <img src="https://img.shields.io/github/license/wind-press/windpress.svg" alt="MIT License" />
+    <img src="https://img.shields.io/github/license/jooosi-project/windpress.svg" alt="MIT License" />
     </picture>
   </a>
-  <a href="https://github.com/wind-press/windpress/actions">
+  <a href="https://github.com/jooosi-project/windpress/actions">
     <picture>
-    <img src="https://img.shields.io/github/actions/workflow/status/wind-press/windpress/deploy.yaml" alt="Build Status" />
+    <img src="https://img.shields.io/github/actions/workflow/status/jooosi-project/windpress/deploy.yaml" alt="Build Status" />
     </picture>
   </a>
   <br />
@@ -56,7 +56,7 @@
       <img alt="ko-fi button" src="https://img.shields.io/badge/Buy_me_a_Coffee-ff5e5b?logo=ko-fi&label=Ko-fi">
     </picture>
   </a>
-  <a aria-label="Join Our Facebook community" href="https://wind.press/go/facebook">
+  <a aria-label="Join Our Facebook community" href="https://windpress.jooo.si/go/facebook">
     <picture>
       <img alt="facebook group button" src="https://img.shields.io/badge/Join_us-0866ff?logo=facebook&label=Community">
     </picture>
@@ -110,13 +110,14 @@ Seamless integration with the most popular visual/page builders:
 - [Node.js](https://nodejs.org/)
 - [pnpm](https://pnpm.io)
 - [Composer](https://getcomposer.org/)
+- [Docker](https://www.docker.com/) with Buildx
 
 ### Getting Started
 
 1. Clone the repository to your `wp-content/plugins` directory:
 
    ```bash
-   git clone https://github.com/wind-press/windpress.git windpress-dev
+   git clone https://github.com/jooosi-project/windpress.git windpress-dev
    cd windpress-dev
    ```
 
@@ -132,17 +133,26 @@ Seamless integration with the most popular visual/page builders:
    pnpm install
    ```
 
-4. Start the development server:
+4. Generate the local Tailwind Oxide WASM bindings:
+
+   ```bash
+   pnpm build:oxide
+   ```
+
+   Run this command again whenever you want to refresh the bindings from Tailwind's current default
+   branch. `pnpm build` runs it automatically before creating production assets.
+
+5. Start the development server:
 
    ```bash
    pnpm run dev
    ```
 
-5. Activate the plugin.
+6. Activate the plugin.
 
 ## Community
 
-- 💬 Join the community on [Facebook Group](https://wind.press/go/facebook) and [Discord](https://wind.press/go/discord)
+- 💬 Join the community on [Facebook Group](https://windpress.jooo.si/go/facebook) and [Discord](https://windpress.jooo.si/go/discord)
 
 ## Sponsors
 
@@ -159,4 +169,4 @@ This project is tested with BrowserStack
 
 ![Repo Activity](https://repobeats.axiom.co/api/embed/0769f849ed16dfa78931203ea4e2a6291fd8be04.svg "Repobeats analytics image")
 
-<a href="https://star-history.com/#wind-press/windpress&Date"> <picture> <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=wind-press/windpress&type=Date&theme=dark" /> <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=wind-press/windpress&type=Date" /> <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=wind-press/windpress&type=Date" /> </picture> </a>
+<a href="https://star-history.com/#jooosi-project/windpress&Date"> <picture> <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jooosi-project/windpress&type=Date&theme=dark" /> <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jooosi-project/windpress&type=Date" /> <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jooosi-project/windpress&type=Date" /> </picture> </a>

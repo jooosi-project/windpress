@@ -1,4 +1,5 @@
 build
+assets/dist/
 languages
 node_modules
 vendor

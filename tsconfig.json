@@ -4,6 +4,7 @@
     "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"],
+    "types": ["vite/client", "unplugin-icons/types/react"],
     "skipLibCheck": true,
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -19,16 +20,19 @@
     "noFallthroughCasesInSwitch": true,
 
     /* Paths */
-    "baseUrl": ".",
     "paths": {
       "~/*": ["./*"],
-      "@/*": ["./assets/*"]
+      "@/dashboard/*": ["./resources/dashboard/*"],
+      "@/integration/*": ["./resources/integration/*"],
+      "@/packages/*": ["./resources/packages/*"],
+      "@/*": ["./resources/*"]
     }
   },
   "include": [
-    "assets/**/*.ts",
-    "assets/**/*.tsx",
-    "assets/**/*.vue",
+    "resources/**/*.ts",
+    "resources/**/*.tsx",
+    "resources/**/*.vue",
+    "resources/declarations.d.ts",
     "auto-imports.d.ts",
     "components.d.ts"
   ]

@@ -1,4 +1,4 @@
-# builds the content of http://github.com/wind-press/windpress
+# builds the content of https://github.com/jooosi-project/windpress
 # inspiration from https://github.com/rectorphp/rector-src/blob/main/.github/workflows/build_scoped_rector.yaml
 # TODO: trigger the FREE build only when the PRO build is successful. reference: https://github.blog/changelog/2022-09-08-github-actions-use-github_token-with-workflow_dispatch-and-repository_dispatch/
 name: Deploy the Plugin
@@ -18,16 +18,16 @@ env:
 jobs:
   build_scoped_windpress:
     # Don't run on forks.
-    if: github.repository == 'wind-press/windpress'
+    if: github.repository == 'jooosi-project/windpress'
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
     steps:
-      # # sometime, when 2 or more consecutive PRs merged, the checkout wind-press/windpress is overlapped
+      # # sometime, when 2 or more consecutive PRs merged, the checkout jooosi-project/windpress is overlapped
       # # and reverting other commit change
       # # this should not happen on create a tag, so wait first
-      # - name: "Wait before checkout wind-press/windpress on create a tag"
+      # - name: "Wait before checkout jooosi-project/windpress on create a tag"
       #   if: "startsWith(github.ref, 'refs/tags/')"
       #   run: sleep 20
 
@@ -36,27 +36,14 @@ jobs:
           fetch-depth: 0
 
       # Use pnpm to install dependencies and build the assets.
-      - uses: actions/setup-node@v4
+      - uses: pnpm/setup@v2
         with:
-          node-version: 22
+          version: 12
+          runtime: node@26
+          cache: true
 
-      - uses: pnpm/action-setup@v4
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - uses: actions/cache@v4
-        name: Setup pnpm cache
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      # install dependencies and build the assets
-      - run: pnpm install
+      - name: Set up Docker Buildx for Oxide
+        uses: docker/setup-buildx-action@v3
 
       - run: pnpm build
         env:
@@ -114,10 +101,16 @@ jobs:
       #     WP_I18N: 'false'
 
       # clean up the dev files
-      - run: rm -rf assets node_modules deno.lock package.json pnpm-lock.yaml pnpm-workspace.yaml opencode.json README.md AGENTS.md vite.config.ts .npmrc tsconfig.json mago.toml eslint.config.js auto-imports.d.ts components.d.ts
+      - run: find assets -mindepth 1 -maxdepth 1 ! -name dist -exec rm -rf {} +
+      - run: rm -rf resources node_modules deno.lock package.json pnpm-lock.yaml pnpm-workspace.yaml opencode.json README.md AGENTS.md vite.config.ts .npmrc tsconfig.json mago.toml eslint.config.js auto-imports.d.ts components.d.ts
       - run: rm -rf ecs.php rector.php
       - run: rm -rf CLAUDE.md .agents
       - run: rm -rf CHANGELOG.md
+
+      - name: Verify third-party license notices
+        run: |
+          test -f licenses/lz-string-MIT.txt
+          test -f licenses/tailwindcss-MIT.txt
 
       # install only prod dependencies
       - run: composer install --no-dev --classmap-authoritative --ansi
@@ -166,7 +159,7 @@ jobs:
         id: git-log
         run: |
           echo "log<<EOF" >> $GITHUB_OUTPUT
-          echo "$(git log ${{ github.event.before }}..${{ github.event.after }} --reverse --pretty='https://github.com/wind-press/windpress/commit/%H %s')" >> $GITHUB_OUTPUT
+          echo "$(git log ${{ github.event.before }}..${{ github.event.after }} --reverse --pretty='https://github.com/jooosi-project/windpress/commit/%H %s')" >> $GITHUB_OUTPUT
           echo 'EOF' >> $GITHUB_OUTPUT
 
       # publish it to remote repository with tag

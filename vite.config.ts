@@ -8,21 +8,32 @@ import topLevelAwait from "vite-plugin-top-level-await";
 import path from "path";
 import svgr from "vite-plugin-svgr";
 import Icons from "unplugin-icons/vite";
+import { FileSystemIconLoader } from 'unplugin-icons/loaders';
 import IconsResolver from "unplugin-icons/resolver";
 // import httpsImports from 'vite-plugin-https-imports'; //
 import nuxtUi from "@nuxt/ui/vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
-
 export default defineConfig({
   lint: {
-    ignorePatterns: ["dist/**"],
+    ignorePatterns: ["dist/**", "resources/packages/oxide-parser/pkg/**"],
     plugins: ["oxc", "typescript", "unicorn", "react", "vue"],
     categories: {
       correctness: "warn",
     },
     env: {
       builtin: true,
+    },
+    globals: {
+      IconLucideCode2: 'readonly',
+      IconLucideDownload: 'readonly',
+      IconLucideMonitorCog: 'readonly',
+      IconLucideMoon: 'readonly',
+      IconLucideSun: 'readonly',
+      IconLucideTrash2: 'readonly',
+      IconLucideUpload: 'readonly',
+      IconTablerReorder: 'readonly',
+      IconWindpressWindpress: 'readonly',
     },
     rules: {
       "@typescript-eslint/ban-ts-comment": "error",
@@ -93,7 +104,10 @@ export default defineConfig({
     "process.versions.node": JSON.stringify("22.9.0"),
   },
   optimizeDeps: {
-    exclude: ["@windpress/oxide-parser"],
+    include: ["modern-monaco > typescript"],
+    // modern-monaco creates workers from relative module URLs. Pre-bundling it
+    // moves the editor entry into `.vite/deps` without its worker entry points.
+    exclude: ["@windpress/oxide-parser", "modern-monaco"],
   },
   build: {
     target: "es2020",
@@ -112,18 +126,20 @@ export default defineConfig({
       jsxRuntime: "classic",
     }),
     nuxtUi({
+      autoImport: {
+        dts: 'auto-imports.d.ts',
+        resolvers: [
+          IconsResolver({
+            customCollections: ['windpress'],
+            extension: 'jsx',
+            prefix: 'Icon',
+          }),
+        ],
+      },
       components: {
         resolvers: [IconsResolver()],
-
-        // relative paths to the directory to search for components.
-        dirs: "assets/dashboard/components",
-
-        // Allow subdirectories as namespace prefix for components.
+        dirs: "resources/dashboard/components",
         directoryAsNamespace: true,
-
-        // Collapse same prefixes (camel-sensitive) of folders and components
-        // to prevent duplication inside namespaced component name.
-        // works when `directoryAsNamespace: true`
         collapseSamePrefixes: true,
       },
       ui: {
@@ -138,7 +154,15 @@ export default defineConfig({
         },
       },
     }),
-    Icons({ autoInstall: true, scale: 1 }),
+    Icons({
+      compiler: 'jsx',
+      jsx: 'react',
+      autoInstall: true,
+      scale: 1,
+      customCollections: {
+        windpress: FileSystemIconLoader('.'),
+      },
+    }),
     svgr({
       svgrOptions: {
         dimensions: false,
@@ -151,43 +175,44 @@ export default defineConfig({
     }),
     wordpress({
       entry: {
-        dashboard: "assets/dashboard/main.ts",
+        dashboard: 'resources/dashboard/main.ts',
 
         // Tailwind v4
         "packages/core/tailwindcss/play/observer":
-          "assets/packages/core/tailwindcss/play/observer.ts",
+          'resources/packages/core/tailwindcss/play/observer.ts',
         "packages/core/tailwindcss/play/intellisense":
-          "assets/packages/core/tailwindcss/play/intellisense.ts",
-        "packages/core/tailwindcss/play/worker": "assets/packages/core/tailwindcss/play/worker.ts",
+          'resources/packages/core/tailwindcss/play/intellisense.ts',
+        "packages/core/tailwindcss/play/worker":
+          'resources/packages/core/tailwindcss/play/worker.ts',
 
         // Tailwind v3
         "packages/core/tailwindcss-v3/play/observer":
-          "assets/packages/core/tailwindcss-v3/play/observer.ts",
+          'resources/packages/core/tailwindcss-v3/play/observer.ts',
         "packages/core/tailwindcss-v3/play/intellisense":
-          "assets/packages/core/tailwindcss-v3/play/intellisense.ts",
+          'resources/packages/core/tailwindcss-v3/play/intellisense.ts',
 
         // Integrations
-        "integration/gutenberg/post-editor": "assets/integration/gutenberg/post-editor.js",
-        "integration/gutenberg/site-editor": "assets/integration/gutenberg/site-editor.js",
-        "integration/gutenberg/block-editor": "assets/integration/gutenberg/block-editor.jsx",
+        "integration/gutenberg/post-editor": "resources/integration/gutenberg/post-editor.js",
+        "integration/gutenberg/site-editor": "resources/integration/gutenberg/site-editor.js",
+        "integration/gutenberg/block-editor": "resources/integration/gutenberg/block-editor.jsx",
         "integration/gutenberg/modules/generate-cache":
-          "assets/integration/gutenberg/modules/generate-cache/main.ts",
-        "integration/gutenberg/common-block": "assets/integration/gutenberg/common-block/index.jsx",
+          "resources/integration/gutenberg/modules/generate-cache/main.ts",
+        "integration/gutenberg/common-block": "resources/integration/gutenberg/common-block/index.jsx",
         "integration/gutenberg/isolate-styles":
-          "assets/integration/gutenberg/common-block/isolate-styles.js",
-        "integration/bricks": "assets/integration/bricks/main.js",
-        "integration/oxygen": "assets/integration/oxygen/main.js",
-        "integration/oxygen-classic/iframe": "assets/integration/oxygen-classic/iframe/main.js",
-        "integration/oxygen-classic/editor": "assets/integration/oxygen-classic/editor/main.js",
-        "integration/livecanvas": "assets/integration/livecanvas/main.js",
-        "integration/breakdance": "assets/integration/breakdance/main.js",
-        "integration/builderius": "assets/integration/builderius/main.js",
-        "integration/etch": "assets/integration/etch/main.js",
+          "resources/integration/gutenberg/common-block/isolate-styles.js",
+        "integration/bricks": "resources/integration/bricks/main.js",
+        "integration/oxygen": "resources/integration/oxygen/main.js",
+        "integration/oxygen-classic/iframe": "resources/integration/oxygen-classic/iframe/main.js",
+        "integration/oxygen-classic/editor": "resources/integration/oxygen-classic/editor/main.js",
+        "integration/livecanvas": "resources/integration/livecanvas/main.js",
+        "integration/breakdance": "resources/integration/breakdance/main.js",
+        "integration/builderius": "resources/integration/builderius/main.js",
+        "integration/etch": "resources/integration/etch/main.js",
       },
-      outDir: "build",
+      outDir: 'assets/dist',
       sourcemap: false,
     }),
-    wordpressExternals(),
+    wordpressExternals({ preset: 'wordpress' }),
     // httpsImports.default({}, function resolver(matcher) {
     //     return (id, importer) => {
     //         if (matcher(id)) {
@@ -202,66 +227,25 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: "assets/wp-i18n.js",
+          src: "resources/wp-i18n.js",
           dest: "./",
         },
         {
-          src: "assets/integration/gutenberg/common-block/block.json",
+          src: "resources/integration/gutenberg/common-block/block.json",
           dest: "blocks/common-block/",
         },
       ],
     }),
   ],
-  // build: {
-  //   rollupOptions: {
-  //     output: {
-  //       chunkFileNames: (chunkInfo) => {
-  //         // if the process.env.WP_I18N is available and true, add .min to the vendor module to exclude it from the `wp i18n make-pot` command.
-  //         // if (process.env.WP_I18N !== 'true') {
-  //         //     return 'chunks/[name]-[hash].min.js';
-  //         // }
-
-  //         // add .min to the vendor module to exclude it from the `wp i18n make-pot` command.
-  //         // @see https://developer.wordpress.org/cli/commands/i18n/make-pot/
-
-  //         if (chunkInfo.name === "monaco-editor") {
-  //           return "assets/[name]-[hash].min.js";
-  //         }
-
-  //         return chunkInfo.name !== "plugin" &&
-  //           chunkInfo.moduleIds.some((id) => id.includes("assets") && !id.includes("node_modules"))
-  //           ? "assets/[name]-[hash].js"
-  //           : "assets/[name]-[hash].min.js";
-  //       },
-  //       // entryFileNames: (chunkInfo) => {
-  //       //     return process.env.WP_I18N !== 'true' ? "assets/[name]-[hash].min.js" : "assets/[name]-[hash].js";
-  //       // },
-  //     },
-  //   },
-  //   // minify: false, // Uncomment this for debugging purposes, otherwise it will minify the code.
-  //   cssMinify: "lightningcss",
-  //   minify: true,
-  // },
-  // worker: {
-  //   rollupOptions: {
-  //     output: {
-  //       // add .min to the worker filename to exclude it from the `wp i18n make-pot` command.
-  //       // @see https://developer.wordpress.org/cli/commands/i18n/make-pot/
-  //       entryFileNames: "assets/[name]-[hash].min.js",
-  //       chunkFileNames: "assets/[name]-[hash].min.js",
-  //     },
-  //   },
-  // },
-  // css: {
-  //   transformer: "lightningcss",
-  // },
-  publicDir: "assets/static",
+  publicDir: false,
   resolve: {
-    alias: {
-      "~": path.resolve(__dirname), // root directory
-      "@": path.resolve(__dirname, "./assets"),
-      // "source-map-js": "source-map",
-    },
+    alias: [
+      { find: '~', replacement: path.resolve(__dirname) },
+      { find: '@/dashboard', replacement: path.resolve(__dirname, 'resources/dashboard') },
+      { find: '@/integration', replacement: path.resolve(__dirname, 'resources/integration') },
+      { find: '@/packages', replacement: path.resolve(__dirname, 'resources/packages') },
+      { find: '@', replacement: path.resolve(__dirname, 'resources') },
+    ],
   },
   server: {
     cors: true,

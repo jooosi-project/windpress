@@ -35,7 +35,7 @@ class Editor
 
         $handle = WIND_PRESS::WP_OPTION . ':integration-bricks-editor';
 
-        Vite::assets()->enqueue('assets/integration/bricks/main.js', [
+        Vite::assets()->enqueue('resources/integration/bricks/main.js', [
             'handle' => $handle,
             'in_footer' => true,
         ]);

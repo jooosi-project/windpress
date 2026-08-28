@@ -22,4 +22,4 @@ const content = `(() => {\n\tconst { __, _x, _n, sprintf } = wp.i18n;\n${body}})
 console.log(content);
 
 // (() => {const { __, _x, _n, sprintf } = wp.i18n;});
-writeFileSync("./build/wp-i18n.js", content);
+writeFileSync("./assets/dist/wp-i18n.js", content);

@@ -137,14 +137,14 @@ function updateChangelog(version) {
     // Update the unreleased link to point to the new version
     content = content.replace(
       unreleasedLinkPattern,
-      `[unreleased]: https://github.com/wind-press/windpress/compare/v${version}...HEAD`,
+      `[unreleased]: https://github.com/jooosi-project/windpress/compare/v${version}...HEAD`,
     );
 
     // Add the new version comparison link after the unreleased link
     const linksSection = content.match(/(\[unreleased\]: .+)$/m);
     if (linksSection) {
       const insertPosition = content.indexOf(linksSection[0]) + linksSection[0].length;
-      const newVersionLink = `\n[${version}]: https://github.com/wind-press/windpress/compare/v${previousVersion}...v${version}`;
+      const newVersionLink = `\n[${version}]: https://github.com/jooosi-project/windpress/compare/v${previousVersion}...v${version}`;
       content = content.slice(0, insertPosition) + newVersionLink + content.slice(insertPosition);
     }
   }

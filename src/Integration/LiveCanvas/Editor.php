@@ -31,7 +31,7 @@ class Editor
     {
         $handle = WIND_PRESS::WP_OPTION . ':integration-livecanvas-editor';
 
-        Vite::assets()->enqueue('assets/integration/livecanvas/main.js', [
+        Vite::assets()->enqueue('resources/integration/livecanvas/main.js', [
             'handle' => $handle,
             'in_footer' => true,
             'dependencies' => ['wp-hooks']

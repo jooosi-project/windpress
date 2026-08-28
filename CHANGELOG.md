@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- [TW3] Browser compiler throws "Unable to determine current node version" [#78](https://github.com/wind-press/windpress/issues/78)
+- [TW3] Browser compiler throws "Unable to determine current node version" [#78](https://github.com/jooosi-project/windpress/issues/78)
 - [Gutenberg] Fixed saving issues when WPML is enabled.
 
 ## [3.3.85] - 2026-06-18
@@ -64,13 +64,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- [Bricks] Prevented cache scans from crashing when `_cssGlobalClasses` is stored as a string [#77](https://github.com/wind-press/windpress/issues/77)
+- [Bricks] Prevented cache scans from crashing when `_cssGlobalClasses` is stored as a string [#77](https://github.com/jooosi-project/windpress/issues/77)
 
 ## [3.3.78] - 2026-03-27
 
 ### Fixed
 
-- [Internal] Prevented no-input Abilities API callbacks from crashing when WordPress omits the input argument [#76](https://github.com/wind-press/windpress/issues/76)
+- [Internal] Prevented no-input Abilities API callbacks from crashing when WordPress omits the input argument [#76](https://github.com/jooosi-project/windpress/issues/76)
 
 ## [3.3.77] - 2026-03-27
 
@@ -199,8 +199,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Wizard tree doesn't show the children nodes correctly [#66](https://github.com/wind-press/windpress/issues/66)
-- [Bricks] Paste HTML feature keyboard shortcut not working correctly [#64](https://github.com/wind-press/windpress/issues/64) [#67](https://github.com/wind-press/windpress/issues/67) [#68](https://github.com/wind-press/windpress/issues/68)
+- Wizard tree doesn't show the children nodes correctly [#66](https://github.com/jooosi-project/windpress/issues/66)
+- [Bricks] Paste HTML feature keyboard shortcut not working correctly [#64](https://github.com/jooosi-project/windpress/issues/64) [#67](https://github.com/jooosi-project/windpress/issues/67) [#68](https://github.com/jooosi-project/windpress/issues/68)
 
 ## [3.3.63] - 2025-09-27
 
@@ -247,7 +247,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- [TW3] Tailwind hover tooltips no longer show px equivalents [#58](https://github.com/wind-press/windpress/issues/58)
+- [TW3] Tailwind hover tooltips no longer show px equivalents [#58](https://github.com/jooosi-project/windpress/issues/58)
 
 ## [3.3.56] - 2025-08-13
 
@@ -260,7 +260,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - [TW4] IntelliSense on the Files tab for the CSS file
-- WP-Rocket exclusion for the WindPress CSS and JavaScript files [#54](https://github.com/wind-press/windpress/issues/54)
+- WP-Rocket exclusion for the WindPress CSS and JavaScript files [#54](https://github.com/jooosi-project/windpress/issues/54)
 
 ### Changed
 
@@ -274,7 +274,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- [Gutenberg] Compiler: The raw block data is now appended on the scanner data to improve the class name detection [#53](https://github.com/wind-press/windpress/issues/53)
+- [Gutenberg] Compiler: The raw block data is now appended on the scanner data to improve the class name detection [#53](https://github.com/jooosi-project/windpress/issues/53)
 - [Wizard] The Wizard's data is now can saved directly without the need to switch the Files tab first
 
 ### Fixed
@@ -389,12 +389,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- [Gutenberg] Loaded the Play Observer / Compiler in Pattern preview [#40](https://github.com/wind-press/windpress/issues/40)
-- [Bricks] The Plain Classes feature compatibility for version 2.0-alpha [#42](https://github.com/wind-press/windpress/issues/42)
+- [Gutenberg] Loaded the Play Observer / Compiler in Pattern preview [#40](https://github.com/jooosi-project/windpress/issues/40)
+- [Bricks] The Plain Classes feature compatibility for version 2.0-alpha [#42](https://github.com/jooosi-project/windpress/issues/42)
 
 ### Fixed
 
-- [Bricks] The Plain Classes field is not synchronized with the history (undo/redo) actions [#44](https://github.com/wind-press/windpress/issues/44)
+- [Bricks] The Plain Classes field is not synchronized with the history (undo/redo) actions [#44](https://github.com/jooosi-project/windpress/issues/44)
 
 ## [3.3.29] - 2025-04-15
 
@@ -451,7 +451,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Storage issue on the Incremental Generate Cache feature [#34](https://github.com/wind-press/windpress/issues/34)
+- Storage issue on the Incremental Generate Cache feature [#34](https://github.com/jooosi-project/windpress/issues/34)
 
 ## [3.3.21] - 2025-03-28
 
@@ -575,7 +575,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Updated bundled Tailwind CSS v4 to 4.0.6
-- [TW4] The `@source` directive is now supported but differs from the official Tailwind CSS version. Please refer to [our documentation](https://wind.press/docs/configuration/file-main-css#scanning-additional-sources) for details.
+- [TW4] The `@source` directive is now supported but differs from the official Tailwind CSS version. Please refer to [our documentation](https://windpress.jooo.si/docs/configuration/file-main-css#scanning-additional-sources) for details.
 
 ## [3.2.28] - 2024-12-19
 
@@ -659,12 +659,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- The new website and documentation is now live at [wind.press](https://wind.press)
+- The new website and documentation is now live at [windpress.jooo.si](https://windpress.jooo.si)
 - Updated bundled Tailwind CSS v4 to 4.0.0-beta.2
 
 ### Fixed
 
-- Scanned classes names are not unescaped correctly ([#4](https://github.com/wind-press/windpress/issues/4))
+- Scanned classes names are not unescaped correctly ([#4](https://github.com/jooosi-project/windpress/issues/4))
 
 ## [3.2.16] - 2024-12-19
 
@@ -882,109 +882,109 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 🐣 Initial release.
 
-[unreleased]: https://github.com/wind-press/windpress/compare/v3.3.86...HEAD
-[3.3.86]: https://github.com/wind-press/windpress/compare/v3.3.85...v3.3.86
-[3.3.85]: https://github.com/wind-press/windpress/compare/v3.3.84...v3.3.85
-[3.3.84]: https://github.com/wind-press/windpress/compare/v3.3.83...v3.3.84
-[3.3.83]: https://github.com/wind-press/windpress/compare/v3.3.82...v3.3.83
-[3.3.82]: https://github.com/wind-press/windpress/compare/v3.3.81...v3.3.82
-[3.3.81]: https://github.com/wind-press/windpress/compare/v3.3.80...v3.3.81
-[3.3.80]: https://github.com/wind-press/windpress/compare/v3.3.79...v3.3.80
-[3.3.79]: https://github.com/wind-press/windpress/compare/v3.3.78...v3.3.79
-[3.3.78]: https://github.com/wind-press/windpress/compare/v3.3.77...v3.3.78
-[3.3.77]: https://github.com/wind-press/windpress/compare/v3.3.76...v3.3.77
-[3.3.76]: https://github.com/wind-press/windpress/compare/v3.3.75...v3.3.76
-[3.3.75]: https://github.com/wind-press/windpress/compare/v3.3.74...v3.3.75
-[3.3.74]: https://github.com/wind-press/windpress/compare/v3.3.73...v3.3.74
-[3.3.73]: https://github.com/wind-press/windpress/compare/v3.3.72...v3.3.73
-[3.3.72]: https://github.com/wind-press/windpress/compare/v3.3.71...v3.3.72
-[3.3.71]: https://github.com/wind-press/windpress/compare/v3.3.70...v3.3.71
-[3.3.70]: https://github.com/wind-press/windpress/compare/v3.3.69...v3.3.70
-[3.3.69]: https://github.com/wind-press/windpress/compare/v3.3.68...v3.3.69
-[3.3.68]: https://github.com/wind-press/windpress/compare/v3.3.67...v3.3.68
-[3.3.67]: https://github.com/wind-press/windpress/compare/v3.3.66...v3.3.67
-[3.3.66]: https://github.com/wind-press/windpress/compare/v3.3.65...v3.3.66
-[3.3.65]: https://github.com/wind-press/windpress/compare/v3.3.64...v3.3.65
-[3.3.64]: https://github.com/wind-press/windpress/compare/v3.3.63...v3.3.64
-[3.3.63]: https://github.com/wind-press/windpress/compare/v3.3.62...v3.3.63
-[3.3.62]: https://github.com/wind-press/windpress/compare/v3.3.61...v3.3.62
-[3.3.61]: https://github.com/wind-press/windpress/compare/v3.3.60...v3.3.61
-[3.3.60]: https://github.com/wind-press/windpress/compare/v3.3.59...v3.3.60
-[3.3.59]: https://github.com/wind-press/windpress/compare/v3.3.58...v3.3.59
-[3.3.58]: https://github.com/wind-press/windpress/compare/v3.3.57...v3.3.58
-[3.3.57]: https://github.com/wind-press/windpress/compare/v3.3.56...v3.3.57
-[3.3.56]: https://github.com/wind-press/windpress/compare/v3.3.55...v3.3.56
-[3.3.55]: https://github.com/wind-press/windpress/compare/v3.3.54...v3.3.55
-[3.3.54]: https://github.com/wind-press/windpress/compare/v3.3.53...v3.3.54
-[3.3.53]: https://github.com/wind-press/windpress/compare/v3.3.51...v3.3.53
-[3.3.51]: https://github.com/wind-press/windpress/compare/3.3.44...v3.3.51
-[3.3.44]: https://github.com/wind-press/windpress/compare/3.3.43...3.3.44
-[3.3.43]: https://github.com/wind-press/windpress/compare/3.3.42...3.3.43
-[3.3.42]: https://github.com/wind-press/windpress/compare/3.3.41...3.3.42
-[3.3.41]: https://github.com/wind-press/windpress/compare/3.3.40...3.3.41
-[3.3.40]: https://github.com/wind-press/windpress/compare/3.3.39...3.3.40
-[3.3.39]: https://github.com/wind-press/windpress/compare/3.3.35...3.3.39
-[3.3.35]: https://github.com/wind-press/windpress/compare/3.3.34...3.3.35
-[3.3.34]: https://github.com/wind-press/windpress/compare/3.3.33...3.3.34
-[3.3.33]: https://github.com/wind-press/windpress/compare/3.3.32...3.3.33
-[3.3.32]: https://github.com/wind-press/windpress/compare/3.3.31...3.3.32
-[3.3.31]: https://github.com/wind-press/windpress/compare/3.3.30...3.3.31
-[3.3.30]: https://github.com/wind-press/windpress/compare/3.3.29...3.3.30
-[3.3.29]: https://github.com/wind-press/windpress/compare/3.3.28...3.3.29
-[3.3.28]: https://github.com/wind-press/windpress/compare/3.3.27...3.3.28
-[3.3.27]: https://github.com/wind-press/windpress/compare/3.3.26...3.3.27
-[3.3.26]: https://github.com/wind-press/windpress/compare/3.3.24...3.3.26
-[3.3.24]: https://github.com/wind-press/windpress/compare/3.3.23...3.3.24
-[3.3.23]: https://github.com/wind-press/windpress/compare/3.3.22...3.3.23
-[3.3.22]: https://github.com/wind-press/windpress/compare/3.3.21...3.3.22
-[3.3.21]: https://github.com/wind-press/windpress/compare/3.3.12...3.3.21
-[3.3.12]: https://github.com/wind-press/windpress/compare/3.3.11...3.3.12
-[3.3.11]: https://github.com/wind-press/windpress/compare/3.3.7...3.3.11
-[3.3.7]: https://github.com/wind-press/windpress/compare/3.3.5...3.3.7
-[3.3.5]: https://github.com/wind-press/windpress/compare/3.3.4...3.3.5
-[3.3.4]: https://github.com/wind-press/windpress/compare/3.3.3...3.3.4
-[3.3.3]: https://github.com/wind-press/windpress/compare/3.3.2...3.3.3
-[3.3.2]: https://github.com/wind-press/windpress/compare/3.2.35...3.3.2
-[3.2.35]: https://github.com/wind-press/windpress/compare/3.2.34...3.2.35
-[3.2.34]: https://github.com/wind-press/windpress/compare/3.2.33...3.2.34
-[3.2.33]: https://github.com/wind-press/windpress/compare/3.2.32...3.2.33
-[3.2.32]: https://github.com/wind-press/windpress/compare/3.2.31...3.2.32
-[3.2.31]: https://github.com/wind-press/windpress/compare/3.2.30...3.2.31
-[3.2.30]: https://github.com/wind-press/windpress/compare/3.2.29...3.2.30
-[3.2.29]: https://github.com/wind-press/windpress/compare/3.2.28...3.2.29
-[3.2.28]: https://github.com/wind-press/windpress/compare/3.2.27...3.2.28
-[3.2.27]: https://github.com/wind-press/windpress/compare/3.2.26...3.2.27
-[3.2.26]: https://github.com/wind-press/windpress/compare/3.2.25...3.2.26
-[3.2.25]: https://github.com/wind-press/windpress/compare/3.2.24...3.2.25
-[3.2.24]: https://github.com/wind-press/windpress/compare/3.2.23...3.2.24
-[3.2.23]: https://github.com/wind-press/windpress/compare/3.2.22...3.2.23
-[3.2.22]: https://github.com/wind-press/windpress/compare/3.2.21...3.2.22
-[3.2.21]: https://github.com/wind-press/windpress/compare/3.2.20...3.2.21
-[3.2.20]: https://github.com/wind-press/windpress/compare/3.2.19...3.2.20
-[3.2.19]: https://github.com/wind-press/windpress/compare/3.2.18...3.2.19
-[3.2.18]: https://github.com/wind-press/windpress/compare/3.2.17...3.2.18
-[3.2.17]: https://github.com/wind-press/windpress/compare/3.2.16...3.2.17
-[3.2.16]: https://github.com/wind-press/windpress/compare/3.2.15...3.2.16
-[3.2.15]: https://github.com/wind-press/windpress/compare/3.2.13...3.2.15
-[3.2.13]: https://github.com/wind-press/windpress/compare/3.2.12...3.2.13
-[3.2.12]: https://github.com/wind-press/windpress/compare/3.2.10...3.2.12
-[3.2.10]: https://github.com/wind-press/windpress/compare/3.2.9...3.2.10
-[3.2.9]: https://github.com/wind-press/windpress/compare/3.2.8...3.2.9
-[3.2.8]: https://github.com/wind-press/windpress/compare/3.2.7...3.2.8
-[3.2.7]: https://github.com/wind-press/windpress/compare/3.2.6...3.2.7
-[3.2.6]: https://github.com/wind-press/windpress/compare/3.2.5...3.2.6
-[3.2.5]: https://github.com/wind-press/windpress/compare/3.2.4...3.2.5
-[3.2.4]: https://github.com/wind-press/windpress/compare/3.2.3...3.2.4
-[3.2.3]: https://github.com/wind-press/windpress/compare/3.2.1...3.2.3
-[3.2.1]: https://github.com/wind-press/windpress/compare/3.2.0...3.2.1
-[3.2.0]: https://github.com/wind-press/windpress/compare/3.1.17...3.2.0
-[3.1.17]: https://github.com/wind-press/windpress/compare/3.1.15...3.1.17
-[3.1.15]: https://github.com/wind-press/windpress/compare/3.1.14...3.1.15
-[3.1.14]: https://github.com/wind-press/windpress/compare/3.1.11...3.1.14
-[3.1.11]: https://github.com/wind-press/windpress/compare/3.1.10...3.1.11
-[3.1.10]: https://github.com/wind-press/windpress/compare/3.1.9...3.1.10
-[3.1.9]: https://github.com/wind-press/windpress/compare/3.1.8...3.1.9
-[3.1.8]: https://github.com/wind-press/windpress/compare/3.1.6...3.1.8
-[3.1.6]: https://github.com/wind-press/windpress/compare/3.1.0...3.1.6
-[3.1.0]: https://github.com/wind-press/windpress/compare/1.1.0...3.1.0
-[1.1.0]: https://github.com/wind-press/windpress/releases/tag/v1.1.0
+[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.86...HEAD
+[3.3.86]: https://github.com/jooosi-project/windpress/compare/v3.3.85...v3.3.86
+[3.3.85]: https://github.com/jooosi-project/windpress/compare/v3.3.84...v3.3.85
+[3.3.84]: https://github.com/jooosi-project/windpress/compare/v3.3.83...v3.3.84
+[3.3.83]: https://github.com/jooosi-project/windpress/compare/v3.3.82...v3.3.83
+[3.3.82]: https://github.com/jooosi-project/windpress/compare/v3.3.81...v3.3.82
+[3.3.81]: https://github.com/jooosi-project/windpress/compare/v3.3.80...v3.3.81
+[3.3.80]: https://github.com/jooosi-project/windpress/compare/v3.3.79...v3.3.80
+[3.3.79]: https://github.com/jooosi-project/windpress/compare/v3.3.78...v3.3.79
+[3.3.78]: https://github.com/jooosi-project/windpress/compare/v3.3.77...v3.3.78
+[3.3.77]: https://github.com/jooosi-project/windpress/compare/v3.3.76...v3.3.77
+[3.3.76]: https://github.com/jooosi-project/windpress/compare/v3.3.75...v3.3.76
+[3.3.75]: https://github.com/jooosi-project/windpress/compare/v3.3.74...v3.3.75
+[3.3.74]: https://github.com/jooosi-project/windpress/compare/v3.3.73...v3.3.74
+[3.3.73]: https://github.com/jooosi-project/windpress/compare/v3.3.72...v3.3.73
+[3.3.72]: https://github.com/jooosi-project/windpress/compare/v3.3.71...v3.3.72
+[3.3.71]: https://github.com/jooosi-project/windpress/compare/v3.3.70...v3.3.71
+[3.3.70]: https://github.com/jooosi-project/windpress/compare/v3.3.69...v3.3.70
+[3.3.69]: https://github.com/jooosi-project/windpress/compare/v3.3.68...v3.3.69
+[3.3.68]: https://github.com/jooosi-project/windpress/compare/v3.3.67...v3.3.68
+[3.3.67]: https://github.com/jooosi-project/windpress/compare/v3.3.66...v3.3.67
+[3.3.66]: https://github.com/jooosi-project/windpress/compare/v3.3.65...v3.3.66
+[3.3.65]: https://github.com/jooosi-project/windpress/compare/v3.3.64...v3.3.65
+[3.3.64]: https://github.com/jooosi-project/windpress/compare/v3.3.63...v3.3.64
+[3.3.63]: https://github.com/jooosi-project/windpress/compare/v3.3.62...v3.3.63
+[3.3.62]: https://github.com/jooosi-project/windpress/compare/v3.3.61...v3.3.62
+[3.3.61]: https://github.com/jooosi-project/windpress/compare/v3.3.60...v3.3.61
+[3.3.60]: https://github.com/jooosi-project/windpress/compare/v3.3.59...v3.3.60
+[3.3.59]: https://github.com/jooosi-project/windpress/compare/v3.3.58...v3.3.59
+[3.3.58]: https://github.com/jooosi-project/windpress/compare/v3.3.57...v3.3.58
+[3.3.57]: https://github.com/jooosi-project/windpress/compare/v3.3.56...v3.3.57
+[3.3.56]: https://github.com/jooosi-project/windpress/compare/v3.3.55...v3.3.56
+[3.3.55]: https://github.com/jooosi-project/windpress/compare/v3.3.54...v3.3.55
+[3.3.54]: https://github.com/jooosi-project/windpress/compare/v3.3.53...v3.3.54
+[3.3.53]: https://github.com/jooosi-project/windpress/compare/v3.3.51...v3.3.53
+[3.3.51]: https://github.com/jooosi-project/windpress/compare/3.3.44...v3.3.51
+[3.3.44]: https://github.com/jooosi-project/windpress/compare/3.3.43...3.3.44
+[3.3.43]: https://github.com/jooosi-project/windpress/compare/3.3.42...3.3.43
+[3.3.42]: https://github.com/jooosi-project/windpress/compare/3.3.41...3.3.42
+[3.3.41]: https://github.com/jooosi-project/windpress/compare/3.3.40...3.3.41
+[3.3.40]: https://github.com/jooosi-project/windpress/compare/3.3.39...3.3.40
+[3.3.39]: https://github.com/jooosi-project/windpress/compare/3.3.35...3.3.39
+[3.3.35]: https://github.com/jooosi-project/windpress/compare/3.3.34...3.3.35
+[3.3.34]: https://github.com/jooosi-project/windpress/compare/3.3.33...3.3.34
+[3.3.33]: https://github.com/jooosi-project/windpress/compare/3.3.32...3.3.33
+[3.3.32]: https://github.com/jooosi-project/windpress/compare/3.3.31...3.3.32
+[3.3.31]: https://github.com/jooosi-project/windpress/compare/3.3.30...3.3.31
+[3.3.30]: https://github.com/jooosi-project/windpress/compare/3.3.29...3.3.30
+[3.3.29]: https://github.com/jooosi-project/windpress/compare/3.3.28...3.3.29
+[3.3.28]: https://github.com/jooosi-project/windpress/compare/3.3.27...3.3.28
+[3.3.27]: https://github.com/jooosi-project/windpress/compare/3.3.26...3.3.27
+[3.3.26]: https://github.com/jooosi-project/windpress/compare/3.3.24...3.3.26
+[3.3.24]: https://github.com/jooosi-project/windpress/compare/3.3.23...3.3.24
+[3.3.23]: https://github.com/jooosi-project/windpress/compare/3.3.22...3.3.23
+[3.3.22]: https://github.com/jooosi-project/windpress/compare/3.3.21...3.3.22
+[3.3.21]: https://github.com/jooosi-project/windpress/compare/3.3.12...3.3.21
+[3.3.12]: https://github.com/jooosi-project/windpress/compare/3.3.11...3.3.12
+[3.3.11]: https://github.com/jooosi-project/windpress/compare/3.3.7...3.3.11
+[3.3.7]: https://github.com/jooosi-project/windpress/compare/3.3.5...3.3.7
+[3.3.5]: https://github.com/jooosi-project/windpress/compare/3.3.4...3.3.5
+[3.3.4]: https://github.com/jooosi-project/windpress/compare/3.3.3...3.3.4
+[3.3.3]: https://github.com/jooosi-project/windpress/compare/3.3.2...3.3.3
+[3.3.2]: https://github.com/jooosi-project/windpress/compare/3.2.35...3.3.2
+[3.2.35]: https://github.com/jooosi-project/windpress/compare/3.2.34...3.2.35
+[3.2.34]: https://github.com/jooosi-project/windpress/compare/3.2.33...3.2.34
+[3.2.33]: https://github.com/jooosi-project/windpress/compare/3.2.32...3.2.33
+[3.2.32]: https://github.com/jooosi-project/windpress/compare/3.2.31...3.2.32
+[3.2.31]: https://github.com/jooosi-project/windpress/compare/3.2.30...3.2.31
+[3.2.30]: https://github.com/jooosi-project/windpress/compare/3.2.29...3.2.30
+[3.2.29]: https://github.com/jooosi-project/windpress/compare/3.2.28...3.2.29
+[3.2.28]: https://github.com/jooosi-project/windpress/compare/3.2.27...3.2.28
+[3.2.27]: https://github.com/jooosi-project/windpress/compare/3.2.26...3.2.27
+[3.2.26]: https://github.com/jooosi-project/windpress/compare/3.2.25...3.2.26
+[3.2.25]: https://github.com/jooosi-project/windpress/compare/3.2.24...3.2.25
+[3.2.24]: https://github.com/jooosi-project/windpress/compare/3.2.23...3.2.24
+[3.2.23]: https://github.com/jooosi-project/windpress/compare/3.2.22...3.2.23
+[3.2.22]: https://github.com/jooosi-project/windpress/compare/3.2.21...3.2.22
+[3.2.21]: https://github.com/jooosi-project/windpress/compare/3.2.20...3.2.21
+[3.2.20]: https://github.com/jooosi-project/windpress/compare/3.2.19...3.2.20
+[3.2.19]: https://github.com/jooosi-project/windpress/compare/3.2.18...3.2.19
+[3.2.18]: https://github.com/jooosi-project/windpress/compare/3.2.17...3.2.18
+[3.2.17]: https://github.com/jooosi-project/windpress/compare/3.2.16...3.2.17
+[3.2.16]: https://github.com/jooosi-project/windpress/compare/3.2.15...3.2.16
+[3.2.15]: https://github.com/jooosi-project/windpress/compare/3.2.13...3.2.15
+[3.2.13]: https://github.com/jooosi-project/windpress/compare/3.2.12...3.2.13
+[3.2.12]: https://github.com/jooosi-project/windpress/compare/3.2.10...3.2.12
+[3.2.10]: https://github.com/jooosi-project/windpress/compare/3.2.9...3.2.10
+[3.2.9]: https://github.com/jooosi-project/windpress/compare/3.2.8...3.2.9
+[3.2.8]: https://github.com/jooosi-project/windpress/compare/3.2.7...3.2.8
+[3.2.7]: https://github.com/jooosi-project/windpress/compare/3.2.6...3.2.7
+[3.2.6]: https://github.com/jooosi-project/windpress/compare/3.2.5...3.2.6
+[3.2.5]: https://github.com/jooosi-project/windpress/compare/3.2.4...3.2.5
+[3.2.4]: https://github.com/jooosi-project/windpress/compare/3.2.3...3.2.4
+[3.2.3]: https://github.com/jooosi-project/windpress/compare/3.2.1...3.2.3
+[3.2.1]: https://github.com/jooosi-project/windpress/compare/3.2.0...3.2.1
+[3.2.0]: https://github.com/jooosi-project/windpress/compare/3.1.17...3.2.0
+[3.1.17]: https://github.com/jooosi-project/windpress/compare/3.1.15...3.1.17
+[3.1.15]: https://github.com/jooosi-project/windpress/compare/3.1.14...3.1.15
+[3.1.14]: https://github.com/jooosi-project/windpress/compare/3.1.11...3.1.14
+[3.1.11]: https://github.com/jooosi-project/windpress/compare/3.1.10...3.1.11
+[3.1.10]: https://github.com/jooosi-project/windpress/compare/3.1.9...3.1.10
+[3.1.9]: https://github.com/jooosi-project/windpress/compare/3.1.8...3.1.9
+[3.1.8]: https://github.com/jooosi-project/windpress/compare/3.1.6...3.1.8
+[3.1.6]: https://github.com/jooosi-project/windpress/compare/3.1.0...3.1.6
+[3.1.0]: https://github.com/jooosi-project/windpress/compare/1.1.0...3.1.0
+[1.1.0]: https://github.com/jooosi-project/windpress/releases/tag/v1.1.0

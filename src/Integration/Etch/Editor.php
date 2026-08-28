@@ -35,7 +35,7 @@ class Editor
 
         $handle = WIND_PRESS::WP_OPTION . ':integration-etch-editor';
 
-        Vite::assets()->enqueue('assets/integration/etch/main.js', [
+        Vite::assets()->enqueue('resources/integration/etch/main.js', [
             'handle' => $handle,
             'in_footer' => true,
         ]);

@@ -137,7 +137,7 @@ class Cache
 
         $cache_dir = CoreCache::get_cache_path();
         $data_dir = CoreVolume::data_dir_path();
-        $plugin_asset_dir = dirname(WIND_PRESS::FILE) . '/build';
+        $plugin_asset_dir = dirname(WIND_PRESS::FILE) . '/assets/dist';
 
         $excluded_folders = [
             $cache_dir,

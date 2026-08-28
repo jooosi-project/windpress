@@ -41,7 +41,7 @@ And some specific integrations also include the following features:
 * **Hover Preview the classes**: Hover over the classes to see the complete outputted CSS and the preview of the design canvas.
 * **Ubiquitous Panel**: A floating panel that allows you to quickly access the WindPress settings from anywhere on the page.
 
-Visit [our website](https://wind.press) for more information.
+Visit [our website](https://windpress.jooo.si) for more information.
 
 ### Seamless Integration
 
@@ -73,12 +73,12 @@ Note: The core feature will remain available on all versions, but some integrati
 ### Bring Your Own Integration
 
 WindPress is designed to be easily extensible, so you can build your integrations with Tailwind CSS. The plugin provides a simple API for adding integrations.
-Check out our detailed [guide](https://wind.press/docs/integrations/custom-theme) to get started.
+Check out our detailed [guide](https://windpress.jooo.si/docs/integrations/custom-theme) to get started.
 
 
 = Love WindPress? =
 - Give a [5-star review](https://wordpress.org/support/plugin/windpress/reviews/?filter=5/#new-post)
-- Purchase the [Pro version](https://wind.press)
+- Purchase the [Pro version](https://windpress.jooo.si)
 - Join our [Facebook Group](https://www.facebook.com/groups/1142662969627943)
 - Sponsor us on [GitHub](https://github.com/sponsors/suasgn) or [Ko-fi](https://ko-fi.com/Q5Q75XSF7)
 

@@ -32,7 +32,7 @@ class Editor
     {
         $handle = WIND_PRESS::WP_OPTION . ':integration-oxygen-classic-iframe';
 
-        Vite::assets()->enqueue('assets/integration/oxygen-classic/iframe/main.js', [
+        Vite::assets()->enqueue('resources/integration/oxygen-classic/iframe/main.js', [
             'handle' => $handle,
             'in_footer' => true,
         ]);
@@ -42,7 +42,7 @@ class Editor
     {
         $handle = WIND_PRESS::WP_OPTION . ':integration-oxygen-classic-editor';
 
-        Vite::assets()->enqueue('assets/integration/oxygen-classic/editor/main.js', [
+        Vite::assets()->enqueue('resources/integration/oxygen-classic/editor/main.js', [
             'handle' => $handle,
             'in_footer' => true,
         ]);

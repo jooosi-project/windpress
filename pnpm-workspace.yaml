@@ -1,3 +1,6 @@
+packages:
+  - resources/packages/*
+
 minimumReleaseAge: 0
 
 allowBuilds:
@@ -8,9 +11,10 @@ allowBuilds:
   vue-demi: true
 
 patchedDependencies:
-  is-core-module@2.16.2: assets/patches/is-core-module@2.16.2.patch
-  tailwindcss@3.4.19: assets/patches/tailwindcss@3.4.19.patch
-  vm-browserify@1.1.2: assets/patches/vm-browserify@1.1.2.patch
+  is-core-module@2.16.2: resources/patches/is-core-module@2.16.2.patch
+  modern-monaco@0.4.2: resources/patches/modern-monaco@0.4.2.patch
+  tailwindcss@3.4.19: resources/patches/tailwindcss@3.4.19.patch
+  vm-browserify@1.1.2: resources/patches/vm-browserify@1.1.2.patch
 
 updateConfig:
   ignoreDependencies:

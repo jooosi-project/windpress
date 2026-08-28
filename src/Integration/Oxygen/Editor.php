@@ -48,7 +48,7 @@ class Editor
 
         $handle = WIND_PRESS::WP_OPTION . ':integration-oxygen-editor';
 
-        Vite::assets()->enqueue('assets/integration/oxygen/main.js', [
+        Vite::assets()->enqueue('resources/integration/oxygen/main.js', [
             'handle' => $handle,
             'in_footer' => true,
         ]);

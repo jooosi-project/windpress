@@ -130,7 +130,7 @@ function updateReadmeWithChangelog(readmeContent: string, changelogText: string)
 
 ${changelogText}
 
-[See changelog for all versions.](https://github.com/wind-press/windpress/blob/main/CHANGELOG.md)`;
+[See changelog for all versions.](https://github.com/jooosi-project/windpress/blob/main/CHANGELOG.md)`;
 
   return beforeChangelog + newChangelogSection;
 }

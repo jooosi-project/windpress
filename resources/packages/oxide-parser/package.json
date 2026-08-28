@@ -1,0 +1,16 @@
+{
+  "name": "@windpress/oxide-parser",
+  "version": "1.0.42",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./wasm": "./pkg/oxide_parser_bg.wasm"
+  },
+  "scripts": {
+    "build:wasm": "docker buildx build --progress=plain --no-cache-filter=builder --output=type=local,dest=./pkg .",
+    "test": "vitest run --config ../vitest.config.ts src/index.test.ts"
+  },
+  "sideEffects": false,
+  "license": "MIT"
+}

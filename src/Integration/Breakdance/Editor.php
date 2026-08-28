@@ -47,7 +47,7 @@ class Editor
 
         $handle = WIND_PRESS::WP_OPTION . ':integration-breakdance-editor';
 
-        Vite::assets()->enqueue('assets/integration/breakdance/main.js', [
+        Vite::assets()->enqueue('resources/integration/breakdance/main.js', [
             'handle' => $handle,
             'in_footer' => true,
         ]);

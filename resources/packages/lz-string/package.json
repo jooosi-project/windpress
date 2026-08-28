@@ -1,0 +1,14 @@
+{
+  "name": "@windpress/lz-string",
+  "version": "2.0.0-rc.3",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run --config ../vitest.config.ts src/index.test.ts"
+  },
+  "sideEffects": false,
+  "license": "MIT"
+}

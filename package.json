@@ -5,10 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vp dev",
-    "build": "vp build",
-    "lint": "vp lint ./assets",
-    "format": "vp lint --fix ./assets",
-    "test": "vp test",
+    "build": "pnpm build:oxide && vp build",
+    "build:oxide": "pnpm --filter @windpress/oxide-parser build:wasm",
+    "typecheck:packages": "tsc --noEmit -p resources/packages/tsconfig.json",
+    "lint": "vp lint ./resources",
+    "format": "vp lint --fix ./resources",
+    "test": "pnpm --filter @windpress/lz-string --filter @windpress/oxide-parser test",
     "release": "node deploy/release.js"
   },
   "dependencies": {
@@ -26,7 +28,8 @@
     "@tailwindcss/root": "github:tailwindlabs/tailwindcss",
     "@vueuse/core": "^14.3.0",
     "@vueuse/integrations": "^14.3.0",
-    "@windpress/oxide-parser": "^1.0.36",
+    "@windpress/lz-string": "workspace:*",
+    "@windpress/oxide-parser": "workspace:*",
     "@wordpress/block-editor": "16.0.0",
     "@wordpress/components": "^37.0.0",
     "@wordpress/i18n": "^6.24.0",
@@ -41,10 +44,10 @@
     "idb-keyval": "^6.3.0",
     "lightningcss-wasm": "^1.32.0",
     "lodash-es": "^4.18.1",
-    "lz-string": "https://pkg.pr.new/wind-press/lz-string@68d6fca",
     "magic-string": "^1.0.0",
     "maska": "^3.2.0",
     "minimatch": "^10.2.5",
+    "modern-monaco": "0.4.2",
     "monaco-editor": "^0.55.1",
     "nanoid": "^6.0.0",
     "parse-package-name": "^1.0.0",
@@ -85,6 +88,7 @@
     "@iconify-json/healthicons": "^1.2.12",
     "@iconify-json/iconoir": "^1.2.11",
     "@iconify-json/line-md": "^1.2.16",
+    "@iconify-json/lucide": "^1.2.126",
     "@iconify-json/mage": "^1.2.4",
     "@iconify-json/mdi": "^1.2.3",
     "@iconify-json/octicon": "^1.2.29",
@@ -99,6 +103,8 @@
     "@types/node": "^26.1.1",
     "@types/postcss-import": "^14.0.3",
     "@types/postcss-safe-parser": "^5.0.4",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
     "@vitejs/plugin-react": "^6.0.3",
     "@vitejs/plugin-vue": "^6.0.8",
     "eslint-plugin-vue": "^10.9.2",
@@ -109,16 +115,15 @@
     "typescript-eslint": "^8.64.0",
     "unplugin-icons": "^23.0.1",
     "unplugin-vue-components": "^32.1.0",
+    "typescript": "^6.0.3",
     "vite": "^8.1.5",
     "vite-plugin-node-polyfills": "^0.28.0",
     "vite-plugin-static-copy": "^4.1.1",
     "vite-plugin-svgr": "^5.2.0",
     "vite-plugin-top-level-await": "^1.6.0",
     "vite-plugin-wasm": "^3.6.0",
-    "vite-plus": "^0.2.5"
+    "vite-plus": "^0.2.5",
+    "vitest": "^4.1.10"
   },
-  "volta": {
-    "node": "22.9.0"
-  },
-  "packageManager": "pnpm@11.8.0+sha512.c1f5e7c4cb241c8f174b743851d82f42b802324afc8b0f116b96adb15aa06664948dde36960a3ba1079ba5b4b29dd0140135b94b5b5f5263592249d68e555f26"
+  "packageManager": "pnpm@12.0.0"
 }
