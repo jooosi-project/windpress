@@ -52,7 +52,6 @@ jobs:
 
       - uses: pnpm/setup@v2
         with:
-          version: 12
           runtime: node@26
           cache: true
           install: false
@@ -144,7 +143,8 @@ jobs:
           grep -Fq "public const VERSION = '${PRO_VERSION}';" "$pro/constant.php"
           grep -Fq "* Update URI:        ${update_uri}" "$pro/windpress.php"
           grep -Fq 'use EasyDigitalDownloads\Updater\Registry;' "$pro/src/Plugin.php"
-          grep -Eq "'wp_override'[[:space:]]*=>[[:space:]]*true" "$pro/src/Licensing/Manager.php"
+          # PHP-Scoper may qualify the boolean literal as \true.
+          grep -Eq "'wp_override'[[:space:]]*=>[[:space:]]*\\\\?true" "$pro/src/Licensing/Manager.php"
           test -f "$pro/vendor/easy-digital-downloads/edd-sl-sdk/edd-sl-sdk.php"
           grep -Fq "add_action( 'after_setup_theme', array( '\\\\EasyDigitalDownloads\\\\Updater\\\\Versions'" \
             "$pro/vendor/easy-digital-downloads/edd-sl-sdk/edd-sl-sdk.php"

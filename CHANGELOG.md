@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.87] - 2026-08-29
+
 ### Added
 
 - File tree drag-and-drop support.
@@ -894,7 +896,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 🐣 Initial release.
 
-[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.86...HEAD
+[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.87...HEAD
+[3.3.87]: https://github.com/jooosi-project/windpress/compare/v3.3.86...v3.3.87
 [3.3.86]: https://github.com/jooosi-project/windpress/compare/v3.3.85...v3.3.86
 [3.3.85]: https://github.com/jooosi-project/windpress/compare/v3.3.84...v3.3.85
 [3.3.84]: https://github.com/jooosi-project/windpress/compare/v3.3.83...v3.3.84
