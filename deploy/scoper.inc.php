@@ -42,6 +42,11 @@ $polyfillsStubs = array_map(
     ),
 );
 
+// EDD's SDK coordinates versions across plugins with global, string-based
+// callbacks. Keep its bootstrap and namespace intact so those callbacks remain
+// callable in the scoped Pro artifact.
+$eddSlSdkBootstrap = dirname(__DIR__) . '/vendor/easy-digital-downloads/edd-sl-sdk/edd-sl-sdk.php';
+
 $wpAbilityApiFiles = array_map(
     static fn (SplFileInfo $fileInfo) => $fileInfo->getPathname(),
     iterator_to_array(
@@ -97,6 +102,7 @@ return [
     'exclude-files' => [
         // 'src/a-whitelisted-file.php',
 
+        ...(is_file($eddSlSdkBootstrap) ? [$eddSlSdkBootstrap] : []),
         ...$polyfillsBootstraps,
         ...$polyfillsStubs,
         ...$wpAbilityApiFiles,
@@ -146,6 +152,7 @@ return [
         'WIND_PRESS',
         'WP_CLI',
         'Symfony\Polyfill',
+        'EasyDigitalDownloads\Updater',
 
         'Bricks',
         'Timber',

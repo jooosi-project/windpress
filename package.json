@@ -11,7 +11,7 @@
     "lint": "vp lint ./resources",
     "format": "vp lint --fix ./resources",
     "test": "pnpm --filter @windpress/lz-string --filter @windpress/oxide-parser test",
-    "release": "node deploy/release.js"
+    "release": "node deploy/release.mjs"
   },
   "dependencies": {
     "@adobe/css-tools": "^4.5.0",
@@ -48,7 +48,7 @@
     "maska": "^3.2.0",
     "minimatch": "^10.2.6",
     "modern-monaco": "0.4.2",
-    "monaco-editor": "^0.55.1",
+    "monaco-editor": "^0.56.0",
     "nanoid": "^6.0.1",
     "parse-package-name": "^1.0.0",
     "pinia": "^4.0.3",

@@ -19,6 +19,9 @@ export type Entry = {
   // The handler of the file. Default is `internal`.
   handler: string;
 
+  // Whether the entry represents a directory rather than a file.
+  directory?: boolean;
+
   // Soft delete the file. Default is `false`. If `true`, the file will be hidden and deleted from the volume on push.
   hidden?: boolean;
 
@@ -98,6 +101,7 @@ export const useVolumeStore = defineStore("volume", () => {
 
       // If hidden, unhide it, and set the content
       data.entries[existingEntryIndex].hidden = false;
+      data.entries[existingEntryIndex].directory = false;
       data.entries[existingEntryIndex].content = `/* file: ${filePathParts} */\n\n`;
       data.entries[existingEntryIndex].handler = handler;
     } else {
@@ -110,6 +114,48 @@ export const useVolumeStore = defineStore("volume", () => {
     }
 
     activeViewEntryRelativePath.value = `${filePathParts}`;
+  }
+
+  function addNewDirectory(directoryPath: string) {
+    const pathParts = directoryPath.split("/").map(cleanPath).join("/");
+    const normalizedPath = cleanPath(pathParts);
+
+    if (!normalizedPath) {
+      throw new Error(__("Folder name is required", "windpress"));
+    }
+
+    const existingEntryIndex = data.entries.findIndex(
+      (entry) => entry.relative_path === normalizedPath,
+    );
+
+    if (existingEntryIndex !== -1) {
+      const existingEntry = data.entries[existingEntryIndex];
+
+      if (existingEntry.hidden === false) {
+        throw new Error(
+          __(
+            `A ${existingEntry.directory ? "folder" : "file"} named "${normalizedPath}" already exists`,
+            "windpress",
+          ),
+        );
+      }
+
+      existingEntry.hidden = false;
+      existingEntry.directory = true;
+      existingEntry.name = normalizedPath.split("/").pop() || "";
+      existingEntry.content = "";
+      existingEntry.handler = "internal";
+      existingEntry.signature = undefined;
+      return;
+    }
+
+    data.entries.push({
+      name: normalizedPath.split("/").pop() || "",
+      content: "",
+      relative_path: normalizedPath,
+      handler: "internal",
+      directory: true,
+    });
   }
 
   function softDeleteEntry(entry: Entry) {
@@ -168,7 +214,9 @@ export const useVolumeStore = defineStore("volume", () => {
   function getKVEntries() {
     // Create a volume object with key-value pairs (relative_path: content) from the volumeStore.data.entries array
     return data.entries.reduce((acc: { [key: string]: string }, entry) => {
-      acc[`/${entry.relative_path}`] = entry.content;
+      if (!entry.directory) {
+        acc[`/${entry.relative_path}`] = entry.content;
+      }
       return acc;
     }, {});
   }
@@ -279,6 +327,7 @@ export const useVolumeStore = defineStore("volume", () => {
     activeViewEntryRelativePath,
     hasChanged,
     addNewEntry,
+    addNewDirectory,
     getKVEntries,
     doPull,
     doPush,

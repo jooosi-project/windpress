@@ -4,8 +4,43 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2cff42046d02818ba93e7d37421c16ce",
+    "content-hash": "d0c8754db623c776b87ea01aab90ad11",
     "packages": [
+        {
+            "name": "easy-digital-downloads/edd-sl-sdk",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/awesomemotive/edd-sl-sdk.git",
+                "reference": "757cefcf9bd394f86e2f852bf286c325a5df1076"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/awesomemotive/edd-sl-sdk/zipball/757cefcf9bd394f86e2f852bf286c325a5df1076",
+                "reference": "757cefcf9bd394f86e2f852bf286c325a5df1076",
+                "shasum": ""
+            },
+            "require-dev": {
+                "codedungeon/phpunit-result-printer": "dev-master",
+                "phpunit/phpunit": "^8",
+                "yoast/phpunit-polyfills": "^1.0.5",
+                "yoast/wp-test-utils": "^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EasyDigitalDownloads\\Updater\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "support": {
+                "source": "https://github.com/awesomemotive/edd-sl-sdk/tree/1.0.3",
+                "issues": "https://github.com/awesomemotive/edd-sl-sdk/issues"
+            },
+            "time": "2026-03-16T17:14:57+00:00"
+        },
         {
             "name": "enshrined/svg-sanitize",
             "version": "0.22.0",
@@ -312,53 +347,6 @@
                 "source": "https://github.com/php-fig/container/tree/1.1.2"
             },
             "time": "2021-11-05T16:50:12+00:00"
-        },
-        {
-            "name": "rosua/edd-sl-plugin-updater",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/orgrosua/edd-sl-plugin-updater.git",
-                "reference": "11148110fca81ae10bbeef3fd20d3571dc4881e1"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/orgrosua/edd-sl-plugin-updater/zipball/11148110fca81ae10bbeef3fd20d3571dc4881e1",
-                "reference": "11148110fca81ae10bbeef3fd20d3571dc4881e1",
-                "shasum": ""
-            },
-            "default-branch": true,
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "EDD_SL\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "EasyDigitalDownloads",
-                    "email": "contact@easydigitaldownloads.com"
-                },
-                {
-                    "name": "Rosua",
-                    "email": "id@rosua.org"
-                }
-            ],
-            "description": "Easy Digital Downloads WordPress plugin updater class for Software Licenses",
-            "keywords": [
-                "edd",
-                "updates",
-                "wordpress"
-            ],
-            "support": {
-                "issues": "https://github.com/orgrosua/edd-sl-plugin-updater/issues",
-                "source": "https://github.com/orgrosua/edd-sl-plugin-updater/tree/master"
-            },
-            "time": "2024-04-30T15:47:58+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -1705,9 +1693,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "rosua/edd-sl-plugin-updater": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

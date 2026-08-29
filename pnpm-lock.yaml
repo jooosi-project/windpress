@@ -129,7 +129,7 @@ importers:
         version: 2.1.0
       '@guolao/vue-monaco-editor':
         specifier: ^1.6.0
-        version: 1.6.0(monaco-editor@0.55.1)(vue@3.5.42(typescript@7.0.2))
+        version: 1.6.0(monaco-editor@0.56.0)(vue@3.5.42(typescript@7.0.2))
       '@master/colors':
         specifier: ^3.0.0
         version: 3.0.0
@@ -218,8 +218,8 @@ importers:
         specifier: 0.4.2
         version: 0.4.2(patch_hash=f03832cc3d7f423097b46b06ed517748e528587e76413698ae5e1795e193efa4)(typescript@7.0.2)
       monaco-editor:
-        specifier: ^0.55.1
-        version: 0.55.1
+        specifier: ^0.56.0
+        version: 0.56.0
       nanoid:
         specifier: ^6.0.1
         version: 6.0.1
@@ -4090,8 +4090,8 @@ packages:
     resolution: {integrity: sha512-IGBwjF7tNk3cwypFNH/7bfzBcgSCbaMOD3GsaY1AU/JRrnHnYgEM0+9kQt52iZxjNsjBtJYtao146V+f8jFZNw==}
     engines: {node: '>=10'}
 
-  dompurify@3.2.7:
-    resolution: {integrity: sha512-WhL/YuveyGXJaerVlMYGWhvQswa7myDG17P7Vu65EWC05o8vfeNbvNf4d/BOvH99+ZW+LlQsc1GDKMa1vNK6dw==}
+  dompurify@3.4.8:
+    resolution: {integrity: sha512-yb1cEmaOum7wFvOCSQxyfgVlv5D47Rc30iZWoMpbDIWTnJ6grDDQyu2KFJzB2k7u0pMuJcQ1zphH//fFnw2tjQ==}
 
   dot-case@3.0.4:
     resolution: {integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==}
@@ -5074,8 +5074,8 @@ packages:
   moment@2.30.1:
     resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
 
-  monaco-editor@0.55.1:
-    resolution: {integrity: sha512-jz4x+TJNFHwHtwuV9vA9rMujcZRb0CEilTEwG2rRSpe/A7Jdkuj8xPKttCgOh+v/lkHy7HsZ64oj+q3xoAFl9A==}
+  monaco-editor@0.56.0:
+    resolution: {integrity: sha512-sXboRm3BeBeLm938eaiyLMe0OxzfXIlZvbv4ir/jVgQy1zDhWjgmny0WoN45fuDKhCCQsYMbBJrv/A6jd8aCUg==}
 
   moo@0.5.1:
     resolution: {integrity: sha512-I1mnb5xn4fO80BH9BLcF0yLypy2UKl+Cb01Fu0hJRkJjlCRtxZMWkTdAtDd5ZqCOxtCkhmRwyI57vWT+1iZ67w==}
@@ -7314,10 +7314,10 @@ snapshots:
       - '@vue/composition-api'
       - vue
 
-  '@guolao/vue-monaco-editor@1.6.0(monaco-editor@0.55.1)(vue@3.5.42(typescript@7.0.2))':
+  '@guolao/vue-monaco-editor@1.6.0(monaco-editor@0.56.0)(vue@3.5.42(typescript@7.0.2))':
     dependencies:
       '@monaco-editor/loader': 1.7.0
-      monaco-editor: 0.55.1
+      monaco-editor: 0.56.0
       vue: 3.5.42(typescript@7.0.2)
       vue-demi: 0.14.10(vue@3.5.42(typescript@7.0.2))
 
@@ -10612,7 +10612,7 @@ snapshots:
 
   domain-browser@4.22.0: {}
 
-  dompurify@3.2.7:
+  dompurify@3.4.8:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
 
@@ -11592,9 +11592,9 @@ snapshots:
 
   moment@2.30.1: {}
 
-  monaco-editor@0.55.1:
+  monaco-editor@0.56.0:
     dependencies:
-      dompurify: 3.2.7
+      dompurify: 3.4.8
       marked: 14.0.0
 
   moo@0.5.1: {}

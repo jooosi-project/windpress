@@ -4,6 +4,12 @@
   "description": "Tailwind CSS for WordPress",
   "version": "1.0.0",
   "license": "GPL-3.0-or-later",
+  "repositories": {
+    "edd-sl-sdk": {
+      "type": "vcs",
+      "url": "https://github.com/awesomemotive/edd-sl-sdk"
+    }
+  },
   "autoload": {
     "psr-4": {
       "WindPress\\WindPress\\": "src/"
@@ -35,11 +41,11 @@
   },
   "require": {
     "php": ">=7.4",
+    "easy-digital-downloads/edd-sl-sdk": "^1.0.3",
     "enshrined/svg-sanitize": "^0.22.0",
     "hidehalo/nanoid-php": "^2.0",
     "masterminds/html5": "^2.9",
     "nabasa/vp-wp": "^0.3.1",
-    "rosua/edd-sl-plugin-updater": "@dev",
     "symfony/filesystem": "^5.4",
     "symfony/finder": "^5.4",
     "symfony/property-access": "^5.4",

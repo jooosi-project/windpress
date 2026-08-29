@@ -4,7 +4,7 @@ import { type Entry, useVolumeStore } from "@/dashboard/stores/volume";
 import { useSettingsStore } from "@/dashboard/stores/settings";
 import { useColorMode } from "@vueuse/core";
 import path from "path";
-import { shallowRef, ref, onBeforeUnmount } from "vue";
+import { shallowRef, ref, onBeforeUnmount, nextTick, watch } from "vue";
 import {
   getVariableList,
   loadDesignSystem,
@@ -12,12 +12,13 @@ import {
   getClassList,
   candidatesToCss,
 } from "@/packages/core/tailwindcss";
-import * as monacoEditor from "monaco-editor/esm/vs/editor/editor.api";
-import { cssDefaults as monacoCssDefaults } from "monaco-editor/esm/vs/language/css/monaco.contribution.js";
+import type * as monacoEditor from "monaco-editor";
+import { cssDefaults as monacoCssDefaults } from "monaco-editor/languages/features/css/register";
 import Color from "colorjs.io";
 import { debounce, throttle } from "lodash-es";
 import { useThemeJsonStore } from "@/dashboard/stores/themeJson";
 import { twToWp } from "@/dashboard/composables/useThemeJson";
+import { useWorkspace } from "@/dashboard/composables/useWorkspace";
 
 type MonacoEditor = typeof monacoEditor;
 
@@ -25,6 +26,7 @@ const volumeStore = useVolumeStore();
 const settingsStore = useSettingsStore();
 const colorMode = useColorMode();
 const themeJsonStore = useThemeJsonStore();
+const workspace = useWorkspace();
 
 const props = defineProps<{
   entry: Entry;
@@ -45,8 +47,10 @@ const MONACO_EDITOR_OPTIONS = {
 };
 
 const editorElementRef = shallowRef();
+const monacoInstanceRef = shallowRef<MonacoEditor | null>(null);
 const isEditorMounted = ref(false);
 const monacoDisposables = ref<monacoEditor.IDisposable[]>([]);
+let providerRegistrationTimer: ReturnType<typeof setTimeout> | null = null;
 
 // Shared style element for color decorations to reduce DOM manipulation
 let colorStyleElement: HTMLStyleElement | null = null;
@@ -69,7 +73,20 @@ async function handleEditorMount(
   monaco: MonacoEditor,
 ) {
   editorElementRef.value = editor;
+  monacoInstanceRef.value = monaco;
   isEditorMounted.value = true;
+  workspace.setMonaco(monaco);
+
+  const initialModel = editor.getModel();
+  await workspace.openTextDocument(props.entry.relative_path, editor);
+
+  if (
+    initialModel &&
+    initialModel !== editor.getModel() &&
+    !initialModel.uri.path.startsWith('/windpress/')
+  ) {
+    initialModel.dispose();
+  }
 
   if (Number(settingsStore.virtualOptions("general.tailwindcss.version", 4).value) === 4) {
     let designSystemCache: {
@@ -245,7 +262,7 @@ async function handleEditorMount(
 
     // Lazy registration of providers
     const registerProviders = () => {
-      monaco.languages.registerCompletionItemProvider("css", {
+      const completionProvider = monaco.languages.registerCompletionItemProvider("css", {
         async provideCompletionItems(model, position) {
           try {
             const wordInfo = model.getWordUntilPosition(position);
@@ -401,8 +418,9 @@ async function handleEditorMount(
           }
         },
       });
+      monacoDisposables.value.push(completionProvider);
 
-      monaco.languages.registerHoverProvider("css", {
+      const hoverProvider = monaco.languages.registerHoverProvider("css", {
         async provideHover(model, position) {
           const currentLine = model.getLineContent(position.lineNumber);
 
@@ -631,9 +649,10 @@ async function handleEditorMount(
           }
         },
       });
+      monacoDisposables.value.push(hoverProvider);
 
       // Register color provider for modern CSS color functions
-      monaco.languages.registerColorProvider("css", {
+      const colorProvider = monaco.languages.registerColorProvider("css", {
         provideColorPresentations(model, colorInfo) {
           const { red, green, blue, alpha } = colorInfo.color;
           const color = new Color("srgb", [red, green, blue], alpha);
@@ -1115,6 +1134,7 @@ async function handleEditorMount(
           return editableColors;
         },
       });
+      monacoDisposables.value.push(colorProvider);
     }; // End registerProviders
 
     const getTailwindImportThemeRanges = (model: monacoEditor.editor.ITextModel) => {
@@ -1370,11 +1390,17 @@ async function handleEditorMount(
         }),
       );
 
-      // Register providers after a small delay to improve initial load
-      setTimeout(registerProviders, 100);
-
       (window as any).__windpressMonacoInstantiated = true;
     }
+
+    // Providers capture the current editor's caches and stores. Register them
+    // for this editor instance and dispose them with the component so a later
+    // editor mount does not inherit stale providers or depend on the global
+    // CSS-defaults guard above.
+    providerRegistrationTimer = setTimeout(() => {
+      providerRegistrationTimer = null;
+      registerProviders();
+    }, 100);
 
     const model = editor.getModel();
     if (model && model.getLanguageId() === "css") {
@@ -1410,8 +1436,32 @@ async function handleEditorMount(
   );
 }
 
+watch(
+  () => props.entry.relative_path,
+  async (newPath, oldPath) => {
+    if (!isEditorMounted.value || !editorElementRef.value || !monacoInstanceRef.value) {
+      return;
+    }
+
+    if (oldPath && oldPath !== newPath) {
+      const viewState = editorElementRef.value.saveViewState();
+      if (viewState) {
+        await workspace.viewState.save(oldPath, viewState);
+      }
+    }
+
+    await nextTick();
+    await workspace.openTextDocument(newPath, editorElementRef.value);
+  },
+);
+
 // Cleanup function to prevent memory leaks
 onBeforeUnmount(() => {
+  if (providerRegistrationTimer !== null) {
+    clearTimeout(providerRegistrationTimer);
+    providerRegistrationTimer = null;
+  }
+
   // Clean up editor-specific Monaco disposables (content change handler and editor actions)
   monacoDisposables.value.forEach((disposable) => {
     try {
@@ -1605,6 +1655,7 @@ onBeforeUnmount(() => {
 
       <vue-monaco-editor
         v-model:value="props.entry.content"
+        :path="workspace.modelUri(entry.relative_path)"
         :language="props.entry.relative_path.endsWith('.css') ? 'css' : 'javascript'"
         :saveViewState="false"
         :options="{ ...MONACO_EDITOR_OPTIONS, readOnly: props.entry.readonly }"

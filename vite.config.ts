@@ -100,7 +100,6 @@ export default defineConfig({
   },
   define: {
     __dirname: JSON.stringify("/"),
-    "process.versions.node": JSON.stringify("22.9.0"),
   },
   optimizeDeps: {
     include: ["modern-monaco > typescript"],

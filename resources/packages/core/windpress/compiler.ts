@@ -116,12 +116,18 @@ export async function buildCache(opts: BuildCacheOptions = {}) {
   await api
     .request("/admin/volume/index", { method: "GET" })
     .then((response) => response.data)
-    .then((res: { entries: Array<{ relative_path: string; content: string }> }) => {
-      volume = res.entries.reduce((acc: { [key: string]: string }, entry) => {
-        acc[`/${entry.relative_path}`] = entry.content;
-        return acc;
-      }, {});
-    });
+    .then(
+      (res: {
+        entries: Array<{ relative_path: string; content: string; directory?: boolean }>;
+      }) => {
+        volume = res.entries.reduce((acc: { [key: string]: string }, entry) => {
+          if (!entry.directory) {
+            acc[`/${entry.relative_path}`] = entry.content;
+          }
+          return acc;
+        }, {});
+      },
+    );
 
   // if the version or the sourcemap is not set, then get the setting from the server
   if (!options.tailwindcss_version || typeof options.sourcemap !== "boolean") {

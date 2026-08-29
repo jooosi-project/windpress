@@ -96,9 +96,13 @@ const isMobile = breakpoints.smaller("lg");
     </UDashboardNavbar>
 
     <FileExplorer
+      :enable-drag-and-drop="!isMobile"
       @rename="(entry: Entry) => fileAction.renameFile(entry)"
       @delete="(entry: Entry) => fileAction.deleteFile(entry)"
       @reset="(entry: Entry) => fileAction.resetFile(entry)"
+      @create-file="(folderPath: string) => fileAction.addNewFile(folderPath)"
+      @create-folder="(folderPath: string) => fileAction.addNewFolder(folderPath)"
+      @move="(entry: Entry, folderPath: string) => fileAction.moveFile(entry, folderPath)"
     />
   </UDashboardPanel>
 
@@ -116,7 +120,15 @@ const isMobile = breakpoints.smaller("lg");
 
   <USlideover v-if="isMobile" v-model:open="isFilePanelOpen">
     <template #content>
-      <FileExplorer />
+      <FileExplorer
+        :enable-drag-and-drop="isMobile"
+        @rename="(entry: Entry) => fileAction.renameFile(entry)"
+        @delete="(entry: Entry) => fileAction.deleteFile(entry)"
+        @reset="(entry: Entry) => fileAction.resetFile(entry)"
+        @create-file="(folderPath: string) => fileAction.addNewFile(folderPath)"
+        @create-folder="(folderPath: string) => fileAction.addNewFolder(folderPath)"
+        @move="(entry: Entry, folderPath: string) => fileAction.moveFile(entry, folderPath)"
+      />
     </template>
   </USlideover>
 </template>

@@ -171,9 +171,15 @@ class Runtime
 
     public function getVFSHtml()
     {
-        $volumeEntries = array_reduce(Volume::get_entries(), fn($carry, $entry) => $carry + [
-            '/' . $entry['relative_path'] => $entry['content'],
-        ], []);
+        $volumeEntries = array_reduce(Volume::get_entries(), function ($carry, $entry) {
+            if (! empty($entry['directory'])) {
+                return $carry;
+            }
+
+            return $carry + [
+                '/' . $entry['relative_path'] => $entry['content'],
+            ];
+        }, []);
 
         // Script content are base64 encoded to prevent it from being executed by the browser.
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

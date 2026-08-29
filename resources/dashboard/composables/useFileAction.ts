@@ -13,7 +13,9 @@ import { encodeVFSContainer } from "@/packages/core/tailwindcss/vfs";
 import ConfirmFileActionModal from "@/dashboard/components/File/Explorer/ConfirmFileActionModal.vue";
 import ConfirmVolumeImportModal from "@/dashboard/components/File/Explorer/ConfirmVolumeImportModal.vue";
 import NewFileFormModal from "@/dashboard/components/File/Explorer/NewFileFormModal.vue";
+import NewFolderFormModal from "@/dashboard/components/File/Explorer/NewFolderFormModal.vue";
 import RenameFileFormModal from "@/dashboard/components/File/Explorer/RenameFileFormModal.vue";
+import { useWorkspace } from "@/dashboard/composables/useWorkspace";
 
 export type VolumeSFSFile = {
   entries: Entry[];
@@ -27,6 +29,7 @@ export type VolumeSFSFile = {
 
 export function useFileAction() {
   const volumeStore = useVolumeStore();
+  const workspace = useWorkspace();
   const settingsStore = useSettingsStore();
   const themeJsonStore = useThemeJsonStore();
   const toast = useToast();
@@ -80,7 +83,7 @@ export function useFileAction() {
       return;
     }
 
-    volumeStore.softDeleteEntry(entry);
+    await workspace.delete(entry.relative_path);
 
     toast.add({
       title: __("Success", "windpress"),
@@ -369,9 +372,12 @@ export function useFileAction() {
     }
   }
 
-  async function addNewFile() {
+  async function addNewFile(directory = "") {
     const newFileModal = overlay.create(NewFileFormModal, {
       destroyOnClose: true,
+      props: {
+        directory,
+      },
     });
 
     const result = await newFileModal.open().result;
@@ -406,6 +412,46 @@ export function useFileAction() {
     }
   }
 
+  async function addNewFolder(parentPath = "") {
+    const newFolderModal = overlay.create(NewFolderFormModal, {
+      destroyOnClose: true,
+      props: {
+        parentPath,
+      },
+    });
+
+    const result = await newFolderModal.open().result;
+
+    if (!result) {
+      toast.add({
+        title: __("Canceled", "windpress"),
+        description: __("New folder creation canceled", "windpress"),
+        color: "info",
+        icon: "i-lucide-folder-plus",
+      });
+
+      return;
+    }
+
+    try {
+      await workspace.fs.createDirectory(result.folderPath);
+      toast.add({
+        title: __("Success", "windpress"),
+        description: sprintf(__('Folder "%s" created', "windpress"), result.folderPath),
+        color: "success",
+        icon: "i-lucide-folder-plus",
+      });
+    } catch (error) {
+      toast.add({
+        title: __("Error", "windpress"),
+        description:
+          error instanceof Error ? error.message : __("An unknown error occurred", "windpress"),
+        color: "error",
+        icon: "i-lucide-folder-plus",
+      });
+    }
+  }
+
   async function renameFile(entry: Entry) {
     const newFileName = await overlay
       .create(RenameFileFormModal, {
@@ -428,7 +474,7 @@ export function useFileAction() {
     }
 
     try {
-      volumeStore.renameEntry(entry, newFileName);
+      await workspace.rename(entry.relative_path, newFileName);
       toast.add({
         title: __("Success", "windpress"),
         description: sprintf(
@@ -450,6 +496,53 @@ export function useFileAction() {
     }
   }
 
+  async function moveFile(entry: Entry, folderPath: string) {
+    if (entry.readonly || entry.relative_path === "main.css") {
+      toast.add({
+        title: __("Error", "windpress"),
+        description: sprintf(
+          __('File "%s" cannot be moved.', "windpress"),
+          entry.relative_path,
+        ),
+        color: "error",
+        icon: "i-lucide-folder-input",
+      });
+      return;
+    }
+
+    const fileName = entry.relative_path.split("/").pop();
+    if (!fileName) {
+      return;
+    }
+
+    const newPath = folderPath ? `${folderPath}/${fileName}` : fileName;
+    if (newPath === entry.relative_path) {
+      return;
+    }
+
+    try {
+      await workspace.rename(entry.relative_path, newPath);
+      toast.add({
+        title: __("Success", "windpress"),
+        description: sprintf(
+          __('File "%s" moved to "%s"', "windpress"),
+          entry.relative_path,
+          newPath,
+        ),
+        color: "success",
+        icon: "i-lucide-folder-input",
+      });
+    } catch (error) {
+      toast.add({
+        title: __("Error", "windpress"),
+        description:
+          error instanceof Error ? error.message : __("An unknown error occurred", "windpress"),
+        color: "error",
+        icon: "i-lucide-folder-input",
+      });
+    }
+  }
+
   return {
     deleteFile,
     resetFile,
@@ -457,6 +550,8 @@ export function useFileAction() {
     exportVolume,
     importVolume,
     addNewFile,
+    addNewFolder,
     renameFile,
+    moveFile,
   };
 }

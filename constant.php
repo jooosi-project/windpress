@@ -50,9 +50,8 @@ class WIND_PRESS
      * @var array
      */
     public const EDD_STORE = [
-        'store_url' => 'https://rosua.org',
+        'store_url' => 'https://jooo.si',
         'item_id' => 2250, // WindPress or Yabe Siul
-        'author' => 'idrosua',
     ];
 
     /**

@@ -1,77 +1,55 @@
 #!/usr/bin/env bash
 
-# see https://stackoverflow.com/questions/66644233/how-to-propagate-colors-from-bash-script-to-github-action?noredirect=1#comment117811853_66644233
-export TERM=xterm-color
+set -euo pipefail
 
-# show errors
-set -e
+deploy_directory=${1:-}
+result_directory=${2:-}
+source_policy=${3:-}
 
-# script fails if trying to access to an undefined variable
-set -u
+if [[ -z "$deploy_directory" || -z "$result_directory" || "$deploy_directory" == "/" || "$result_directory" == "/" || ( -n "$source_policy" && "$source_policy" != "--keep-source" ) ]]; then
+    echo "Usage: deploy-scoped.sh <deploy-directory> <result-directory> [--keep-source]" >&2
+    exit 1
+fi
 
+if [[ -d "$deploy_directory/tests" ]]; then
+    echo "Refusing to scope a release source that contains test function stubs: $deploy_directory/tests" >&2
+    exit 1
+fi
 
-# functions
-note()
-{
-    MESSAGE=$1;
+rm -rf "$result_directory"
+rm -rf "$deploy_directory/deploy/php-scoper-wordpress-excludes-master"
 
-    printf "\n";
-    echo "[NOTE] $MESSAGE";
-    printf "\n";
-}
+curl --fail --location --silent --show-error \
+    https://github.com/snicco/php-scoper-wordpress-excludes/archive/refs/heads/master.zip \
+    --output php-scoper-wordpress-excludes-master.zip
+unzip -q php-scoper-wordpress-excludes-master.zip -d "$deploy_directory/deploy"
+rm -f php-scoper-wordpress-excludes-master.zip
 
+curl --fail --location --silent --show-error \
+    https://github.com/humbug/php-scoper/releases/download/0.18.19/php-scoper.phar \
+    --output php-scoper.phar
 
-# configure here
-DEPLOY_DIRECTORY=$1
-RESULT_DIRECTORY=$2
+php -d memory_limit=-1 php-scoper.phar add-prefix \
+    --output-dir "../$result_directory" \
+    --config deploy/scoper.inc.php \
+    --force \
+    --ansi \
+    --working-dir "$deploy_directory"
 
-# ---------------------------
+rm -f php-scoper.phar "$result_directory/php-scoper.phar"
+composer dump-autoload --working-dir "$result_directory" --ansi --no-dev --classmap-authoritative
 
-note "Starts"
+if [[ -f deploy/patch-scoper-autoload.php ]]; then
+    php deploy/patch-scoper-autoload.php "$result_directory/vendor/scoper-autoload.php"
+fi
 
-# clean the directory which may contain files from previous runs
-note "Cleaning directories"
-rm -rf "$RESULT_DIRECTORY"
+if grep -Fq 'WindPressDeps\dbDelta' "$result_directory/vendor/scoper-autoload.php"; then
+    echo "The scoped autoloader contains a broken dbDelta() proxy." >&2
+    exit 1
+fi
 
-# download whitelist of php-scoper
-note "Downloading whitelist of php-scoper"
-wget https://github.com/snicco/php-scoper-wordpress-excludes/archive/refs/heads/master.zip -O "php-scoper-wordpress-excludes-master.zip"
+rm -rf "$deploy_directory/deploy/php-scoper-wordpress-excludes-master"
 
-# extract whitelist of php-scoper
-note "Extracting whitelist of php-scoper"
-unzip "php-scoper-wordpress-excludes-master.zip" -d "$DEPLOY_DIRECTORY/deploy"
-rm -f "php-scoper-wordpress-excludes-master.zip"
-
-# move scoper.inc.php file from $DEPLOY_DIRECTORY to current directory
-# note "Moving scoper.inc.php file from $DEPLOY_DIRECTORY to current directory"
-# mv "$DEPLOY_DIRECTORY/deploy/scoper.inc.php" .
-
-# 2. scope it
-note "Download php-scoper"
-wget https://github.com/humbug/php-scoper/releases/download/0.18.17/php-scoper.phar -N --no-verbose
-
-# Work around possible PHP memory limits
-note "Running scoper to $RESULT_DIRECTORY"
-php -d memory_limit=-1 php-scoper.phar add-prefix --output-dir "../$RESULT_DIRECTORY" --config "deploy/scoper.inc.php" --force --ansi --working-dir "$DEPLOY_DIRECTORY";
-rm -f "$RESULT_DIRECTORY/php-scoper.phar"
-
-note "Dumping Composer Autoload"
-# composer dump-autoload --working-dir "$RESULT_DIRECTORY" --ansi --classmap-authoritative --no-dev
-composer dump-autoload --working-dir "$RESULT_DIRECTORY" --ansi --no-dev
-
-# clean deploy files and directories
-rm -rf "$DEPLOY_DIRECTORY"
-rm -rf "$RESULT_DIRECTORY/deploy"
-rm -f "$RESULT_DIRECTORY/composer.json"
-rm -f "$RESULT_DIRECTORY/composer.lock"
-rm -f "$RESULT_DIRECTORY/.gitattributes"
-rm -f "$RESULT_DIRECTORY/.gitignore"
-rm -f "$RESULT_DIRECTORY/.phpcs.xml"
-rm -f "$RESULT_DIRECTORY/.php-version"
-
-# WordPress new plugin submission review
-rm -f "$RESULT_DIRECTORY/vendor/paragonie/random_compat/build-phar.sh"
-rm -f "$RESULT_DIRECTORY/vendor/paragonie/random_compat/dist/random_compat.phar.pubkey"
-rm -f "$RESULT_DIRECTORY/vendor/paragonie/random_compat/dist/random_compat.phar.pubkey.asc"
-
-note "Finished"
+if [[ "$source_policy" != "--keep-source" ]]; then
+    rm -rf "$deploy_directory"
+fi

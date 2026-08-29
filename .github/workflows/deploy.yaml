@@ -1,7 +1,4 @@
-# builds the content of https://github.com/jooosi-project/windpress
-# inspiration from https://github.com/rectorphp/rector-src/blob/main/.github/workflows/build_scoped_rector.yaml
-# TODO: trigger the FREE build only when the PRO build is successful. reference: https://github.blog/changelog/2022-09-08-github-actions-use-github_token-with-workflow_dispatch-and-repository_dispatch/
-name: Deploy the Plugin
+name: Deploy Free and Pro editions
 
 on:
   push:
@@ -12,264 +9,292 @@ permissions:
   contents: write
 
 env:
-  # see https://github.com/composer/composer/issues/9368#issuecomment-718112361
-  COMPOSER_ROOT_VERSION: "dev-main"
+  COMPOSER_ROOT_VERSION: dev-main
 
 jobs:
-  build_scoped_windpress:
-    # Don't run on forks.
+  release:
     if: github.repository == 'jooosi-project/windpress'
-
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
 
     steps:
-      # # sometime, when 2 or more consecutive PRs merged, the checkout jooosi-project/windpress is overlapped
-      # # and reverting other commit change
-      # # this should not happen on create a tag, so wait first
-      # - name: "Wait before checkout jooosi-project/windpress on create a tag"
-      #   if: "startsWith(github.ref, 'refs/tags/')"
-      #   run: sleep 20
-
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Use pnpm to install dependencies and build the assets.
+      - name: Resolve edition versions
+        id: versions
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+
+          if [[ ! "$version" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            echo "The release tag must be a semantic version such as 3.3.0 or v3.3.0." >&2
+            exit 1
+          fi
+
+          major="${BASH_REMATCH[1]}"
+          minor="${BASH_REMATCH[2]}"
+          patch="${BASH_REMATCH[3]}"
+
+          if (( minor < 1 )); then
+            echo "The Pro minor version must be at least 1 so a Free version can be derived." >&2
+            exit 1
+          fi
+
+          pro_version="${major}.${minor}.${patch}"
+          free_version="${major}.$((minor - 1)).${patch}"
+
+          echo "pro=${pro_version}" >> "$GITHUB_OUTPUT"
+          echo "free=${free_version}" >> "$GITHUB_OUTPUT"
+          echo "PRO_VERSION=${pro_version}" >> "$GITHUB_ENV"
+          echo "FREE_VERSION=${free_version}" >> "$GITHUB_ENV"
+
       - uses: pnpm/setup@v2
         with:
           version: 12
           runtime: node@26
           cache: true
+          install: false
 
-      - name: Set up Docker Buildx for Oxide
-        uses: docker/setup-buildx-action@v3
+      - name: Install JavaScript dependencies
+        run: pnpm install --frozen-lockfile
 
-      - run: pnpm build
+      - name: Build frontend assets
         env:
           WP_I18N: "true"
+        run: pnpm run build
 
-      # scoped using php-scoper.phar which require #[\ReturnTypeWillChange] inside so use php 8.0 for scoping
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.4
+          php-version: "8.2"
           coverage: none
-        # fixes https://github.com/rectorphp/rector/pull/4559/checks?check_run_id=1359814403, see https://github.com/shivammathur/setup-php#composer-github-oauth
-        env:
-          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tools: composer:v2
 
-      # preparing translations
+      - name: Extract release notes
+        id: changelog
+        shell: bash
+        run: |
+          {
+            echo "content<<EOF"
+            node deploy/extract-changelog.mjs "$PRO_VERSION"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
-      # install wp-cli
-      - name: Setup WP-CLI
+      - name: Update WordPress.org changelog
+        run: node deploy/update-readme-changelog.mjs
+
+      - name: Install WP-CLI
         uses: godaddy-wordpress/setup-wp-cli@1
 
-      - name: Install Deno
-        uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
-
-      # Extract changelog content before removing the file
-      - name: "Extract changelog for version"
-        id: changelog
+      - name: Build translation assets
+        shell: bash
         run: |
-          VERSION=${GITHUB_REF#refs/tags/}
-          # Remove 'v' prefix if it exists
-          VERSION_NO_V=${VERSION#v}
-          CHANGELOG_CONTENT=$(node deploy/extract-changelog.js "$VERSION_NO_V")
-          echo "content<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      # Update readme.txt changelog from CHANGELOG.md
-      - name: "Update readme.txt changelog"
-        run: deno run --allow-read --allow-write deploy/update-readme-changelog.ts
-
-      # make pot file,
-      - name: "Make pot file"
-        run: php -d memory_limit=-1 /usr/local/bin/wp i18n make-pot ./ ./languages/windpress.pot
-
-      # run the deno script to build the i18n.js file
-      - name: "Build i18n.js"
-        run: |
-          deno run --allow-all deploy/build-i18n.ts
+          wp i18n make-pot ./ ./languages/windpress.pot
+          node deploy/build-i18n.mjs
           rm -rf ./languages
 
-      # # rebuild the assets
-      # - run: pnpm build
-      #   env:
-      #     WP_I18N: 'false'
-
-      # clean up the dev files
-      - run: find assets -mindepth 1 -maxdepth 1 ! -name dist -exec rm -rf {} +
-      - run: rm -rf resources node_modules deno.lock package.json pnpm-lock.yaml pnpm-workspace.yaml opencode.json README.md AGENTS.md vite.config.ts .npmrc tsconfig.json mago.toml eslint.config.js auto-imports.d.ts components.d.ts
-      - run: rm -rf ecs.php rector.php
-      - run: rm -rf CLAUDE.md .agents
-      - run: rm -rf CHANGELOG.md
-
-      - name: Verify third-party license notices
+      - name: Prepare Pro source
+        shell: bash
         run: |
-          test -f licenses/lz-string-MIT.txt
-          test -f licenses/tailwindcss-MIT.txt
+          mkdir -p windpress-deploy
+          rsync -a \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='tests' \
+            --exclude='vendor' \
+            --exclude='windpress-deploy' \
+            --exclude='windpress-*-prefixed' \
+            --exclude='dist-branch' \
+            --exclude='dist-free-branch' \
+            ./ windpress-deploy/
 
-      # install only prod dependencies
-      - run: composer install --no-dev --classmap-authoritative --ansi
+          composer install \
+            --working-dir=windpress-deploy \
+            --no-dev \
+            --classmap-authoritative \
+            --no-interaction \
+            --prefer-dist \
+            --ansi
 
-      # copy files to $NESTED_DIRECTORY directory Exclude the scoped/nested directories to prevent rsync from copying in a loop
-      - run: rsync --exclude windpress-deploy -av * windpress-deploy --quiet
+      - name: Scope Pro edition dependencies
+        run: bash deploy/deploy-scoped.sh windpress-deploy windpress-pro-prefixed --keep-source
 
-      # humbug/php-scoper requires php ^8.2
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.2
-          coverage: none
-
-      # prefix the namespaces
-      - run: sh deploy/deploy-scoped.sh windpress-deploy windpress-prefixed
-
-      # clone remote repository, so we can push it
-      - uses: actions/checkout@v4
-        with:
-          repository: wind-press/windpress-deployed
-          ref: main
-          path: remote-repository
-          fetch-depth: 0
-          token: ${{ secrets.ORG_DEV_PAT }}
-
-      # remove remote files, to avoid piling up dead code in remote repository
-      - working-directory: remote-repository
+      - name: Prepare Pro artifact
+        shell: bash
         run: |
-          git rm -rf .
+          node deploy/add-pro-update-uri.mjs windpress-pro-prefixed
+
+          mkdir -p windpress-pro-prefixed-filtered
+          rsync -a \
+            --exclude='.*' \
+            --exclude-from=.distignore \
+            windpress-pro-prefixed/ \
+            windpress-pro-prefixed-filtered/
+          rm -rf windpress-pro-prefixed
+          mv windpress-pro-prefixed-filtered windpress-pro-prefixed
+
+      - name: Verify Pro edition
+        shell: bash
+        run: |
+          pro=windpress-pro-prefixed
+          update_uri='https://jooo.si'
+
+          grep -Fq "* Version:             ${PRO_VERSION}" "$pro/windpress.php"
+          grep -Fq "public const VERSION = '${PRO_VERSION}';" "$pro/constant.php"
+          grep -Fq "* Update URI:        ${update_uri}" "$pro/windpress.php"
+          grep -Fq 'use EasyDigitalDownloads\Updater\Registry;' "$pro/src/Plugin.php"
+          grep -Eq "'wp_override'[[:space:]]*=>[[:space:]]*true" "$pro/src/Licensing/Manager.php"
+          test -f "$pro/vendor/easy-digital-downloads/edd-sl-sdk/edd-sl-sdk.php"
+          grep -Fq "add_action( 'after_setup_theme', array( '\\\\EasyDigitalDownloads\\\\Updater\\\\Versions'" \
+            "$pro/vendor/easy-digital-downloads/edd-sl-sdk/edd-sl-sdk.php"
+
+      - name: Publish Pro build to dist branch
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" dist-branch
+          cd dist-branch
+          git fetch origin dist || true
+          git checkout dist 2>/dev/null || git checkout --orphan dist
+          git rm -rf . 2>/dev/null || true
           git clean -fxd
-
-      # copy files to remote repository
-      - run: cp -a windpress-prefixed/. remote-repository
-
-      # clean up the .wordpress-org directory as it is not needed
-      - run: rm -rf remote-repository/.wordpress-org
-
-      # setup git
-      - working-directory: remote-repository
-        run: |
-          git config user.name "Joshua Gugun Siagian"
-          git config user.email suabahasa@gmail.com
-
-      # commit metadata
-      - name: "Get Git log"
-        id: git-log
-        run: |
-          echo "log<<EOF" >> $GITHUB_OUTPUT
-          echo "$(git log ${{ github.event.before }}..${{ github.event.after }} --reverse --pretty='https://github.com/jooosi-project/windpress/commit/%H %s')" >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
-
-      # publish it to remote repository with tag
-      - name: "Commit Prefixed - tag"
-        working-directory: remote-repository
-        if: "startsWith(github.ref, 'refs/tags/')"
-        env:
-          INPUT_LOG: ${{ steps.git-log.outputs.log }}
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/}
-          # Remove 'v' prefix if it exists
-          VERSION_NO_V=${VERSION#v}
+          cp -a ../windpress-pro-prefixed/. .
           git add --all
-          git commit -m "WindPress $VERSION_NO_V" -m "$INPUT_LOG"
-          git push --quiet origin main
-          git tag $VERSION_NO_V -m "$VERSION_NO_V"
-          git push --quiet origin $VERSION_NO_V
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      # WordPress.org build
+          if git diff --cached --quiet; then
+            echo "The dist branch already matches Pro ${PRO_VERSION}."
+          else
+            git commit -m "Build Pro ${PRO_VERSION}"
+            git push origin dist
+          fi
 
-      # Get the current tag from github.ref, where the tag name is the version number.
-      # tag name pattern: X.Y.Z, where X, Y, Z are integers
-      # reduce the Y by 1, then build the tag name
-      # save the tag name as `WP_ORG_VERSION` variable to file $GITHUB_ENV
-      # Note, set-output is deprecated, so use alternative instead of ::set-output
-      - run: |
-          VERSION=${GITHUB_REF#refs/tags/}
-          # Remove 'v' prefix if it exists
-          VERSION_NO_V=${VERSION#v}
-          echo "WP_ORG_VERSION=$(echo $VERSION_NO_V | awk -F. '{print $1"."$2-1"."$3}')" >> $GITHUB_ENV
+      - name: Prepare Free edition
+        shell: bash
+        run: |
+          rm -rf \
+            windpress-deploy/src/Integration/Blockstudio \
+            windpress-deploy/src/Integration/Builderius \
+            windpress-deploy/src/Integration/Breakdance \
+            windpress-deploy/src/Integration/Beaver \
+            windpress-deploy/src/Integration/Blocksy \
+            windpress-deploy/src/Integration/Bricks \
+            windpress-deploy/src/Integration/Cwicly \
+            windpress-deploy/src/Integration/Divi \
+            windpress-deploy/src/Integration/Etch \
+            windpress-deploy/src/Integration/MetaBox \
+            windpress-deploy/src/Integration/Oxygen \
+            windpress-deploy/src/Integration/OxygenClassic \
+            windpress-deploy/src/Integration/WPCodeBox2
 
-      - run: ls -la
+          node deploy/decrease-version.mjs windpress-deploy
+          composer remove \
+            --working-dir=windpress-deploy \
+            easy-digital-downloads/edd-sl-sdk \
+            --update-no-dev \
+            --classmap-authoritative \
+            --no-interaction \
+            --no-progress \
+            --ansi
 
-      # remove the $NESTED_DIRECTORY directory
-      - run: rm -rf windpress-deploy remote-repository windpress-prefixed
-      # remove the vendor directory
-      - run: rm -rf vendor
+      - name: Scope Free edition dependencies
+        run: bash deploy/deploy-scoped.sh windpress-deploy windpress-free-prefixed
 
-      # keep this folders (Free):
-      # - Gutenberg
-      # - Elementor
-      # - GreenShift
-      # - Kadence
-      # - Timber
-      # - LiveCanvas
-      # - Builderius (Planned)
-      # else, remove the premium version
-      - run: rm -rf src/Integration/{Blockstudio,Builderius,Breakdance,Beaver,Blocksy,Bricks,Cwicly,Divi,Etch,MetaBox,Oxygen,OxygenClassic,WPCodeBox2}
+      - name: Prepare Free artifact
+        shell: bash
+        run: |
+          mkdir -p windpress-free-prefixed-filtered
+          rsync -a \
+            --exclude='.*' \
+            --exclude-from=.distignore \
+            windpress-free-prefixed/ \
+            windpress-free-prefixed-filtered/
+          rm -rf windpress-free-prefixed
+          mv windpress-free-prefixed-filtered windpress-free-prefixed
 
-      - run: ls -la
+      - name: Verify Free edition
+        shell: bash
+        run: |
+          free=windpress-free-prefixed
 
-      # scoped using php-scoper.phar which require #[\ReturnTypeWillChange] inside so use php 8.0 for scoping
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: 7.4
-          coverage: none
-        # fixes https://github.com/rectorphp/rector/pull/4559/checks?check_run_id=1359814403, see https://github.com/shivammathur/setup-php#composer-github-oauth
+          grep -Fq "* Version:             ${FREE_VERSION}" "$free/windpress.php"
+          grep -Fq "public const VERSION = '${FREE_VERSION}';" "$free/constant.php"
+          grep -Fq "Stable tag: ${FREE_VERSION}" "$free/readme.txt"
+
+          if grep -Eiq '^[[:space:]]*\*[[:space:]]*Update URI:' "$free/windpress.php"; then
+            echo "The Free artifact must not contain a custom Update URI." >&2
+            exit 1
+          fi
+
+          if [[ -d "$free/vendor/easy-digital-downloads/edd-sl-sdk" ]]; then
+            echo "The Free artifact must not contain the EDD Software Licensing SDK." >&2
+            exit 1
+          fi
+
+          for directory in Blockstudio Builderius Breakdance Beaver Blocksy Bricks Cwicly Divi Etch MetaBox Oxygen OxygenClassic WPCodeBox2; do
+            if [[ -d "$free/src/Integration/$directory" ]]; then
+              echo "The Free artifact contains Pro integration: $directory" >&2
+              exit 1
+            fi
+          done
+
+      - name: Publish Free build to dist-free branch
         env:
-          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" dist-free-branch
+          cd dist-free-branch
+          git fetch origin dist-free || true
+          git checkout dist-free 2>/dev/null || git checkout --orphan dist-free
+          git rm -rf . 2>/dev/null || true
+          git clean -fxd
+          cp -a ../windpress-free-prefixed/. .
+          git add --all
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      # remove custom update library
-      - run: composer remove rosua/edd-sl-plugin-updater --ansi
+          if git diff --cached --quiet; then
+            echo "The dist-free branch already matches Free ${FREE_VERSION}."
+          else
+            git commit -m "Build Free ${FREE_VERSION}"
+            git push origin dist-free
+          fi
 
-      # decrease the version
-      - run: deno run --allow-read --allow-write deploy/decrease-version.ts
-
-      # install only prod dependencies
-      - run: composer install --no-dev --classmap-authoritative --ansi
-
-      # copy files to $NESTED_DIRECTORY directory Exclude the scoped/nested directories to prevent rsync from copying in a loop
-      - run: rsync --exclude windpress-deploy -av * windpress-deploy --quiet
-
-      # humbug/php-scoper requires php ^8.2
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.2
-          coverage: none
-
-      # prefix the namespaces
-      - run: sh deploy/deploy-scoped.sh windpress-deploy windpress-prefixed
-
-      # deploy to WordPress.org SVN repository
-      - name: WordPress Plugin Deploy
+      - name: Publish Free edition to WordPress.org
         uses: 10up/action-wordpress-plugin-deploy@stable
         env:
-          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SVN_USERNAME: ${{ secrets.WORDPRESS_ORG_SVN_USERNAME || secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.WORDPRESS_ORG_SVN_PASSWORD || secrets.SVN_PASSWORD }}
           SLUG: windpress
-          BUILD_DIR: windpress-prefixed
-          VERSION: ${{ env.WP_ORG_VERSION }}
+          BUILD_DIR: windpress-free-prefixed
+          VERSION: ${{ steps.versions.outputs.free }}
+          ASSETS_DIR: .wordpress-org
 
-      # Create GitHub Release with changelog and zip file
-      - name: "Create plugin zip file"
+      - name: Create Free plugin archive
+        shell: bash
         run: |
-          mkdir -p windpress-zip/windpress
-          cp -r windpress-prefixed/* windpress-zip/windpress/
-          cd windpress-zip
-          zip -r "../windpress-${{ env.WP_ORG_VERSION }}-free.zip" . -x "*.git*" "*.DS_Store*"
-          cd ..
-          ls -la windpress-*.zip
+          mkdir -p windpress-free-zip/windpress
+          cp -a windpress-free-prefixed/. windpress-free-zip/windpress/
+          cd windpress-free-zip
+          zip -qr "../windpress-${FREE_VERSION}-free.zip" windpress -x "*.git*" "*.DS_Store*"
 
-      - name: "Create GitHub Release"
-        uses: softprops/action-gh-release@v2
-        if: "startsWith(github.ref, 'refs/tags/')"
+      - name: Upload Free plugin artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: "${{ github.ref_name }}"
+          name: windpress-${{ steps.versions.outputs.free }}-free
+          path: windpress-${{ steps.versions.outputs.free }}-free.zip
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
           body: ${{ steps.changelog.outputs.content }}
-          files: |
-            windpress-${{ env.WP_ORG_VERSION }}-free.zip
+          files: windpress-${{ steps.versions.outputs.free }}-free.zip
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.ORG_DEV_PAT }}
+          GITHUB_TOKEN: ${{ github.token }}

@@ -7,11 +7,20 @@ import { useApi } from "@/dashboard/library/api";
 const volumeStore = useVolumeStore();
 const api = useApi();
 
+const props = withDefaults(
+  defineProps<{
+    directory?: string;
+  }>(),
+  {
+    directory: "",
+  },
+);
+
 const emit = defineEmits<{
   close: [{ filePath: string; handler?: string }?];
 }>();
 
-const filePath = ref<string>("");
+const filePath = ref<string>(props.directory ? `${props.directory}/` : "");
 const handler = ref<string | undefined>();
 const handlers = ref<Array<{ value?: string; label: string; description?: string }>>([]);
 const isLoadingHandlers = ref(false);

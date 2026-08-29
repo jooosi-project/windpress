@@ -7,8 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- File tree drag-and-drop support.
+- Folder actions for creating files and folders.
+
 ### Fixed
 
+- Drag preview scrollbar flicker.
+- File editor hotkeys not working correctly on MacOS.
 - [Gutenberg] Canvas compatibility issue on the latest WordPress 7.1
 - [Wizard] Reported volume save failures instead of displaying a false success message [#81](https://github.com/jooosi-project/windpress/issues/81)
 

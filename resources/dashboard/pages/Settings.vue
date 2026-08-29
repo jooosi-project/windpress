@@ -100,7 +100,7 @@ const links = computed(() => [
     // {
     //     label: 'Support',
     //     icon: 'lucide:headset',
-    //     to: `https://rosua.org/support-portal?utm_source=wordpress-plugins&utm_medium=plugin-menu&utm_campaign=windpress&utm_id=all-edition&windpress_version=${windpress._version}`,
+    //     to: `https://jooo.si/support-portal?utm_source=wordpress-plugins&utm_medium=plugin-menu&utm_campaign=windpress&utm_id=all-edition&windpress_version=${windpress._version}`,
     //     target: '_blank'
     // },
     {
