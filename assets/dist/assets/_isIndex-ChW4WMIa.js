@@ -1,0 +1,1 @@
+var e=/^(?:0|[1-9]\d*)$/;function t(t,n){var r=typeof t;return n??=9007199254740991,!!n&&(r==`number`||r!=`symbol`&&e.test(t))&&t>-1&&t%1==0&&t<n}export{t};

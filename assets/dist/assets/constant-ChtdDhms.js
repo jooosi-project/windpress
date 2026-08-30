@@ -1,0 +1,1 @@
+import{t as e}from"./virtualRef-D8LjEmeS.js";var t=document.querySelector(`.brx-body`),n=document.querySelector(`.brx-body`).__vue_app__.config.globalProperties,r=document.getElementById(`bricks-builder-iframe`),i=r.contentDocument.querySelector(`.brx-body`).__vue_app__.config.globalProperties,{getVirtualRef:a}=e({},{persist:`windpress.bricks.settings.state`});export{a,i,n,r,t};
