@@ -1,0 +1,1 @@
+import{n as e}from"./rolldown-runtime-C0FnF6B9.js";var t,n=e((()=>{t=globalThis||self}));export{n,t};

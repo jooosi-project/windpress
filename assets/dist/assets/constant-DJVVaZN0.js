@@ -1,0 +1,1 @@
+document.body;var e=angular.element(document.body).scope(),t=e.iframeScope,n=document.querySelector(`#ct-artificial-viewport`);window.oxygenScope=e;export{n,e as r,t};

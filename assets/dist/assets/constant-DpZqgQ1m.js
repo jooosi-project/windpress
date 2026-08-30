@@ -1,0 +1,1 @@
+var e=document.querySelector(`#app`);e.__vue_app__;var t=document.querySelector(`#app #iframe`),n=t?.contentDocument.querySelector(`#breakdance_canvas`);n.__vue_app__;var r=window.Breakdance?.stores;r?.configStore;var i=r?.documentStore,a=r?.globalStore,o=r?.uiStore;export{n as a,t as i,i as n,o,a as r,e as t};

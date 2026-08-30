@@ -1,0 +1,16 @@
+{
+    "name": "easy-digital-downloads\/edd-sl-sdk",
+    "license": "GPL-2.0-or-later",
+    "type": "library",
+    "require-dev": {
+        "phpunit\/phpunit": "^8",
+        "yoast\/phpunit-polyfills": "^1.0.5",
+        "yoast\/wp-test-utils": "^1.0",
+        "codedungeon\/phpunit-result-printer": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "EasyDigitalDownloads\\Updater\\": "src\/"
+        }
+    }
+}

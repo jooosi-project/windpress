@@ -1,0 +1,97 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "windpress/common-block",
+  "version": "1.0.0",
+  "title": "Common Block",
+  "category": "design",
+  "description": "A generic and flexible block that lets you build any HTML element.",
+  "keywords": ["common", "element", "flexible", "generic", "tailwind", "html", "windpress"],
+  "textdomain": "windpress",
+  "editorScript": "file:./index.js",
+  "attributes": {
+    "tagName": {
+      "type": "string",
+      "default": "div"
+    },
+    "contentType": {
+      "type": "string",
+      "default": "blocks"
+    },
+    "globalAttrs": {
+      "type": "object",
+      "default": {}
+    },
+    "content": {
+      "type": "string",
+      "default": "",
+      "role": "content"
+    },
+    "selfClosing": {
+      "type": "boolean",
+      "default": false
+    },
+    "metadata": {
+      "type": "object",
+      "default": {
+        "name": ""
+      }
+    }
+  },
+  "supports": {
+    "html": false,
+    "className": true,
+    "customClassName": true,
+    "anchor": true,
+    "renaming": true,
+    "metadata": {
+      "name": true
+    },
+    "align": ["left", "center", "right", "wide", "full"],
+    "alignWide": true,
+    "spacing": {
+      "padding": true,
+      "margin": true,
+      "blockGap": true
+    },
+    "dimensions": {
+      "minHeight": true,
+      "aspectRatio": true
+    },
+    "position": {
+      "sticky": true
+    },
+    "typography": {
+      "fontSize": true,
+      "fontFamily": true,
+      "fontWeight": true,
+      "fontStyle": true,
+      "textTransform": true,
+      "textDecoration": true,
+      "letterSpacing": true,
+      "lineHeight": true
+    },
+    "color": {
+      "text": true,
+      "background": true,
+      "link": true,
+      "gradients": true
+    },
+    "border": {
+      "color": true,
+      "radius": true,
+      "style": true,
+      "width": true
+    },
+    "shadow": true,
+    "interactivity": {
+      "clientNavigation": true
+    }
+  },
+  "example": {
+    "attributes": {
+      "tagName": "div",
+      "contentType": "blocks"
+    }
+  }
+}

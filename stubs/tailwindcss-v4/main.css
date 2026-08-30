@@ -1,0 +1,7 @@
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme) theme(static);
+/* @import "tailwindcss/preflight.css" layer(base); */
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@import "./wizard.css";

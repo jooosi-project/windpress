@@ -1,0 +1,109 @@
+@use "toggle";
+
+.edd-sdk__notice__overlay {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	width: 100%;
+	z-index: 1000;
+	background: rgba(0, 0, 0, 0.5);
+	align-items: center;
+	justify-content: center;
+	display: none;
+
+	.auto-fold & {
+		margin-left: 160px;
+		width: calc(100% - 160px);
+	}
+
+	.folded & {
+		margin-left: 36px;
+		width: calc(100% - 36px);
+	}
+
+	@media only screen and (max-width: 960px) {
+		margin-left: 36px !important;
+		width: calc(100% - 36px) !important;
+	}
+
+	@media only screen and (max-width: 782px) {
+		margin-left: 0 !important;
+		width: 100% !important;
+	}
+}
+
+.edd-sdk-notice--overlay {
+	padding: 2em;
+	background: white;
+	border-radius: 4px;
+	border: 1px solid #ddd;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5em;
+	max-width: 500px;
+
+	button.edd-sdk__notice--dismiss {
+		position: absolute;
+		color: #555;
+		text-decoration: none;
+		font-size: 2em;
+		top: 0.5em;
+		right: 0.5em;
+		line-height: 1;
+		padding: 4px;
+
+		&:before {
+			font-family: dashicons;
+			font-weight: normal;
+			content: "\f335";
+		}
+	}
+
+	.inline-notice {
+		margin: 1em 0 0;
+	}
+
+	@media only screen and (max-width: 782px) {
+		max-width: 100%;
+	}
+}
+
+.edd-sl-sdk__license-control {
+	display: flex;
+	gap: 4px;
+	margin-top: 1em;
+
+	button {
+		margin: 0 !important;
+	}
+
+	@media only screen and (max-width: 600px) {
+		flex-wrap: wrap;
+
+		input {
+			width: 100%;
+		}
+	}
+}
+
+.edd-sl-sdk-license-response {
+	margin-top: 5px;
+
+	&__valid {
+		color: #008a20;
+	}
+
+	&__invalid {
+		color: #d63638;
+	}
+}
+
+.edd-sl-sdk__license-status-message {
+	font-style: italic;
+}
+
+.edd-sl-sdk-licensing__actions {
+	display: flex;
+	gap: 4px;
+}

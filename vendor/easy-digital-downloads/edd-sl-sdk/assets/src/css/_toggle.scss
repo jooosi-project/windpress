@@ -1,0 +1,73 @@
+.edd-sl-sdk__data-control {
+	position: relative;
+	display: flex;
+	gap: 5px;
+	overflow: visible;
+	align-items: center;
+
+	input {
+		position: relative;
+		margin: 0;
+		padding: 0;
+		width: 42px;
+		min-width: 42px;
+		height: 24px;
+		background-color: #ccc;
+		transition: background 0.2s ease;
+		border-radius: 34px;
+		box-shadow: none;
+		border: none;
+	}
+
+	label,
+	.label {
+		margin-bottom: 0 !important;
+	}
+
+	input:before {
+		position: absolute;
+		content: "" !important;
+		height: 18px !important;
+		width: 18px !important;
+		left: 3px;
+		bottom: 3px;
+		background-color: white !important;
+		transition: 0.1s transform ease;
+		border-radius: 50%;
+		z-index: 99;
+	}
+
+	@media only screen and (max-width: 782px) {
+		input:checked:before {
+			margin: -.1875rem 0 0 -.25rem;
+		}
+	}
+
+	input:checked {
+		background-color: var( --wp-admin-theme-color, #007cba );
+	}
+
+	input:active,
+	input:focus {
+		outline: 0;
+		box-shadow: 0 0 0 1px #fff, 0 0 0 3px #7e8993;
+	}
+
+	input:checked:active,
+	input:checked:focus {
+		box-shadow: 0 0 0 1px #fff, 0 0 0 3px var( --wp-admin-theme-color, #007cba );
+	}
+
+	input:checked:before {
+		transform: translateX(22px);
+	}
+
+	input[type="radio"]:checked:before {
+		margin: 0;
+		transform: translateX(18px);
+	}
+
+	input:disabled {
+		opacity: 0.5;
+	}
+}
