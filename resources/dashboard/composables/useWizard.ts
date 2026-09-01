@@ -105,6 +105,48 @@ const SPECIAL_PROPERTIES = {
   SPACING_MULTIPLIER: "--spacing",
 } as const;
 
+function isThemeRule(rule: any): boolean {
+  if (rule?.type === "at-rule") {
+    return rule.name === "theme";
+  }
+
+  return (
+    rule?.type === "rule" &&
+    Array.isArray(rule.selectors) &&
+    rule.selectors.some((selector: string) => selector.startsWith("@theme"))
+  );
+}
+
+function getThemeDeclarations(rule: any): any[] {
+  return rule.type === "at-rule" ? rule.rules || [] : rule.declarations || [];
+}
+
+function setThemeDeclarations(rule: any, declarations: any[]): void {
+  if (rule.type === "at-rule") {
+    rule.rules = declarations;
+  } else {
+    rule.declarations = declarations;
+  }
+}
+
+function createThemeRule(theme: WizardTheme, declarations: any[]): any {
+  return {
+    type: "at-rule",
+    name: "theme",
+    prelude: theme.isStatic ? "static" : "",
+    rules: declarations,
+  };
+}
+
+function isStaticThemeRule(rule: any): boolean {
+  const modifier =
+    rule.type === "at-rule"
+      ? rule.prelude
+      : rule.selectors?.find((selector: string) => selector.startsWith("@theme"));
+
+  return typeof modifier === "string" && modifier.trim().split(/\s+/).includes("static");
+}
+
 // =============================================================================
 // Utility Functions
 // =============================================================================
@@ -276,30 +318,21 @@ export function parseWizardFile(fileContent: string): WizardTheme {
     const ast = cssToolsParse(fileContent);
     theme.ast = ast;
 
-    // Find and process the @theme rule
-    if (ast.stylesheet?.rules) {
-      for (const rule of ast.stylesheet.rules) {
-        if (rule.type === "rule" && rule.selectors) {
-          const themeSelector = rule.selectors.find((selector: string) =>
-            selector.startsWith("@theme"),
-          );
+    // Find and process the @theme rule. css-tools 4.x represents this as an
+    // at-rule, while older versions exposed it as a rule whose selector was
+    // "@theme".
+    const themeRule = ast.stylesheet?.rules?.find(isThemeRule);
 
-          if (themeSelector) {
-            // Parse @theme modifiers
-            if (themeSelector === "@theme static") {
-              theme.isStatic = true;
-            }
+    if (themeRule) {
+      theme.isStatic = isStaticThemeRule(themeRule);
 
-            // Process declarations
-            if (rule.declarations) {
-              for (const declaration of rule.declarations) {
-                if (declaration.type === "declaration" && declaration.property.startsWith("--")) {
-                  processDeclaration(theme, declaration.property, declaration.value);
-                }
-              }
-            }
-            break; // Found the @theme rule, no need to continue
-          }
+      for (const declaration of getThemeDeclarations(themeRule)) {
+        if (
+          declaration.type === "declaration" &&
+          typeof declaration.property === "string" &&
+          declaration.property.startsWith("--")
+        ) {
+          processDeclaration(theme, declaration.property, declaration.value);
         }
       }
     }
@@ -409,99 +442,102 @@ export function stringifyTheme(theme: WizardTheme): string {
  */
 function updateExistingAST(theme: WizardTheme): string {
   const ast = JSON.parse(JSON.stringify(theme.ast)); // Deep clone the original AST
+  const themeRule = ast.stylesheet?.rules?.find(isThemeRule);
 
-  // Find the @theme rule and update its declarations
-  if (ast.stylesheet?.rules) {
-    for (const rule of ast.stylesheet.rules) {
-      if (rule.type === "rule" && rule.selectors) {
-        const themeSelector = rule.selectors.find((selector: string) =>
-          selector.startsWith("@theme"),
-        );
+  if (!themeRule) {
+    const declarations: any[] = [];
 
-        if (themeSelector) {
-          // Update the selector based on theme flags
-          rule.selectors = [theme.isStatic ? "@theme static" : "@theme"];
-
-          // Start with existing declarations to preserve positions
-          const declarations: Array<{ type: "declaration"; property: string; value: string }> = [
-            ...(rule.declarations || []),
-          ];
-
-          // First, update/add special properties
-          if (theme.isInitial) {
-            addOrUpdateDeclaration(declarations, SPECIAL_PROPERTIES.INITIAL_MARKER, "initial");
-          } else {
-            // Remove isInitial property if it's disabled
-            addOrUpdateDeclaration(declarations, SPECIAL_PROPERTIES.INITIAL_MARKER, "");
-          }
-
-          if (theme.spacing) {
-            addOrUpdateDeclaration(
-              declarations,
-              SPECIAL_PROPERTIES.SPACING_MULTIPLIER,
-              theme.spacing,
-            );
-          } else {
-            // Remove spacing property if it's empty
-            addOrUpdateDeclaration(declarations, SPECIAL_PROPERTIES.SPACING_MULTIPLIER, "");
-          }
-
-          // Update/add all current namespace declarations (preserves existing positions)
-          serializeNamespaces(theme, declarations);
-
-          // Collect all current theme properties for comparison
-          const currentThemeProperties = new Set<string>();
-
-          // Add special properties if they exist
-          if (theme.isInitial) {
-            currentThemeProperties.add(SPECIAL_PROPERTIES.INITIAL_MARKER);
-          }
-          if (theme.spacing) {
-            currentThemeProperties.add(SPECIAL_PROPERTIES.SPACING_MULTIPLIER);
-          }
-
-          // Add all namespace properties from current theme
-          Object.entries(theme.namespaces).forEach(([namespace, values]) => {
-            if (values && Object.keys(values).length > 0) {
-              const properties = flattenNestedObject(values, namespace);
-              properties.forEach(({ property }) => {
-                currentThemeProperties.add(property);
-              });
-            }
-          });
-
-          // Remove leftover namespace declarations that are no longer in the theme
-          const filteredDeclarations = declarations.filter((decl: any) => {
-            // Skip declarations with empty, null, or undefined values
-            if (decl.type === "declaration" && (!decl.value || decl.value.trim() === "")) {
-              return false;
-            }
-
-            if (decl.type !== "declaration" || !decl.property.startsWith("--")) {
-              return true; // Keep non-CSS-custom-property declarations
-            }
-
-            // Check if this is a namespace property
-            const match = decl.property.match(/^--([^-]+)-/);
-            if (match) {
-              const namespace = match[1];
-              // If it's a known namespace property, only keep if it's in current theme
-              if (namespace in THEME_NAMESPACES) {
-                return currentThemeProperties.has(decl.property);
-              }
-            }
-
-            // Keep special properties if they're in current theme, or unknown namespace properties
-            return currentThemeProperties.has(decl.property) || !match;
-          });
-
-          // Update the rule's declarations
-          rule.declarations = filteredDeclarations;
-          break;
-        }
-      }
+    if (theme.isInitial) {
+      addOrUpdateDeclaration(declarations, SPECIAL_PROPERTIES.INITIAL_MARKER, "initial");
     }
+    if (theme.spacing) {
+      addOrUpdateDeclaration(declarations, SPECIAL_PROPERTIES.SPACING_MULTIPLIER, theme.spacing);
+    }
+    serializeNamespaces(theme, declarations);
+
+    ast.stylesheet ||= { rules: [] };
+    ast.stylesheet.rules ||= [];
+    ast.stylesheet.rules.push(createThemeRule(theme, declarations));
+    return cssToolsStringify(ast);
   }
+
+  // Keep the AST shape produced by the installed css-tools version while
+  // retaining support for the legacy selector-based representation.
+  if (themeRule.type === "at-rule") {
+    themeRule.prelude = theme.isStatic ? "static" : "";
+  } else {
+    themeRule.selectors = [theme.isStatic ? "@theme static" : "@theme"];
+  }
+
+  // Start with existing declarations to preserve comments and positions.
+  const declarations: any[] = [...getThemeDeclarations(themeRule)];
+
+  // First, update/add special properties.
+  if (theme.isInitial) {
+    addOrUpdateDeclaration(declarations, SPECIAL_PROPERTIES.INITIAL_MARKER, "initial");
+  } else {
+    addOrUpdateDeclaration(declarations, SPECIAL_PROPERTIES.INITIAL_MARKER, "");
+  }
+
+  if (theme.spacing) {
+    addOrUpdateDeclaration(declarations, SPECIAL_PROPERTIES.SPACING_MULTIPLIER, theme.spacing);
+  } else {
+    addOrUpdateDeclaration(declarations, SPECIAL_PROPERTIES.SPACING_MULTIPLIER, "");
+  }
+
+  // Update/add all current namespace declarations.
+  serializeNamespaces(theme, declarations);
+
+  // Collect all current theme properties for comparison.
+  const currentThemeProperties = new Set<string>();
+
+  if (theme.isInitial) {
+    currentThemeProperties.add(SPECIAL_PROPERTIES.INITIAL_MARKER);
+  }
+  if (theme.spacing) {
+    currentThemeProperties.add(SPECIAL_PROPERTIES.SPACING_MULTIPLIER);
+  }
+
+  Object.entries(theme.namespaces).forEach(([namespace, values]) => {
+    if (values && Object.keys(values).length > 0) {
+      const properties = flattenNestedObject(values, namespace);
+      properties.forEach(({ property }) => {
+        currentThemeProperties.add(property);
+      });
+    }
+  });
+
+  // Remove declarations that no longer exist in the Wizard state while
+  // preserving non-theme CSS and custom properties from other namespaces.
+  const filteredDeclarations = declarations.filter((decl: any) => {
+    if (decl.type === "declaration" && (!decl.value || decl.value.trim() === "")) {
+      return false;
+    }
+
+    if (
+      decl.type !== "declaration" ||
+      typeof decl.property !== "string" ||
+      !decl.property.startsWith("--")
+    ) {
+      return true;
+    }
+
+    if (
+      decl.property === SPECIAL_PROPERTIES.INITIAL_MARKER ||
+      decl.property === SPECIAL_PROPERTIES.SPACING_MULTIPLIER
+    ) {
+      return currentThemeProperties.has(decl.property);
+    }
+
+    const match = decl.property.match(/^--([^-]+)-/);
+    if (match && match[1] in THEME_NAMESPACES) {
+      return currentThemeProperties.has(decl.property);
+    }
+
+    return currentThemeProperties.has(decl.property) || !match;
+  });
+
+  setThemeDeclarations(themeRule, filteredDeclarations);
 
   return cssToolsStringify(ast);
 }
@@ -539,20 +575,11 @@ function createNewAST(theme: WizardTheme): string {
     (decl) => decl.value && decl.value.trim() !== "",
   );
 
-  // Determine the @theme selector based on flags
-  const themeSelector = theme.isStatic ? "@theme static" : "@theme";
-
-  // Create the AST structure compatible with css-tools
+  // Create the AST structure used by the current css-tools parser.
   const ast: any = {
     type: "stylesheet",
     stylesheet: {
-      rules: [
-        {
-          type: "rule",
-          selectors: [themeSelector],
-          declarations: filteredDeclarations,
-        },
-      ],
+      rules: [createThemeRule(theme, filteredDeclarations)],
     },
   };
 

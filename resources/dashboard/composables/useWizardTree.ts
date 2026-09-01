@@ -1,5 +1,6 @@
-import { ref, computed, type Ref } from "vue";
+import { ref, computed, watch, type Ref } from "vue";
 import { nanoid, customAlphabet } from "nanoid";
+import { isEqual } from "lodash-es";
 import type { TreeItem } from "@nuxt/ui";
 import type { WizardTheme } from "./useWizard";
 
@@ -80,40 +81,52 @@ export function useWizardTree(namespace: keyof WizardTheme["namespaces"], theme:
       .filter((item): item is WizardTreeItem => item !== null);
   }
 
+  function itemsToNamespace(): WizardTheme["namespaces"][typeof namespace] {
+    const convertItem = (item: any): any => {
+      if (!item.var?.key) return null;
+
+      if (item.children && item.children.length > 0) {
+        const result: any = {};
+        item.children.forEach((child: any) => {
+          const converted = convertItem(child);
+          if (converted) {
+            Object.assign(result, converted);
+          }
+        });
+
+        if (
+          item.var.value !== undefined &&
+          item.var.value !== null &&
+          item.var.value !== ""
+        ) {
+          result.$value = item.var.value;
+        }
+
+        return { [item.var.key]: result };
+      } else if (item.var.value !== undefined && item.var.value !== null) {
+        return { [item.var.key]: item.var.value };
+      }
+      return null;
+    };
+
+    const newNamespace: WizardTheme["namespaces"][typeof namespace] = {};
+    items.value.forEach((item: any) => {
+      const converted = convertItem(item);
+      if (converted) {
+        Object.assign(newNamespace, converted);
+      }
+    });
+
+    return newNamespace;
+  }
+
   function updateThemeFromItems() {
     try {
-      const convertItem = (item: any): any => {
-        if (!item.var?.key) return null;
+      const newNamespace = itemsToNamespace();
 
-        if (item.children && item.children.length > 0) {
-          const result: any = {};
-          item.children.forEach((child: any) => {
-            const converted = convertItem(child);
-            if (converted) {
-              Object.assign(result, converted);
-            }
-          });
-
-          if (item.var.value !== undefined && item.var.value !== null) {
-            result.$value = item.var.value;
-          }
-
-          return { [item.var.key]: result };
-        } else if (item.var.value !== undefined && item.var.value !== null) {
-          return { [item.var.key]: item.var.value };
-        }
-        return null;
-      };
-
-      const newNamespace: any = {};
-      items.value.forEach((item: any) => {
-        const converted = convertItem(item);
-        if (converted) {
-          Object.assign(newNamespace, converted);
-        }
-      });
-
-      theme.value.namespaces[namespace] = newNamespace;
+      if (!isEqual(theme.value.namespaces[namespace], newNamespace)) {
+        theme.value.namespaces[namespace] = newNamespace;
+      }
     } catch (error) {
       console.error("Error updating theme from items:", error);
     }
@@ -295,8 +308,27 @@ export function useWizardTree(namespace: keyof WizardTheme["namespaces"], theme:
   }
 
   function initializeItems() {
+    // Keep the current tree (and its input focus/drag state) when the theme
+    // change originated from this tree. Rebuilding it on every keystroke
+    // would replace all item objects and make the Save action serialize stale
+    // data until the route changes.
+    if (isEqual(itemsToNamespace(), theme.value.namespaces[namespace])) {
+      return;
+    }
+
     items.value = namespaceToTree(theme.value.namespaces[namespace]);
   }
+
+  // Tree controls edit `items` directly. Keep the shared theme in sync so the
+  // parent Wizard page can save immediately without relying on a route leave
+  // hook.
+  watch(
+    items,
+    () => {
+      updateThemeFromItems();
+    },
+    { deep: true, flush: "sync" },
+  );
 
   return {
     expandedTree,

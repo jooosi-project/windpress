@@ -51,6 +51,7 @@ export const useVolumeStore = defineStore("volume", () => {
   const initData = reactive({
     entries: [] as Entry[],
   });
+  let initPullPromise: Promise<void> | null = null;
 
   const activeViewEntryRelativePath = ref<string | null>(null);
   const _activeViewEntryRelativePath = useStorage<string | null>(
@@ -315,10 +316,19 @@ export const useVolumeStore = defineStore("volume", () => {
    * Pull the data from the server when the store is initialized.
    */
   async function initPull(): Promise<void> {
-    if (data.entries.length === 0) {
-      return doPull();
+    if (data.entries.length !== 0) {
+      return;
     }
-    return Promise.resolve();
+
+    if (!initPullPromise) {
+      initPullPromise = doPull()
+        .then(() => undefined)
+        .finally(() => {
+          initPullPromise = null;
+        });
+    }
+
+    return initPullPromise;
   }
 
   return {

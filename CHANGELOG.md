@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- [Wizard] Wizard settings now stay synchronized with direct edits to `wizard.css`.
+
 ## [3.3.87] - 2026-08-29
 
 ### Added

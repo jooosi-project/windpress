@@ -15,6 +15,7 @@ export const useSettingsStore = defineStore("settings", () => {
    * The initial options data which will be used to check if the data has changed.
    */
   const initOptions = ref({});
+  let initPullPromise: Promise<void> | null = null;
 
   /**
    * Pull the data from the server.
@@ -75,10 +76,20 @@ export const useSettingsStore = defineStore("settings", () => {
   /**
    * Pull the data from the server when the store is initialized.
    */
-  function initPull() {
-    if (Object.keys(options.value as object).length === 0) {
-      doPull();
+  function initPull(): Promise<void> {
+    if (Object.keys(options.value as object).length !== 0) {
+      return Promise.resolve();
     }
+
+    if (!initPullPromise) {
+      initPullPromise = doPull()
+        .then(() => undefined)
+        .finally(() => {
+          initPullPromise = null;
+        });
+    }
+
+    return initPullPromise;
   }
 
   /**

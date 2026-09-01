@@ -68,6 +68,31 @@ const cssErrors = ref<{
 // Error panel expanded state
 const errorPanelExpanded = ref(false);
 
+function handleEditorChange(value: string | undefined) {
+  if (value !== undefined && props.entry.content !== value) {
+    props.entry.content = value;
+  }
+}
+
+// Keep a persistent Monaco model aligned when the volume entry is changed by
+// another part of the dashboard, such as the Wizard page.
+watch(
+  () => props.entry.content,
+  (content) => {
+    const model = editorElementRef.value?.getModel();
+
+    if (
+      !model ||
+      model.uri.toString() !== workspace.modelUri(props.entry.relative_path) ||
+      model.getValue() === content
+    ) {
+      return;
+    }
+
+    model.setValue(content);
+  },
+);
+
 async function handleEditorMount(
   editor: monacoEditor.editor.IStandaloneCodeEditor,
   monaco: MonacoEditor,
@@ -1660,6 +1685,7 @@ onBeforeUnmount(() => {
         :saveViewState="false"
         :options="{ ...MONACO_EDITOR_OPTIONS, readOnly: props.entry.readonly }"
         @mount="handleEditorMount"
+        @change="handleEditorChange"
         :theme="colorMode === 'dark' ? 'vs-dark' : 'vs'"
       />
     </div>
