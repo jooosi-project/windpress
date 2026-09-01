@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - [Wizard] Wizard settings now stay synchronized with direct edits to `wizard.css`.
+- Fixed the Fluid Generator so complete spacing and text scales are created on the first attempt.
 
 ## [3.3.87] - 2026-08-29
 

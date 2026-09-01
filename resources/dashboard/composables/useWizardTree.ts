@@ -23,6 +23,7 @@ export function generateId() {
 
 export function useWizardTree(namespace: keyof WizardTheme["namespaces"], theme: Ref<WizardTheme>) {
   const items = ref<WizardTreeItem[]>([]);
+  let updateBatchDepth = 0;
 
   const expandedTree = computed(() => {
     const result: string[] = [];
@@ -132,6 +133,20 @@ export function useWizardTree(namespace: keyof WizardTheme["namespaces"], theme:
     }
   }
 
+  function batchUpdate(callback: () => void): void {
+    updateBatchDepth++;
+
+    try {
+      callback();
+    } finally {
+      updateBatchDepth--;
+
+      if (updateBatchDepth === 0) {
+        updateThemeFromItems();
+      }
+    }
+  }
+
   function findItemByUid(itemList: any[], targetUid: string): any {
     for (const item of itemList) {
       if (item.value === targetUid) {
@@ -195,7 +210,13 @@ export function useWizardTree(namespace: keyof WizardTheme["namespaces"], theme:
 
         // Add to current level
         currentItems.push(newItem);
-        foundItem = newItem;
+        // Read the inserted item back from the reactive array. Returning the
+        // raw object would make nested mutations invisible to Vue.
+        const insertedItem = currentItems[currentItems.length - 1];
+        if (!insertedItem) {
+          return null;
+        }
+        foundItem = insertedItem;
       }
 
       currentItem = foundItem;
@@ -325,6 +346,10 @@ export function useWizardTree(namespace: keyof WizardTheme["namespaces"], theme:
   watch(
     items,
     () => {
+      if (updateBatchDepth > 0) {
+        return;
+      }
+
       updateThemeFromItems();
     },
     { deep: true, flush: "sync" },
@@ -335,6 +360,7 @@ export function useWizardTree(namespace: keyof WizardTheme["namespaces"], theme:
     items,
     namespaceToTree,
     updateThemeFromItems,
+    batchUpdate,
     findItemByUid,
     findOrCreateItemByKey,
     addChild,

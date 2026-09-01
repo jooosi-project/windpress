@@ -29,6 +29,7 @@ const {
   deleteItem,
   initializeItems,
   findOrCreateItemByKey,
+  batchUpdate,
 } = treeLogic;
 
 const dragDropLogic = useWizardDragDrop(items, updateThemeFromItems, findItemByUid);
@@ -55,18 +56,12 @@ function deleteSpacing(uid: string) {
 }
 
 function generateFluid(fluidConfig: FluidCalculatorData) {
-  let parentItem = null;
-
   let newItemPool = [];
 
   const prefix = fluidConfig.miscPrefix
     .trim()
     .replace(/^[\s-]+|[\s-]+$/g, "")
     .replace(/[^a-zA-Z0-9-]/g, "_");
-
-  if (prefix) {
-    parentItem = findOrCreateItemByKey(prefix);
-  }
 
   for (let i = 1; i <= fluidConfig.stepsSmaller; i++) {
     let key = "";
@@ -150,28 +145,34 @@ function generateFluid(fluidConfig: FluidCalculatorData) {
     },
   }));
 
-  if (parentItem) {
-    if (!parentItem.children) {
-      parentItem.children = [];
+  batchUpdate(() => {
+    const parentItem = prefix ? findOrCreateItemByKey(prefix) : null;
+
+    if (parentItem) {
+      if (!parentItem.children) {
+        parentItem.children = [];
+      }
+      newItems.forEach((newItem) => {
+        const existingItem = parentItem.children!.find(
+          (item) => item.var.key === newItem.var.key,
+        );
+        if (existingItem) {
+          existingItem.var.value = newItem.var.value;
+        } else {
+          parentItem.children!.push(newItem);
+        }
+      });
+    } else {
+      newItems.forEach((newItem) => {
+        const existingItem: any = items.value.find((item) => item.var.key === newItem.var.key);
+        if (existingItem) {
+          existingItem.var.value = newItem.var.value;
+        } else {
+          items.value.push(newItem);
+        }
+      });
     }
-    newItems.forEach((newItem) => {
-      const existingItem = parentItem.children!.find((item) => item.var.key === newItem.var.key);
-      if (existingItem) {
-        existingItem.var.value = newItem.var.value;
-      } else {
-        parentItem.children!.push(newItem);
-      }
-    });
-  } else {
-    newItems.forEach((newItem) => {
-      const existingItem: any = items.value.find((item) => item.var.key === newItem.var.key);
-      if (existingItem) {
-        existingItem.var.value = newItem.var.value;
-      } else {
-        items.value.push(newItem);
-      }
-    });
-  }
+  });
 }
 
 async function openFluidCalculator() {
