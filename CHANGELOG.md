@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.88] - 2026-09-02
+
 ### Fixed
 
 - [Wizard] Wizard settings now stay synchronized with direct edits to `wizard.css`.
@@ -901,7 +903,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 🐣 Initial release.
 
-[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.87...HEAD
+[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.88...HEAD
+[3.3.88]: https://github.com/jooosi-project/windpress/compare/v3.3.87...v3.3.88
 [3.3.87]: https://github.com/jooosi-project/windpress/compare/v3.3.86...v3.3.87
 [3.3.86]: https://github.com/jooosi-project/windpress/compare/v3.3.85...v3.3.86
 [3.3.85]: https://github.com/jooosi-project/windpress/compare/v3.3.84...v3.3.85
