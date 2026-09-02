@@ -1,1 +1,0 @@
-import{n as e,t}from"./_toKey-DyRi78eX.js";function n(n,r){r=e(r,n);for(var i=0,a=r.length;n!=null&&i<a;)n=n[t(r[i++])];return i&&i==a?n:void 0}function r(e,t,r){var i=e==null?void 0:n(e,t);return i===void 0?r:i}export{r as t};

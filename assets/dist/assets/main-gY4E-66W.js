@@ -1,0 +1,3 @@
+import{t as e}from"./vfs-DGZNrgMJ.js";import{c as t,i as n}from"./intellisense-IiqZusqm.js";import"./tailwindcss-Dw7djcC_.js";import{t as r}from"./logger-CvF98D4V.js";import{t as i}from"./constant-d2GFTaEb.js";var a;async function o(){a||(a=document.createElement(`style`),document.head.appendChild(a));let r=i.contentWindow.document.querySelector(`script#windpress\\:vfs[type="text/plain"]`),o=e(r.textContent),s=await n(await t({volume:o})),c=`:root {
+`;s.forEach(e=>{c+=`  ${e.key}: ${e.value};\n`}),c+=`}
+`,a.textContent=c}new BroadcastChannel(`windpress`).addEventListener(`message`,async e=>{let t=e.data;t.source===`windpress/intellisense`&&t.task===`windpress.code-editor.saved.done`&&setTimeout(()=>{o()},1e3)}),o(),r(`Module loaded!`,{module:`variables`});
