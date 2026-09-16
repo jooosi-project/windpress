@@ -39,7 +39,7 @@ class Main implements IntegrationInterface
     }
     public function register_provider(array $providers): array
     {
-        $providers[] = ['id' => $this->get_name(), 'name' => __('Gutenberg', 'windpress'), 'description' => __('Gutenberg/Block Editor integration', 'windpress'), 'callback' => Config::get(sprintf('integration.%s.compile.enabled', $this->get_name()), \true) ? \WindPress\WindPress\Integration\Gutenberg\Compile::class : static fn() => [], 'enabled' => $this->is_enabled(), 'type' => 'custom', 'homepage' => 'https://wordpress.org/gutenberg/?ref=jooosi', 'is_installed_active' => static function () {
+        $providers[] = ['id' => $this->get_name(), 'name' => __('Gutenberg', 'windpress'), 'description' => __('Gutenberg/Block Editor integration', 'windpress'), 'source_index' => 1, 'callback' => Config::get(sprintf('integration.%s.compile.enabled', $this->get_name()), \true) ? \WindPress\WindPress\Integration\Gutenberg\Compile::class : static fn() => [], 'enabled' => $this->is_enabled(), 'type' => 'custom', 'homepage' => 'https://wordpress.org/gutenberg/?ref=jooosi', 'is_installed_active' => static function () {
             $is = -1;
             $is += function_exists('register_block_type') ? 1 : 0;
             $is += function_exists('register_block_type') ? 1 : 0;

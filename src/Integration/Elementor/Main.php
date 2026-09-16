@@ -36,7 +36,7 @@ class Main implements IntegrationInterface
     }
     public function register_provider(array $providers): array
     {
-        $providers[] = ['id' => $this->get_name(), 'name' => __('Elementor', 'windpress'), 'description' => __('Elementor integration', 'windpress'), 'callback' => Config::get(sprintf('integration.%s.compile.enabled', $this->get_name()), \true) ? \WindPress\WindPress\Integration\Elementor\Compile::class : static fn() => [], 'enabled' => $this->is_enabled(), 'type' => 'plugin', 'homepage' => 'https://be.elementor.com/visit/?bta=209150&brand=elementor', 'is_installed_active' => static function () {
+        $providers[] = ['id' => $this->get_name(), 'name' => __('Elementor', 'windpress'), 'description' => __('Elementor integration', 'windpress'), 'source_index' => 1, 'callback' => Config::get(sprintf('integration.%s.compile.enabled', $this->get_name()), \true) ? \WindPress\WindPress\Integration\Elementor\Compile::class : static fn() => [], 'enabled' => $this->is_enabled(), 'type' => 'plugin', 'homepage' => 'https://be.elementor.com/visit/?bta=209150&brand=elementor', 'is_installed_active' => static function () {
             $is = -1;
             $is += Common::is_plugin_installed('Elementor') ? 1 : 0;
             $is += Common::is_plugin_active_by_name('Elementor') ? 1 : 0;

@@ -34,7 +34,7 @@ class Main implements IntegrationInterface
     }
     public function register_provider(array $providers): array
     {
-        $providers[] = ['id' => $this->get_name(), 'name' => __('Kadence WP', 'windpress'), 'description' => __('The Kadence WP integration. It requires the Gutenberg/Block Editor integration enabled.', 'windpress'), 'enabled' => $this->is_enabled(), 'callback' => Config::get(sprintf('integration.%s.compile.enabled', $this->get_name()), \true) ? \WindPress\WindPress\Integration\Kadence\Compile::class : static fn() => [], 'type' => 'theme', 'homepage' => 'https://kadencewp.com/?ref=jooosi', 'is_installed_active' => static function () {
+        $providers[] = ['id' => $this->get_name(), 'name' => __('Kadence WP', 'windpress'), 'description' => __('The Kadence WP integration. It requires the Gutenberg/Block Editor integration enabled.', 'windpress'), 'enabled' => $this->is_enabled(), 'source_index' => 1, 'callback' => Config::get(sprintf('integration.%s.compile.enabled', $this->get_name()), \true) ? \WindPress\WindPress\Integration\Kadence\Compile::class : static fn() => [], 'type' => 'theme', 'homepage' => 'https://kadencewp.com/?ref=jooosi', 'is_installed_active' => static function () {
             $is = -1;
             $is += Common::is_theme_installed('Kadence') ? 1 : 0;
             $is += Common::is_theme_active_by_name('Kadence') ? 1 : 0;

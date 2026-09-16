@@ -34,7 +34,7 @@ class Main implements IntegrationInterface
     }
     public function register_provider(array $providers): array
     {
-        $providers[] = ['id' => $this->get_name(), 'name' => __('GreenShift', 'windpress'), 'description' => __('The GreenShift integration. It requires the Gutenberg/Block Editor integration enabled.', 'windpress'), 'callback' => Config::get(sprintf('integration.%s.compile.enabled', $this->get_name()), \true) ? \WindPress\WindPress\Integration\GreenShift\Compile::class : static fn() => [], 'enabled' => $this->is_enabled(), 'type' => 'plugin', 'homepage' => 'https://shop.greenshiftwp.com/?from=3679', 'is_installed_active' => static function () {
+        $providers[] = ['id' => $this->get_name(), 'name' => __('GreenShift', 'windpress'), 'description' => __('The GreenShift integration. It requires the Gutenberg/Block Editor integration enabled.', 'windpress'), 'source_index' => 1, 'callback' => Config::get(sprintf('integration.%s.compile.enabled', $this->get_name()), \true) ? \WindPress\WindPress\Integration\GreenShift\Compile::class : static fn() => [], 'enabled' => $this->is_enabled(), 'type' => 'plugin', 'homepage' => 'https://shop.greenshiftwp.com/?from=3679', 'is_installed_active' => static function () {
             $is = -1;
             $is += Common::is_plugin_installed('GreenShift - Animation and Page Builder Blocks') ? 1 : 0;
             $is += Common::is_plugin_active_by_name('GreenShift - Animation and Page Builder Blocks') ? 1 : 0;
