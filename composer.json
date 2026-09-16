@@ -29,6 +29,7 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "scripts": {
+    "test:scan": "@php tests/php/run.php",
     "complete-check": [
       "@check-ecs",
       "@phpstan",

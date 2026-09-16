@@ -22,6 +22,9 @@ export type Log = {
   options?: object;
 };
 
+const MAX_LOG_ENTRIES = 150;
+const MAX_LOG_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+
 export function createLogComposable() {
   const welcomeLog: Log = {
     id: "JqhEkI6VK0",
@@ -36,15 +39,40 @@ export function createLogComposable() {
 
   const logs = useStorage("windpress.dashboard.store.logs", [welcomeLog] as Log[]);
 
-  // TODO: clear logs older than 30 days or over 150 entries
+  function pruneLogs() {
+    const cutoff = Date.now() - MAX_LOG_AGE_MS;
+    const welcome = logs.value.find((log) => log.id === welcomeLog.id);
+    const recentLogs = logs.value.filter(
+      (log) => log.id === welcomeLog.id || log.timestamp === undefined || log.timestamp >= cutoff,
+    );
+    const entriesToKeep = Math.max(MAX_LOG_ENTRIES - (welcome ? 1 : 0), 0);
+    const retainedLogs = [
+      ...(welcome ? [welcome] : []),
+      ...recentLogs.filter((log) => log.id !== welcomeLog.id).slice(-entriesToKeep),
+    ];
+
+    const changed =
+      retainedLogs.length !== logs.value.length ||
+      retainedLogs.some((log, index) => log !== logs.value[index]);
+
+    if (changed) {
+      logs.value = retainedLogs;
+    }
+  }
+
+  // Remove stale history when a composable is created, before adding new entries.
+  pruneLogs();
 
   function add(log: Log): string {
+    pruneLogs();
+
     const id: string = nanoid(10);
     logs.value.push({
       id,
       timestamp: Date.now(),
       ...log,
     });
+    pruneLogs();
 
     return id;
   }

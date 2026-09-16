@@ -49,6 +49,7 @@ class Main implements IntegrationInterface
             'id' => $this->get_name(),
             'name' => __('Meta Box Views', 'windpress'),
             'description' => __('Meta Box Views integration', 'windpress'),
+            'source_index' => 1,
             'callback' => Config::get(sprintf('integration.%s.compile.enabled', $this->get_name()), true)
                     ? Compile::class
                     : static fn() => []

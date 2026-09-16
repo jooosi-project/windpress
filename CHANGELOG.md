@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Improved backend scanning and incremental cache builds, including detection of changed and deleted sources.
+
 ## [3.3.88] - 2026-09-02
 
 ### Fixed

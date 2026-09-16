@@ -39,7 +39,8 @@ class Cache
     {
         /**
          * Register cache providers.
-         * @param array $providers The list of cache providers. Each provider should have `id`, `name`, `description`, and `callback` keys.
+         * Each provider should have `id`, `name`, `description`, and `callback` keys.
+         * Providers supporting stable source identities opt in with `source_index` => 1.
          */
         return apply_filters('f!windpress/core/cache:compile.providers', []);
     }
@@ -110,7 +111,15 @@ class Cache
             $_metadata = array_key_exists('metadata', $result) ? $result['metadata'] : [];
 
             $_contents = array_key_exists('contents', $result) ? $result['contents'] : $result;
+            if (! is_array($_metadata) || ! is_array($_contents)) {
+                throw new Exception(__('The provider metadata and contents must be arrays.', 'windpress'));
+            }
+
             $_contents = array_map(static function ($content) {
+                if (! is_array($content) || ! array_key_exists('content', $content)) {
+                    throw new Exception(__('A scan source is missing its content.', 'windpress'));
+                }
+
                 $content_type = $content['type'] ?? null;
 
                 if (is_array($content['content']) || is_object($content['content'])) {
@@ -124,7 +133,11 @@ class Cache
                     }
                 }
 
-                $content['content'] = is_string($content['content']) ? base64_encode($content['content']) : null;
+                if (! is_string($content['content'])) {
+                    throw new Exception(__('A scan source could not be encoded as text.', 'windpress'));
+                }
+
+                $content['content'] = base64_encode($content['content']);
                 return $content;
             }, $_contents);
         } catch (\Throwable $throwable) {

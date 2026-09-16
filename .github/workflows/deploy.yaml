@@ -101,6 +101,8 @@ jobs:
             --exclude='.git' \
             --exclude='node_modules' \
             --exclude='tests' \
+            --exclude='/docs' \
+            --exclude='/resources' \
             --exclude='vendor' \
             --exclude='windpress-deploy' \
             --exclude='windpress-*-prefixed' \

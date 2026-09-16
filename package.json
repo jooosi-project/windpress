@@ -11,6 +11,7 @@
     "lint": "vp lint ./resources",
     "format": "vp lint --fix ./resources",
     "test": "pnpm --filter @windpress/lz-string --filter @windpress/oxide-parser test",
+    "test:scan": "vitest run --config resources/packages/core/windpress/vitest.config.ts",
     "release": "node deploy/release.mjs"
   },
   "dependencies": {

@@ -133,6 +133,10 @@ Keep it updated when project rules change.
 - Use `WIND_PRESS::TEXT_DOMAIN` for translations when available.
 - Avoid direct file writes; use `Core\Volume` or `Utils\Common` helpers.
 - Cache helpers live in `src/Core/Cache.php`.
+- Shared backend scanning helpers live in `src/Core/Scanner/`. Preserve opaque `metadata.next_batch` cursors and the cache generation contract when changing providers or their clients.
+- Indexed providers emit stable, unique `source_id` values. Preserve source revision checks, terminal-only deletion reconciliation, and browser snapshot publication after successful CSS storage; see `docs/backend-scanning.md`.
+- Reuse only deterministic extraction keyed by all inputs. Dynamic renderers run fresh, and file scans read actual bytes so same-mtime edits remain detectable.
+- Run `composer test:scan` and `pnpm test:scan` after changing backend scanning or the cache compiler contract. These regression suites use isolated WordPress fixtures and mocked REST calls.
 - Use `register_activation_hook` and `register_deactivation_hook` in `Plugin`.
 
 ## Error Handling & Validation

@@ -58,6 +58,7 @@ class Main implements IntegrationInterface
             'id' => $this->get_name(),
             'name' => __('Oxygen Builder', 'windpress'),
             'description' => __('Oxygen Builder integration', 'windpress'),
+            'source_index' => 1,
             'callback' => Config::get(sprintf('integration.%s.compile.enabled', $this->get_name()), true)
                     ? Compile::class
                     : static fn() => []

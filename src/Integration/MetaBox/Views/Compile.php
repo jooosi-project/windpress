@@ -13,12 +13,11 @@ declare(strict_types=1);
 
 namespace WindPress\WindPress\Integration\MetaBox\Views;
 
-use WP_Query;
+use WindPress\WindPress\Core\Scanner\PostQuery;
+use WindPress\WindPress\Core\Scanner\PostRenderer;
 
 /**
  * @author Joshua Gugun Siagian <suabahasa@gmail.com>
- *
- * TODO: Don't depend on the Gutenberg's Compile class. Instead, reduplicate the code here.
  */
 class Compile
 {
@@ -41,21 +40,19 @@ class Compile
             'mb-views',
         ]);
 
-        $next_batch = $metadata['next_batch'] !== false ? $metadata['next_batch'] : 1;
-        $per_page = apply_filters('f!windpress/integration/metabox/views/compile:get_contents.post_per_page', (int) get_option('posts_per_page', 20));
+        $per_page = apply_filters('f!windpress/integration/metabox/views/compile:get_contents.post_per_page', PostQuery::batch_size());
 
-        $wpQuery = new WP_Query([
+        $scan = new PostQuery([
             'posts_per_page' => $per_page,
             'post_type' => $post_types,
-            'paged' => $next_batch,
             'no_found_rows' => true,
             'update_post_meta_cache' => false,
             'update_post_term_cache' => false,
             'ignore_sticky_posts' => true,
-        ]);
+        ], $metadata);
+        $wpQuery = $scan->query;
 
-        $metaBox = new \MBViews\Renderer\MetaBox();
-        $renderer = new \MBViews\Renderer($metaBox);
+        $renderer = null;
 
         foreach ($wpQuery->posts as $post) {
             $post_content = $post->post_content;
@@ -64,35 +61,28 @@ class Compile
                 continue;
             }
 
-            $post_content = '';
-
             if (apply_filters('f!windpress/integration/metabox/views/compile:get_contents.render', true, $post)) {
-                try {
-                    $post_content = $renderer->render($post->ID);
-                } catch (\Throwable $th) {
-                    if (WP_DEBUG) {
-                        error_log($th->getMessage());
+                $post_content = PostRenderer::render($post, [static function () use ($post, &$renderer): string {
+                    if ($renderer === null) {
+                        $renderer = new \MBViews\Renderer(new \MBViews\Renderer\MetaBox());
                     }
-                }
+
+                    return $renderer->render($post->ID);
+                }], 'MetaBox Views', $wpQuery);
             }
 
             $post_content = apply_filters('f!windpress/integration/metabox/views/compile:get_contents.post_content', $post_content, $post);
 
             $contents[] = [
+                'source_id' => 'post:' . $post->ID,
                 'id' => $post->ID,
                 'title' => sprintf('#%s: %s', $post->ID, $post->post_title),
                 'content' => $post_content,
             ];
         }
 
-        $post_count = count($wpQuery->posts);
-        $has_more = $per_page > 0 && $post_count === $per_page;
-
         return [
-            'metadata' => [
-                'next_batch' => $has_more ? $next_batch + 1 : false,
-                'total_batches' => false,
-            ],
+            'metadata' => $scan->metadata(),
             'contents' => $contents,
         ];
     }

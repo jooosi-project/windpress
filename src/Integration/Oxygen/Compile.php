@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace WindPress\WindPress\Integration\Oxygen;
 
-use WP_Query;
+use WindPress\WindPress\Core\Scanner\PostQuery;
 
 /**
  * @author Joshua Gugun Siagian <suabahasa@gmail.com>
@@ -30,7 +30,7 @@ class Compile
      */
     public function __invoke($metadata): array
     {
-        if (! defined('BREAKDANCE_MODE') || 'oxygen' !== constant('BREAKDANCE_MODE')) {
+        if (! defined('BREAKDANCE_MODE') || constant('BREAKDANCE_MODE') !== 'oxygen') {
             return [];
         }
 
@@ -43,12 +43,10 @@ class Compile
 
         $post_types = apply_filters('f!windpress/integration/oxygen/compile:get_contents.post_types', \Breakdance\Settings\get_allowed_post_types());
 
-        $next_batch = $metadata['next_batch'] !== false ? $metadata['next_batch'] : 1;
-        $per_page = apply_filters('f!windpress/integration/oxygen/compile:get_contents.post_per_page', (int) get_option('posts_per_page', 20));
+        $per_page = apply_filters('f!windpress/integration/oxygen/compile:get_contents.post_per_page', PostQuery::batch_size());
 
-        $wpQuery = new WP_Query([
+        $scan = new PostQuery([
             'posts_per_page' => $per_page,
-            'paged' => $next_batch,
             'fields' => 'ids',
             'post_type' => $post_types,
             'no_found_rows' => true,
@@ -61,7 +59,12 @@ class Compile
             ], array_map(static fn ($key) => [
                 'key' => $key,
             ], $this->post_meta_keys)),
-        ]);
+        ], $metadata);
+        $wpQuery = $scan->query;
+
+        if ($wpQuery->posts !== []) {
+            update_meta_cache('post', $wpQuery->posts);
+        }
 
         foreach ($wpQuery->posts as $post_id) {
             foreach ($this->get_post_metas($post_id) as $content) {
@@ -69,14 +72,8 @@ class Compile
             }
         }
 
-        $post_count = count($wpQuery->posts);
-        $has_more = $per_page > 0 && $post_count === $per_page;
-
         return [
-            'metadata' => [
-                'next_batch' => $has_more ? $next_batch + 1 : false,
-                'total_batches' => false,
-            ],
+            'metadata' => $scan->metadata(),
             'contents' => $contents,
         ];
     }
@@ -89,6 +86,7 @@ class Compile
 
         if ($html) {
             $contents[] = [
+                'source_id' => 'post:' . $post_id,
                 'content' => $html,
                 'name' => $post_id,
             ];

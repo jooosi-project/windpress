@@ -13,7 +13,8 @@ declare(strict_types=1);
 
 namespace WindPress\WindPress\Integration\OxygenClassic;
 
-use WP_Query;
+use WindPress\WindPress\Core\Scanner\ExtractionCache;
+use WindPress\WindPress\Core\Scanner\PostQuery;
 
 /**
  * @author Joshua Gugun Siagian <suabahasa@gmail.com>
@@ -56,12 +57,10 @@ class Compile
                 && get_option('oxygen_vsb_ignore_post_type_' . $post_type) !== 'true'
         );
 
-        $next_batch = $metadata['next_batch'] !== false ? $metadata['next_batch'] : 1;
-        $per_page = apply_filters('f!windpress/integration/oxygen/compile:get_contents.post_per_page', (int) get_option('posts_per_page', 20));
+        $per_page = apply_filters('f!windpress/integration/oxygen/compile:get_contents.post_per_page', PostQuery::batch_size());
 
-        $wpQuery = new WP_Query([
+        $scan = new PostQuery([
             'posts_per_page' => $per_page,
-            'paged' => $next_batch,
             'fields' => 'ids',
             'post_type' => $post_types,
             'no_found_rows' => true,
@@ -79,7 +78,8 @@ class Compile
                 ],
                 apply_filters('f!windpress/integration/oxygen/compile:get_contents.post_meta_keys', $this->post_meta_keys)
             )),
-        ]);
+        ], $metadata);
+        $wpQuery = $scan->query;
 
         if ($wpQuery->posts !== []) {
             update_meta_cache('post', $wpQuery->posts);
@@ -91,14 +91,8 @@ class Compile
             }
         }
 
-        $post_count = count($wpQuery->posts);
-        $has_more = $per_page > 0 && $post_count === $per_page;
-
         return [
-            'metadata' => [
-                'next_batch' => $has_more ? $next_batch + 1 : false,
-                'total_batches' => false,
-            ],
+            'metadata' => $scan->metadata(),
             'contents' => $contents,
         ];
     }
@@ -109,7 +103,13 @@ class Compile
         if ($shortcode) {
             return [
                 [
-                    'content' => json_decode($shortcode, true),
+                    'source_id' => 'post:' . $post_id,
+                    'content' => ExtractionCache::remember('oxygen-classic.json', 'post:' . $post_id, [
+                        'content' => $shortcode,
+                        'version' => defined('CT_VERSION') ? CT_VERSION : '',
+                    ], static function () use ($shortcode) {
+                        return json_decode($shortcode, true);
+                    }),
                 ],
             ];
         }
@@ -117,7 +117,18 @@ class Compile
         $shortcode = get_post_meta($post_id, 'ct_builder_shortcodes', true);
 
         if (! is_array($shortcode)) {
-            $shortcode = json_decode(oxygen_safe_convert_old_shortcodes_to_json($shortcode), true);
+            $convert = static function () use ($shortcode) {
+                return json_decode(oxygen_safe_convert_old_shortcodes_to_json($shortcode), true);
+            };
+            // Signature verification and custom decoders can change without editing this post.
+            $shortcode = ! get_option('oxygen_vsb_enable_signature_validation') && has_filter('oxy_base64_encode_options') === false && has_filter('all') === false
+                ? ExtractionCache::remember('oxygen-classic.shortcodes', 'post:' . $post_id, [
+                    'content' => $shortcode,
+                    'version' => defined('CT_VERSION') ? CT_VERSION : '',
+                    'wordpress_version' => $GLOBALS['wp_version'] ?? '',
+                    'shortcodes' => array_keys($GLOBALS['shortcode_tags'] ?? []),
+                ], $convert)
+                : $convert();
         }
 
         if (! is_array($shortcode)) {
@@ -126,6 +137,7 @@ class Compile
 
         return [
             [
+                'source_id' => 'post:' . $post_id,
                 'content' => $shortcode,
             ],
         ];

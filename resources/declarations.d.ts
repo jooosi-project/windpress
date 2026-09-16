@@ -13,6 +13,17 @@ declare module "*.svg" {
   export default content;
 }
 
+// The package's exports map does not expose its bundled declaration file.
+declare module 'parse-package-name' {
+  export interface ParsedPackageName {
+    name: string;
+    version: string;
+    path: string;
+  }
+
+  export function parse(input: string): ParsedPackageName;
+}
+
 interface Window {
   windpress: {
     // The version of WindPress.

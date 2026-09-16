@@ -14,7 +14,8 @@ declare(strict_types=1);
 namespace WindPress\WindPress\Integration\Bricks;
 
 use Bricks\Database;
-use WP_Query;
+use WindPress\WindPress\Core\Scanner\ExtractionCache;
+use WindPress\WindPress\Core\Scanner\PostQuery;
 
 /**
  * @author Joshua Gugun Siagian <suabahasa@gmail.com>
@@ -52,16 +53,15 @@ class Compile
 
         $post_types = apply_filters('f!windpress/integration/bricks/compile:get_contents.post_types', $post_types);
 
+        $this->global_classes_index = [];
         foreach (get_option(BRICKS_DB_GLOBAL_CLASSES, []) as $value) {
             $this->global_classes_index[$value['id']] = $value['name'];
         }
 
-        $next_batch = $metadata['next_batch'] !== false ? $metadata['next_batch'] : 1;
-        $per_page = apply_filters('f!windpress/integration/bricks/compile:get_contents.post_per_page', (int) get_option('posts_per_page', 20));
+        $per_page = apply_filters('f!windpress/integration/bricks/compile:get_contents.post_per_page', PostQuery::batch_size());
 
-        $wpQuery = new WP_Query([
+        $scan = new PostQuery([
             'posts_per_page' => $per_page,
-            'paged' => $next_batch,
             'fields' => 'ids',
             'post_type' => $post_types,
             'no_found_rows' => true,
@@ -74,7 +74,8 @@ class Compile
             ], array_map(static fn ($key) => [
                 'key' => $key,
             ], $this->post_meta_keys)),
-        ]);
+        ], $metadata);
+        $wpQuery = $scan->query;
 
         if ($wpQuery->posts !== []) {
             update_meta_cache('post', $wpQuery->posts);
@@ -87,21 +88,16 @@ class Compile
         }
 
         // Only include components in the first batch
-        if ($next_batch === 1) {
+        if ($scan->is_first_batch()) {
             array_push($contents, [
+                'source_id' => 'option:bricks_components',
                 'name' => 'bricks_components',
                 'content' => $this->get_components(),
             ]);
         }
 
-        $post_count = count($wpQuery->posts);
-        $has_more = $per_page > 0 && $post_count === $per_page;
-
         return [
-            'metadata' => [
-                'next_batch' => $has_more ? $next_batch + 1 : false,
-                'total_batches' => false,
-            ],
+            'metadata' => $scan->metadata(),
             'contents' => $contents,
         ];
     }
@@ -113,9 +109,17 @@ class Compile
         foreach ($this->post_meta_keys as $post_metum_key) {
             $meta_value = get_post_meta($post_id, $post_metum_key, true);
             if ($meta_value) {
+                $source_id = 'post:' . $post_id . ':meta:' . $post_metum_key;
                 $contents[] = [
+                    'source_id' => $source_id,
                     'name' => $post_id,
-                    'content' => $this->transform_meta_value($meta_value),
+                    'content' => ExtractionCache::remember('bricks', $source_id, [
+                        'meta' => $meta_value,
+                        'global_classes' => $this->global_classes_index,
+                        'version' => BRICKS_VERSION,
+                    ], function () use ($meta_value): array {
+                        return $this->transform_meta_value($meta_value);
+                    }),
                 ];
             }
         }
@@ -158,11 +162,17 @@ class Compile
     public function get_components(): array
     {
         $components = get_option('bricks_components', []);
-        
-        foreach ($components as $key => $value) {
-            $components[$key]['elements'] = $this->transform_meta_value($components[$key]['elements'] ?? []);
-        }
 
-        return $components;
+        return ExtractionCache::remember('bricks', 'option:bricks_components', [
+            'components' => $components,
+            'global_classes' => $this->global_classes_index,
+            'version' => BRICKS_VERSION,
+        ], function () use ($components): array {
+            foreach ($components as $key => $value) {
+                $components[$key]['elements'] = $this->transform_meta_value($components[$key]['elements'] ?? []);
+            }
+
+            return $components;
+        });
     }
 }

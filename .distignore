@@ -9,6 +9,7 @@
 /tests
 /build
 /deploy
+/docs
 /resources
 /.distignore
 /.env*
@@ -26,6 +27,7 @@
 /ecs.php
 /mise.toml
 /opencode.json
+/package.json
 /pnpm-lock.yaml
 /pnpm-workspace.yaml
 /rector.php
