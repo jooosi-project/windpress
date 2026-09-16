@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.89] - 2026-09-16
+
 ### Changed
 
 - Improved backend scanning and incremental cache builds, including detection of changed and deleted sources.
@@ -911,7 +913,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 🐣 Initial release.
 
-[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.88...HEAD
+[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.89...HEAD
+[3.3.89]: https://github.com/jooosi-project/windpress/compare/v3.3.88...v3.3.89
 [3.3.88]: https://github.com/jooosi-project/windpress/compare/v3.3.87...v3.3.88
 [3.3.87]: https://github.com/jooosi-project/windpress/compare/v3.3.86...v3.3.87
 [3.3.86]: https://github.com/jooosi-project/windpress/compare/v3.3.85...v3.3.86
