@@ -12,7 +12,7 @@ declare (strict_types=1);
 namespace WindPress\WindPress\Integration\Elementor;
 
 use Elementor\Plugin;
-use WP_Query;
+use WindPress\WindPress\Core\Scanner\PostQuery;
 /**
  * @author Joshua Gugun Siagian <suabahasa@gmail.com>
  */
@@ -34,11 +34,9 @@ class Compile
         $contents = [];
         $post_types = get_option('elementor_cpt_support', Plugin::ELEMENTOR_DEFAULT_POST_TYPES);
         $post_types = apply_filters('f!windpress/integration/elementor/compile:get_contents.post_types', $post_types);
-        $next_batch = $metadata['next_batch'] !== \false ? $metadata['next_batch'] : 1;
-        $per_page = apply_filters('f!windpress/integration/elementor/compile:get_contents.post_per_page', (int) get_option('posts_per_page', 20));
-        $wpQuery = new WP_Query([
+        $per_page = apply_filters('f!windpress/integration/elementor/compile:get_contents.post_per_page', PostQuery::batch_size());
+        $scan = new PostQuery([
             'posts_per_page' => $per_page,
-            'paged' => $next_batch,
             'fields' => 'ids',
             'post_type' => $post_types,
             'post_status' => get_post_stati(),
@@ -48,7 +46,8 @@ class Compile
             'ignore_sticky_posts' => \true,
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- This only run by trigger on specific event
             'meta_query' => array_merge(['relation' => 'OR'], array_map(static fn($key) => ['key' => $key], $this->post_meta_keys)),
-        ]);
+        ], $metadata);
+        $wpQuery = $scan->query;
         if ($wpQuery->posts !== []) {
             update_meta_cache('post', $wpQuery->posts);
         }
@@ -57,9 +56,7 @@ class Compile
                 $contents[] = $content;
             }
         }
-        $post_count = count($wpQuery->posts);
-        $has_more = $per_page > 0 && $post_count === $per_page;
-        return ['metadata' => ['next_batch' => $has_more ? $next_batch + 1 : \false, 'total_batches' => \false], 'contents' => $contents];
+        return ['metadata' => $scan->metadata(), 'contents' => $contents];
     }
     public function get_post_metas($post_id): array
     {
@@ -67,7 +64,7 @@ class Compile
         foreach ($this->post_meta_keys as $post_metum_key) {
             $meta_value = get_post_meta($post_id, $post_metum_key, \true);
             if ($meta_value) {
-                $contents[] = ['name' => $post_id, 'content' => $meta_value, 'type' => 'json'];
+                $contents[] = ['source_id' => 'post:' . $post_id . ':meta:' . $post_metum_key, 'name' => $post_id, 'content' => $meta_value, 'type' => 'json'];
             }
         }
         return $contents;

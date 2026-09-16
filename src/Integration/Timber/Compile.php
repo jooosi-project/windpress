@@ -14,6 +14,7 @@ namespace WindPress\WindPress\Integration\Timber;
 use WindPressDeps\Symfony\Component\Finder\Finder;
 use Timber\LocationManager;
 use Timber\Timber;
+use WindPress\WindPress\Core\Scanner\FileScanner;
 /**
  * @author Joshua Gugun Siagian <suabahasa@gmail.com>
  */
@@ -31,20 +32,18 @@ class Compile
     }
     public function get_contents($metadata): array
     {
-        $contents = [];
-        $paths = LocationManager::get_locations();
-        $paths = array_unique(array_filter(array_merge(...array_values($paths)), fn($path) => $path !== '/'));
-        $finder = new Finder();
-        $finder->in($paths);
-        $finder->files()->name('*.twig');
-        do_action('a!windpress/integration/timber/compile:get_contents.finder', $finder);
-        foreach ($finder as $file) {
-            $template_file = $file->getPathname();
-            if (!is_readable($template_file)) {
-                continue;
+        return FileScanner::scan_files('timber', static function (): \Generator {
+            $paths = LocationManager::get_locations();
+            $paths = array_unique(array_filter(array_merge(...array_values($paths)), static fn($path) => is_string($path) && $path !== '/' && is_dir($path)));
+            if ($paths === []) {
+                return;
             }
-            $contents[] = ['name' => $file->getRelativePathname(), 'content' => $file->getContents()];
-        }
-        return ['metadata' => ['next_batch' => \false, 'total_batches' => 1], 'contents' => $contents];
+            $finder = new Finder();
+            $finder->in($paths)->files()->name('*.twig');
+            do_action('a!windpress/integration/timber/compile:get_contents.finder', $finder);
+            foreach ($finder as $file) {
+                yield ['path' => $file->getPathname(), 'name' => $file->getRelativePathname()];
+            }
+        }, $metadata['next_batch'] ?? \false);
     }
 }

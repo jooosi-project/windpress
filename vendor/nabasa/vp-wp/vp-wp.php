@@ -209,6 +209,14 @@ function get_manifest(string $manifest_dir, string $scope = ''): object
 }
 function load_development_asset(object $manifest, string $entry, array $options, string $scope = ''): ?array
 {
+    if (string_ends_with($entry, '.css')) {
+        $src = development_asset_src($manifest, $entry);
+        if (!wp_register_style($options['handle'], $src, $options['css_dependencies'], null, $options['css_media'])) {
+            return null;
+        }
+        $assets = ['scripts' => [], 'styles' => [$options['handle']]];
+        return filter_value('development_assets', $assets, $scope, $manifest, $entry, $options);
+    }
     register_vite_client_script($manifest);
     inject_react_refresh_preamble($manifest);
     $dependencies = array_values(array_unique(array_merge([VITE_CLIENT_HANDLE], $options['dependencies'])));
@@ -231,6 +239,12 @@ function load_production_asset(object $manifest, string $entry, array $options, 
     $item = $manifest->data->{$entry};
     $url = asset_url($manifest->dir);
     $assets = ['scripts' => [], 'styles' => []];
+    if (string_ends_with($item->file, '.css')) {
+        if (wp_register_style($options['handle'], join_asset_url($url, $item->file), $options['css_dependencies'], null, $options['css_media'])) {
+            $assets['styles'][] = $options['handle'];
+        }
+        return filter_value('production_assets', $assets, $scope, $manifest, $entry, $options);
+    }
     if (!$options['css_only']) {
         filter_script_tag($options['handle']);
         if (wp_register_script($options['handle'], join_asset_url($url, $item->file), $options['dependencies'], null, $options['in_footer'])) {

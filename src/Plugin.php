@@ -18,6 +18,7 @@ use WindPress\WindPress\Abilities\Loader as AbilitiesLoader;
 use WindPress\WindPress\Admin\AdminPage;
 use WindPress\WindPress\Api\Router as ApiRouter;
 use WindPress\WindPress\Core\Runtime;
+use WindPress\WindPress\Core\Scanner\SourceRevision;
 use WindPress\WindPress\Integration\Loader as IntegrationLoader;
 use WindPress\WindPress\Licensing\Manager as LicenseManager;
 use WindPress\WindPress\Upgrade\UpgradeManager;
@@ -86,6 +87,7 @@ final class Plugin
     public function boot(): void
     {
         do_action('a!windpress/plugin:boot.start');
+        SourceRevision::register_hooks();
         $this->boot_license_sdk();
         // (de)activation hooks.
         register_activation_hook(WIND_PRESS::FILE, fn() => $this->activate_plugin());

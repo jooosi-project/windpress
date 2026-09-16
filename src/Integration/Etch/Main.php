@@ -41,7 +41,7 @@ class Main implements IntegrationInterface
     }
     public function register_provider(array $providers): array
     {
-        $providers[] = ['id' => $this->get_name(), 'name' => __('Etch', 'windpress'), 'description' => __('Etch integration', 'windpress'), 'callback' => Config::get(sprintf('integration.%s.compile.enabled', $this->get_name()), \true) ? \WindPress\WindPress\Integration\Etch\Compile::class : static fn() => [], 'enabled' => $this->is_enabled(), 'type' => 'plugin', 'homepage' => 'https://etchwp.com?aff=bce0d1ab', 'is_installed_active' => static function () {
+        $providers[] = ['id' => $this->get_name(), 'name' => __('Etch', 'windpress'), 'description' => __('Etch integration', 'windpress'), 'source_index' => 1, 'callback' => Config::get(sprintf('integration.%s.compile.enabled', $this->get_name()), \true) ? \WindPress\WindPress\Integration\Etch\Compile::class : static fn() => [], 'enabled' => $this->is_enabled(), 'type' => 'plugin', 'homepage' => 'https://etchwp.com?aff=bce0d1ab', 'is_installed_active' => static function () {
             $is = -1;
             $is += Common::is_plugin_installed('Etch') ? 1 : 0;
             $is += Common::is_plugin_active_by_name('Etch') ? 1 : 0;

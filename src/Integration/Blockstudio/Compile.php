@@ -12,6 +12,7 @@ declare (strict_types=1);
 namespace WindPress\WindPress\Integration\Blockstudio;
 
 use Blockstudio\Build;
+use WindPress\WindPress\Core\Scanner\FileScanner;
 /**
  * @author Joshua Gugun Siagian <suabahasa@gmail.com>
  */
@@ -29,16 +30,12 @@ class Compile
     }
     public function get_contents($metadata): array
     {
-        $contents = [];
-        $build_data = Build::data();
-        foreach ($build_data as $block) {
-            foreach ($block['filesPaths'] as $path) {
-                if (!is_readable($path)) {
-                    continue;
+        return FileScanner::scan_files('blockstudio', static function (): \Generator {
+            foreach (Build::data() as $block) {
+                foreach ($block['filesPaths'] as $path) {
+                    yield ['path' => $path, 'name' => $path, 'type' => pathinfo($path, \PATHINFO_EXTENSION) === 'json' ? 'json' : null];
                 }
-                $contents[] = ['name' => $path, 'content' => file_get_contents($path), 'type' => pathinfo($path, \PATHINFO_EXTENSION) === 'json' ? 'json' : null];
             }
-        }
-        return ['metadata' => ['next_batch' => \false, 'total_batches' => 1], 'contents' => $contents];
+        }, $metadata['next_batch'] ?? \false);
     }
 }

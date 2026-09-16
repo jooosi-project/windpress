@@ -40,7 +40,7 @@ class Main implements IntegrationInterface
     }
     public function register_provider(array $providers): array
     {
-        $providers[] = ['id' => $this->get_name(), 'name' => __('LiveCanvas', 'windpress'), 'description' => __('LiveCanvas integration', 'windpress'), 'callback' => Config::get(sprintf('integration.%s.compile.enabled', $this->get_name()), \true) ? \WindPress\WindPress\Integration\LiveCanvas\Compile::class : static fn() => [], 'enabled' => $this->is_enabled(), 'type' => 'plugin', 'homepage' => 'https://livecanvas.com/?ref=4008', 'is_installed_active' => static function () {
+        $providers[] = ['id' => $this->get_name(), 'name' => __('LiveCanvas', 'windpress'), 'description' => __('LiveCanvas integration', 'windpress'), 'source_index' => 1, 'callback' => Config::get(sprintf('integration.%s.compile.enabled', $this->get_name()), \true) ? \WindPress\WindPress\Integration\LiveCanvas\Compile::class : static fn() => [], 'enabled' => $this->is_enabled(), 'type' => 'plugin', 'homepage' => 'https://livecanvas.com/?ref=4008', 'is_installed_active' => static function () {
             $is = -1;
             $is += Common::is_plugin_installed('LiveCanvas') ? 1 : 0;
             $is += Common::is_plugin_active_by_name('LiveCanvas') ? 1 : 0;
