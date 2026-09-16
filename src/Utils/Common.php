@@ -77,7 +77,15 @@ class Common
 
     public static function is_updater_library_available(): bool
     {
-        return Plugin::is_pro_edition();
+        if (method_exists(Plugin::class, 'is_pro_edition')) {
+            return Plugin::is_pro_edition();
+        }
+
+        // WordPress can run the old Plugin class against the newly installed files during an upgrade.
+        $plugin_directory = dirname(WIND_PRESS::FILE);
+
+        return is_file($plugin_directory . '/vendor/easy-digital-downloads/edd-sl-sdk/edd-sl-sdk.php')
+            || is_file($plugin_directory . '/vendor/rosua/edd-sl-plugin-updater/src/PluginUpdater.php');
     }
 
     public static function random_slug(int $length = 21): string

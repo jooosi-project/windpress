@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Improved backend scanning and incremental cache builds, including detection of changed and deleted sources.
 
+### Fixed
+
+- Prevented fatal errors when upgrading from older versions with a different updater SDK [#83](https://github.com/jooosi-project/windpress/issues/83).
+
 ## [3.3.88] - 2026-09-02
 
 ### Fixed
