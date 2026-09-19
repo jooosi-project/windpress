@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/Q5Q75XSF7
 Tags: tailwind, tailwindcss, tailwind css, block
 Requires at least: 6.0
 Tested up to: 7.0
-Stable tag: 3.3.89
+Stable tag: 3.3.90
 Requires PHP: 7.4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -41,7 +41,7 @@ And some specific integrations also include the following features:
 * **Hover Preview the classes**: Hover over the classes to see the complete outputted CSS and the preview of the design canvas.
 * **Ubiquitous Panel**: A floating panel that allows you to quickly access the WindPress settings from anywhere on the page.
 
-Visit [our website](https://windpress.jooo.si) for more information.
+Visit [our documentation](https://jooo.si/docs/windpress) for more information.
 
 ### Seamless Integration
 
@@ -73,7 +73,7 @@ Note: The core feature will remain available on all versions, but some integrati
 ### Bring Your Own Integration
 
 WindPress is designed to be easily extensible, so you can build your integrations with Tailwind CSS. The plugin provides a simple API for adding integrations.
-Check out our detailed [guide](https://windpress.jooo.si/docs/integrations/custom-theme) to get started.
+Check out our detailed [guide](https://jooo.si/docs/windpress/integrations/custom-theme) to get started.
 
 
 = Love WindPress? =
@@ -118,6 +118,12 @@ No, by default, you do not need an internet connection to use WindPress. However
 WindPress is compatible with any WordPress theme. A small adjustment may be needed for the compiler scanner to detect the used classes in the theme.
 
 == Changelog ==
+
+= 3.3.90 - 2026-09-19 =
+
+**Fixed**
+
+* [Bricks] Missing WindPress Tailwind class input in the Bricks 2.4 builder editor.
 
 = 3.3.89 - 2026-09-16 =
 
@@ -719,7 +725,7 @@ WindPress is compatible with any WordPress theme. A small adjustment may be need
 **Added**
 
 * Updated bundled Tailwind CSS v4 to 4.0.6
-* [TW4] The `@source` directive is now supported but differs from the official Tailwind CSS version. Please refer to [our documentation](https://windpress.jooo.si/docs/configuration/file-main-css#scanning-additional-sources) for details.
+* [TW4] The `@source` directive is now supported but differs from the official Tailwind CSS version. Please refer to [our documentation](https://jooo.si/docs/windpress/configuration/file-main-css#scanning-additional-sources) for details.
 
 = 3.2.28 - 2024-12-19 =
 
