@@ -1735,7 +1735,7 @@
     "isDynamicEntry": true
   },
   "resources/dashboard/main.ts": {
-    "file": "assets/dashboard-Ddxrz-_D.js",
+    "file": "assets/dashboard-DbbqGwqT.js",
     "name": "dashboard",
     "src": "resources/dashboard/main.ts",
     "isEntry": true,
@@ -1911,7 +1911,7 @@
     ]
   },
   "resources/dashboard/pages/File.vue": {
-    "file": "assets/File-B7YBJYiU.js",
+    "file": "assets/File-B-0K-kXJ.js",
     "name": "File",
     "src": "resources/dashboard/pages/File.vue",
     "isDynamicEntry": true,
@@ -2028,7 +2028,7 @@
     ]
   },
   "resources/dashboard/pages/Settings/Integrations/Blockstudio.vue": {
-    "file": "assets/Blockstudio-ghFr6K1r.js",
+    "file": "assets/Blockstudio-D1c9MxKy.js",
     "name": "Blockstudio",
     "src": "resources/dashboard/pages/Settings/Integrations/Blockstudio.vue",
     "isDynamicEntry": true,
@@ -2043,7 +2043,7 @@
     ]
   },
   "resources/dashboard/pages/Settings/Integrations/Breakdance.vue": {
-    "file": "assets/Breakdance-cu_0PTdN.js",
+    "file": "assets/Breakdance-C1jMp0ZZ.js",
     "name": "Breakdance",
     "src": "resources/dashboard/pages/Settings/Integrations/Breakdance.vue",
     "isDynamicEntry": true,
@@ -2058,7 +2058,7 @@
     ]
   },
   "resources/dashboard/pages/Settings/Integrations/Bricks.vue": {
-    "file": "assets/Bricks-5Yq_AJIO.js",
+    "file": "assets/Bricks-C1u8JivH.js",
     "name": "Bricks",
     "src": "resources/dashboard/pages/Settings/Integrations/Bricks.vue",
     "isDynamicEntry": true,
@@ -2073,7 +2073,7 @@
     ]
   },
   "resources/dashboard/pages/Settings/Integrations/Builderius.vue": {
-    "file": "assets/Builderius-B5dw7Fnb.js",
+    "file": "assets/Builderius-CQX7YcsO.js",
     "name": "Builderius",
     "src": "resources/dashboard/pages/Settings/Integrations/Builderius.vue",
     "isDynamicEntry": true,
@@ -2088,7 +2088,7 @@
     ]
   },
   "resources/dashboard/pages/Settings/Integrations/Elementor.vue": {
-    "file": "assets/Elementor-fC1aX0iL.js",
+    "file": "assets/Elementor-BRlA1RU7.js",
     "name": "Elementor",
     "src": "resources/dashboard/pages/Settings/Integrations/Elementor.vue",
     "isDynamicEntry": true,
@@ -2103,7 +2103,7 @@
     ]
   },
   "resources/dashboard/pages/Settings/Integrations/Etch.vue": {
-    "file": "assets/Etch-d4bewvvZ.js",
+    "file": "assets/Etch-i570wHCK.js",
     "name": "Etch",
     "src": "resources/dashboard/pages/Settings/Integrations/Etch.vue",
     "isDynamicEntry": true,
@@ -2118,7 +2118,7 @@
     ]
   },
   "resources/dashboard/pages/Settings/Integrations/Generic.vue": {
-    "file": "assets/Generic-WsEigegu.js",
+    "file": "assets/Generic-D60JTq9b.js",
     "name": "Generic",
     "src": "resources/dashboard/pages/Settings/Integrations/Generic.vue",
     "isDynamicEntry": true,
@@ -2131,7 +2131,7 @@
     ]
   },
   "resources/dashboard/pages/Settings/Integrations/GreenShift.vue": {
-    "file": "assets/GreenShift-B6FJDVeV.js",
+    "file": "assets/GreenShift-C8X4PeyF.js",
     "name": "GreenShift",
     "src": "resources/dashboard/pages/Settings/Integrations/GreenShift.vue",
     "isDynamicEntry": true,
@@ -2146,7 +2146,7 @@
     ]
   },
   "resources/dashboard/pages/Settings/Integrations/Gutenberg.vue": {
-    "file": "assets/Gutenberg-BWqrfN_9.js",
+    "file": "assets/Gutenberg-Fl8Z1mAe.js",
     "name": "Gutenberg",
     "src": "resources/dashboard/pages/Settings/Integrations/Gutenberg.vue",
     "isDynamicEntry": true,
@@ -2161,7 +2161,7 @@
     ]
   },
   "resources/dashboard/pages/Settings/Integrations/Kadence.vue": {
-    "file": "assets/Kadence-BwocIlCH.js",
+    "file": "assets/Kadence-wgkNlSx2.js",
     "name": "Kadence",
     "src": "resources/dashboard/pages/Settings/Integrations/Kadence.vue",
     "isDynamicEntry": true,
@@ -2176,7 +2176,7 @@
     ]
   },
   "resources/dashboard/pages/Settings/Integrations/LiveCanvas.vue": {
-    "file": "assets/LiveCanvas-DNVLrzX2.js",
+    "file": "assets/LiveCanvas-DxfLH9Wt.js",
     "name": "LiveCanvas",
     "src": "resources/dashboard/pages/Settings/Integrations/LiveCanvas.vue",
     "isDynamicEntry": true,
@@ -2191,7 +2191,7 @@
     ]
   },
   "resources/dashboard/pages/Settings/Integrations/MetaBoxViews.vue": {
-    "file": "assets/MetaBoxViews-jm860Lyq.js",
+    "file": "assets/MetaBoxViews-BnAG4OaM.js",
     "name": "MetaBoxViews",
     "src": "resources/dashboard/pages/Settings/Integrations/MetaBoxViews.vue",
     "isDynamicEntry": true,
@@ -2206,7 +2206,7 @@
     ]
   },
   "resources/dashboard/pages/Settings/Integrations/Oxygen.vue": {
-    "file": "assets/Oxygen-CGndE_IJ.js",
+    "file": "assets/Oxygen-IBI81oFK.js",
     "name": "Oxygen",
     "src": "resources/dashboard/pages/Settings/Integrations/Oxygen.vue",
     "isDynamicEntry": true,
@@ -2221,7 +2221,7 @@
     ]
   },
   "resources/dashboard/pages/Settings/Integrations/OxygenClassic.vue": {
-    "file": "assets/OxygenClassic-03zha7Ld.js",
+    "file": "assets/OxygenClassic-_tPbtyis.js",
     "name": "OxygenClassic",
     "src": "resources/dashboard/pages/Settings/Integrations/OxygenClassic.vue",
     "isDynamicEntry": true,
@@ -2236,7 +2236,7 @@
     ]
   },
   "resources/dashboard/pages/Settings/Integrations/Timber.vue": {
-    "file": "assets/Timber-BT7XyBGu.js",
+    "file": "assets/Timber-CESwFmhw.js",
     "name": "Timber",
     "src": "resources/dashboard/pages/Settings/Integrations/Timber.vue",
     "isDynamicEntry": true,
@@ -2251,7 +2251,7 @@
     ]
   },
   "resources/dashboard/pages/Settings/Integrations/WPCodeBox2.vue": {
-    "file": "assets/WPCodeBox2-BB5OsC_g.js",
+    "file": "assets/WPCodeBox2-DmuYu9ws.js",
     "name": "WPCodeBox2",
     "src": "resources/dashboard/pages/Settings/Integrations/WPCodeBox2.vue",
     "isDynamicEntry": true,
@@ -2266,7 +2266,7 @@
     ]
   },
   "resources/dashboard/pages/Settings/Integrations/[integration].vue": {
-    "file": "assets/_integration_-JLHwmuoj.js",
+    "file": "assets/_integration_-ei_4Hab2.js",
     "name": "_integration_",
     "src": "resources/dashboard/pages/Settings/Integrations/[integration].vue",
     "isDynamicEntry": true,
@@ -2317,7 +2317,7 @@
     ]
   },
   "resources/dashboard/pages/Wizard.vue": {
-    "file": "assets/Wizard-BjA5CPIv.js",
+    "file": "assets/Wizard-CMfjQ0tv.js",
     "name": "Wizard",
     "src": "resources/dashboard/pages/Wizard.vue",
     "isDynamicEntry": true,
@@ -2542,7 +2542,7 @@
     ]
   },
   "resources/integration/bricks/main.js": {
-    "file": "assets/integration/bricks-X9WpMjRW.js",
+    "file": "assets/integration/bricks-W-J0sWDO.js",
     "name": "integration/bricks",
     "src": "resources/integration/bricks/main.js",
     "isEntry": true,
@@ -2632,7 +2632,7 @@
     ]
   },
   "resources/integration/bricks/modules/plain-classes/main.js": {
-    "file": "assets/main-Dd7mjucc.js",
+    "file": "assets/main-CmaAfOhh.js",
     "name": "main",
     "src": "resources/integration/bricks/modules/plain-classes/main.js",
     "isDynamicEntry": true,
@@ -2659,7 +2659,7 @@
     ]
   },
   "resources/integration/bricks/modules/settings/main.js": {
-    "file": "assets/main-VZifguHR.js",
+    "file": "assets/main-Dv_ndJH9.js",
     "name": "main",
     "src": "resources/integration/bricks/modules/settings/main.js",
     "isDynamicEntry": true,
@@ -3320,7 +3320,7 @@
     ]
   },
   "resources/packages/core/tailwindcss-v3/play/observer.ts": {
-    "file": "assets/packages/core/tailwindcss-v3/play/observer-BU3Q5uba.js",
+    "file": "assets/packages/core/tailwindcss-v3/play/observer-RTtTSwOQ.js",
     "name": "packages/core/tailwindcss-v3/play/observer",
     "src": "resources/packages/core/tailwindcss-v3/play/observer.ts",
     "isEntry": true,
@@ -3357,7 +3357,7 @@
     ]
   },
   "resources/packages/core/tailwindcss/play/observer.ts": {
-    "file": "assets/packages/core/tailwindcss/play/observer-DtpuysDb.js",
+    "file": "assets/packages/core/tailwindcss/play/observer-C9Mwefr_.js",
     "name": "packages/core/tailwindcss/play/observer",
     "src": "resources/packages/core/tailwindcss/play/observer.ts",
     "isEntry": true,
