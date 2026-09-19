@@ -29,7 +29,7 @@ const settingsStore = useSettingsStore();
           icon="i-lucide-circle-help"
           color="neutral"
           variant="soft"
-          to="https://windpress.jooo.si/docs/guide/integrations/elementor"
+          to="https://jooo.si/docs/windpress/guide/integrations/elementor"
           target="_blank"
         />
       </UTooltip>
@@ -48,7 +48,7 @@ const settingsStore = useSettingsStore();
                 color="neutral"
                 size="sm"
                 variant="soft"
-                to="https://windpress.jooo.si/docs/guide/integrations/elementor"
+                to="https://jooo.si/docs/windpress/guide/integrations/elementor"
                 target="_blank"
               />
             </UTooltip>

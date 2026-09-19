@@ -94,7 +94,7 @@ const links = computed(() => [
     // {
     //     label: 'Documentation',
     //     icon: 'i-lucide-book-open',
-    //     to: `https://windpress.jooo.si/docs?utm_source=wordpress-plugins&utm_medium=plugin-menu&utm_campaign=windpress&utm_id=all-edition&windpress_version=${window.windpress._version}`,
+    //     to: `https://jooo.si/docs/windpress?utm_source=wordpress-plugins&utm_medium=plugin-menu&utm_campaign=windpress&utm_id=all-edition&windpress_version=${window.windpress._version}`,
     //     target: '_blank'
     // },
     // {

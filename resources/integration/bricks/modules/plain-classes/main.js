@@ -195,32 +195,52 @@ const visibleElementPanelObserver = new MutationObserver(function (mutations) {
   mutations.forEach(function (mutation) {
     if (mutation.type === "attributes") {
       if (mutation.target.id === "bricks-panel-element" && mutation.attributeName === "style") {
-        visibleElementPanel.value = mutation.target.style.display !== "none";
+        updateVisibleElementPanel();
       }
     } else if (mutation.type === "childList") {
+      updateVisibleElementPanel();
+
       if (mutation.addedNodes.length > 0) {
         if (
           mutation.target.dataset &&
           mutation.target.dataset.controlkey === "_cssClasses" &&
           mutation.addedNodes[0].childNodes.length > 0
         ) {
-          document.querySelector("#_cssClasses").addEventListener("input", function (e) {
-            nextTick(() => {
-              textInput.value = e.target.value;
-              onTextInputChanges();
+          const cssClassesInput = document.querySelector("#_cssClasses");
+
+          if (cssClassesInput) {
+            cssClassesInput.addEventListener("input", function (e) {
+              nextTick(() => {
+                textInput.value = e.target.value;
+                onTextInputChanges();
+              });
             });
-          });
+          }
         }
       }
     }
   });
 });
 
-visibleElementPanelObserver.observe(document.getElementById("bricks-panel-element"), {
-  subtree: true,
-  attributes: true,
-  childList: true,
-});
+function updateVisibleElementPanel() {
+  const panelElement = document.querySelector("#bricks-panel-element");
+
+  visibleElementPanel.value = Boolean(
+    panelElement && panelElement.style.display !== "none",
+  );
+}
+
+const panelObserverTarget = document.querySelector("#bricks-panel, #bricks-panel-element");
+
+if (panelObserverTarget) {
+  updateVisibleElementPanel();
+
+  visibleElementPanelObserver.observe(panelObserverTarget, {
+    subtree: true,
+    attributes: true,
+    childList: true,
+  });
+}
 
 const activeElementObserver = new MutationObserver(function (mutations) {
   if (brxGlobalProp.$_state.selectedElements.length > 0) {
@@ -232,11 +252,15 @@ const activeElementObserver = new MutationObserver(function (mutations) {
   }
 });
 
-activeElementObserver.observe(document.querySelector("#bricks-structure"), {
-  subtree: true,
-  attributes: true,
-  childList: true,
-});
+const structureObserverTarget = document.querySelector("#bricks-structure");
+
+if (structureObserverTarget) {
+  activeElementObserver.observe(structureObserverTarget, {
+    subtree: true,
+    attributes: true,
+    childList: true,
+  });
+}
 
 const historyIndexObserver = new MutationObserver(function (mutations) {
   nextTick(() => {
@@ -247,14 +271,17 @@ const historyIndexObserver = new MutationObserver(function (mutations) {
   });
 });
 
-// observe `#bricks-toolbar > ul.group-wrapper.end > li.undo` and `#bricks-toolbar > ul.group-wrapper.end > li.redo`.
-historyIndexObserver.observe(
-  document.querySelector("#bricks-toolbar > ul.group-wrapper.end > li.undo"),
-  {
+// Observe the undo control in both the current and legacy Bricks toolbars.
+const historyObserverTarget = document.querySelector(
+  "#bricks-toolbar-top > ul.group-wrapper.end > li.undo, #bricks-toolbar > ul.group-wrapper.end > li.undo, #bricks-toolbar > ul.group-wrapper.right > li.undo",
+);
+
+if (historyObserverTarget) {
+  historyIndexObserver.observe(historyObserverTarget, {
     subtree: false,
     attributeFilter: ["class"],
-  },
-);
+  });
+}
 
 watch([activeElementIds, visibleElementPanel, historyIndex], (newVal, oldVal) => {
   if (newVal[0] !== oldVal[0] || newVal[2] !== oldVal[2]) {
@@ -321,6 +348,11 @@ watch([activeElementIds, visibleElementPanel, historyIndex], (newVal, oldVal) =>
         const actionsContainer = document.querySelector(
           "#bricks-panel-element-classes > div > div.actions-wrapper > div > div.dropdown-wrapper > div",
         );
+
+        if (!actionsContainer) {
+          return;
+        }
+
         const existingActions = actionsContainer.querySelectorAll(".windpressbricks-plc");
         // if the actions not found, append the actions to the container
         if (existingActions.length === 0) {

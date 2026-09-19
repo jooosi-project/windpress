@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- [Bricks] Missing WindPress Tailwind class input in the Bricks 2.4 builder editor.
+
 ## [3.3.89] - 2026-09-16
 
 ### Changed
@@ -606,7 +610,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Updated bundled Tailwind CSS v4 to 4.0.6
-- [TW4] The `@source` directive is now supported but differs from the official Tailwind CSS version. Please refer to [our documentation](https://windpress.jooo.si/docs/configuration/file-main-css#scanning-additional-sources) for details.
+- [TW4] The `@source` directive is now supported but differs from the official Tailwind CSS version. Please refer to [our documentation](https://jooo.si/docs/windpress/configuration/file-main-css#scanning-additional-sources) for details.
 
 ## [3.2.28] - 2024-12-19
 

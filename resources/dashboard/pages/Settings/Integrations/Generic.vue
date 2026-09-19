@@ -32,7 +32,7 @@ const integrationId = computed(() => route.params.integration as string);
           icon="i-lucide-circle-help"
           color="neutral"
           variant="soft"
-          to="https://windpress.jooo.si/docs"
+          to="https://jooo.si/docs/windpress"
           target="_blank"
         />
       </UTooltip>

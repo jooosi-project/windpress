@@ -7,7 +7,7 @@ import { Instrumentation } from "@/packages/core/tailwindcss/play/instrumentatio
 // Warn users about using the browser build in production as early as possible.
 // It can take time for the script to do its work so this must be at the top.
 console.warn(
-  "The compiler of Tailwind CSS should not be used in production. To use Tailwind CSS in production, use the cached CSS: https://windpress.jooo.si/docs/guide/concepts/cache",
+  "The compiler of Tailwind CSS should not be used in production. To use Tailwind CSS in production, use the cached CSS: https://jooo.si/docs/windpress/guide/concepts/cache",
 );
 
 /**

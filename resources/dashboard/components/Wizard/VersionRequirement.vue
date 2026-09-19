@@ -31,7 +31,7 @@ import { __ } from "@wordpress/i18n";
 
           <div class="text-sm text-dimmed">
             <ULink
-              to="https://windpress.jooo.si/docs/guide/configuration/tailwind-version"
+              to="https://jooo.si/docs/windpress/guide/configuration/tailwind-version"
               target="_blank"
               class="underline hover:no-underline"
             >

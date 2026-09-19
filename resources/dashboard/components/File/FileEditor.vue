@@ -1289,7 +1289,7 @@ async function handleEditorMount(
                       },
                       {
                         name: __("Docs: Tailwind CSS plugins", "windpress"),
-                        url: "https://windpress.jooo.si/docs/configuration/file-main-css#tailwind-css-plugins",
+                        url: "https://jooo.si/docs/windpress/configuration/file-main-css#tailwind-css-plugins",
                       },
                     ],
                   },
@@ -1307,7 +1307,7 @@ async function handleEditorMount(
                       },
                       {
                         name: __("Docs: Tailwind CSS configuration", "windpress"),
-                        url: "https://windpress.jooo.si/docs/configuration/file-main-css#tailwind-css-configuration",
+                        url: "https://jooo.si/docs/windpress/configuration/file-main-css#tailwind-css-configuration",
                       },
                     ],
                   },
@@ -1391,7 +1391,7 @@ async function handleEditorMount(
                     references: [
                       {
                         name: __("Docs: Scanning additional Sources", "windpress"),
-                        url: "https://windpress.jooo.si/docs/configuration/file-main-css#scanning-additional-sources",
+                        url: "https://jooo.si/docs/windpress/configuration/file-main-css#scanning-additional-sources",
                       },
                     ],
                   },

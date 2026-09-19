@@ -31,7 +31,7 @@ const settingsStore = useSettingsStore();
           icon="i-lucide-circle-help"
           color="neutral"
           variant="soft"
-          to="https://windpress.jooo.si/docs/guide/integrations/breakdance"
+          to="https://jooo.si/docs/windpress/guide/integrations/breakdance"
           target="_blank"
         />
       </UTooltip>
@@ -50,7 +50,7 @@ const settingsStore = useSettingsStore();
                 color="neutral"
                 size="sm"
                 variant="soft"
-                to="https://windpress.jooo.si/docs/guide/integrations/breakdance"
+                to="https://jooo.si/docs/windpress/guide/integrations/breakdance"
                 target="_blank"
               />
             </UTooltip>
@@ -88,7 +88,7 @@ const settingsStore = useSettingsStore();
                 color="neutral"
                 size="sm"
                 variant="soft"
-                to="https://windpress.jooo.si/docs/guide/integrations/breakdance"
+                to="https://jooo.si/docs/windpress/guide/integrations/breakdance"
                 target="_blank"
               />
             </UTooltip>
