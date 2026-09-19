@@ -1,6 +1,6 @@
 {
   "name": "windpress",
-  "version": "3.3.89",
+  "version": "3.3.90",
   "private": true,
   "type": "module",
   "scripts": {

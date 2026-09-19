@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.90] - 2026-09-19
+
 ### Fixed
 
 - [Bricks] Missing WindPress Tailwind class input in the Bricks 2.4 builder editor.
@@ -917,7 +919,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 🐣 Initial release.
 
-[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.89...HEAD
+[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.90...HEAD
+[3.3.90]: https://github.com/jooosi-project/windpress/compare/v3.3.89...v3.3.90
 [3.3.89]: https://github.com/jooosi-project/windpress/compare/v3.3.88...v3.3.89
 [3.3.88]: https://github.com/jooosi-project/windpress/compare/v3.3.87...v3.3.88
 [3.3.87]: https://github.com/jooosi-project/windpress/compare/v3.3.86...v3.3.87
