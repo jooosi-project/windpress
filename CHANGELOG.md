@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.92] - 2026-10-10
+
 ### Changed
 
 - Updated the WordPress compatibility declaration to 7.1.
@@ -929,7 +931,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 🐣 Initial release.
 
-[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.91...HEAD
+[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.92...HEAD
+[3.3.92]: https://github.com/jooosi-project/windpress/compare/v3.3.91...v3.3.92
 [3.3.91]: https://github.com/jooosi-project/windpress/compare/v3.3.90...v3.3.91
 [3.3.90]: https://github.com/jooosi-project/windpress/compare/v3.3.89...v3.3.90
 [3.3.89]: https://github.com/jooosi-project/windpress/compare/v3.3.88...v3.3.89
