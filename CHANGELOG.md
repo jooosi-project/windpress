@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- [Breakdance] Improved builder compatibility and plain class synchronization.
+
 ## [3.3.90] - 2026-09-19
 
 ### Fixed

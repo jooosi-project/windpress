@@ -22,7 +22,13 @@ import { createHighlighterCore } from "shiki/core";
 import { createOnigurumaEngine } from "shiki/engine/oniguruma";
 
 import HighlightInTextarea from "@/integration/library/highlight-in-textarea.js";
-import { bdeV, bdeIframe, bdeIframeCanvas, bdeIframeV } from "@/integration/breakdance/constant.js";
+import {
+  bdeDocumentStore,
+  bdeIframe,
+  bdeIframeCanvas,
+  bdeStore,
+  bdeUiStore,
+} from "@/integration/breakdance/constant.js";
 
 let shikiHighlighter = null;
 
@@ -69,6 +75,8 @@ containerActionButtons.appendChild(classSortButton);
 
 const visibleElementPanel = ref(false); // 0 = hidden, > 0 = visible
 const activeElementId = ref(null);
+const documentStore = bdeDocumentStore;
+const uiStore = bdeUiStore;
 
 let hit = null; // highlight any text except spaces and new lines
 
@@ -140,7 +148,7 @@ const tributeEventCallbackOrigFn = tribute.events.callbacks;
 tribute.events.callbacks = function () {
   return {
     ...tributeEventCallbackOrigFn.call(this),
-    up: (e, el) => {
+    up: (e) => {
       // navigate up ul
       if (this.tribute.isActive && this.tribute.current.filteredItems) {
         e.preventDefault();
@@ -159,7 +167,7 @@ tribute.events.callbacks = function () {
         previewTributeEventCallbackUpDown();
       }
     },
-    down: (e, el) => {
+    down: (e) => {
       // navigate down ul
       if (this.tribute.isActive && this.tribute.current.filteredItems) {
         e.preventDefault();
@@ -183,18 +191,47 @@ tribute.events.callbacks = function () {
 
 tribute.attach(textInput);
 
-bdeV.$store.subscribeAction((action, state) => {
-  if (action.type === "ui/activateElement") {
-    activeElementId.value = action.payload;
-  }
+syncEditorState();
 
-  if (action.type === "ui/setLeftSidebarState") {
-    visibleElementPanel.value = action.payload === "elementproperties" ? true : false;
-  }
-});
+if (uiStore?.$subscribe) {
+  uiStore.$subscribe(syncEditorState);
+} else if (bdeStore?.subscribeAction) {
+  bdeStore.subscribeAction((action) => {
+    if (action.type === "ui/activateElement") {
+      activeElementId.value = action.payload;
+    }
+
+    if (action.type === "ui/setLeftSidebarState") {
+      visibleElementPanel.value = action.payload === "elementproperties";
+    }
+  });
+}
+
+if (documentStore?.$onAction) {
+  documentStore.$onAction(({ name, args, after }) => {
+    const payload = args[0];
+
+    if (
+      !["throttledPropertyChanged", "unthrottledPropertyChanged"].includes(name) ||
+      payload?.elementId !== activeElementId.value ||
+      payload?.path !== "settings.advanced.classes"
+    ) {
+      return;
+    }
+
+    after(() => {
+      if (payload.meta?.snapshotLabel === "Update Plain Classes") {
+        return;
+      }
+
+      classDownstream();
+      onTextInputChanges();
+    });
+  });
+}
 
 watch([activeElementId, visibleElementPanel], (newVal, oldVal) => {
-  if (newVal[0] !== oldVal[0]) {
+  if (!oldVal || newVal[0] !== oldVal[0]) {
     nextTick(() => {
       classDownstream();
       onTextInputChanges();
@@ -214,7 +251,7 @@ watch([activeElementId, visibleElementPanel], (newVal, oldVal) => {
       }
     });
   }
-});
+}, { immediate: true });
 
 hit = new HighlightInTextarea(textInput, {
   highlight: [
@@ -230,88 +267,78 @@ hit = new HighlightInTextarea(textInput, {
   ],
 });
 
-async function classDownstream() {
-  textInput.value =
-    bdeV.$store.getters["ui/activeElement"].data?.properties?.settings?.advanced?.classes?.join(
-      " ",
-    ) || "";
+function classDownstream() {
+  const classes = getActiveElementClasses();
+  textInput.value = Array.isArray(classes) ? classes.join(" ") : "";
 }
 
-// Stupid way to check if the path is exist
-async function checkUpstreamPath() {
-  if (bdeV.$store.getters["ui/activeElement"].data?.properties?.settings?.advanced?.classes) {
-    return true;
-  }
+function syncEditorState() {
+  const legacyActiveElement = bdeStore?.getters?.["ui/activeElement"];
+  const activeId = uiStore?.activeElementId ?? legacyActiveElement?.id ?? null;
 
-  const tab = document.querySelector(
-    ".properties-panel-tab.breakdance-tab.breakdance-tab--id-settings",
+  activeElementId.value = activeId;
+
+  if (uiStore?.panelState) {
+    visibleElementPanel.value = [
+      uiStore.panelState.leftSidebarPanel,
+      uiStore.panelState.rightSidebarPanel,
+    ].includes("elementproperties");
+  }
+}
+
+function getActiveElementId() {
+  return (
+    activeElementId.value ??
+    uiStore?.activeElementId ??
+    bdeStore?.getters?.["ui/activeElement"]?.id ??
+    null
   );
-  tab.click();
+}
 
-  let subtab = document.querySelector(
-    "#settings .properties-panel-accordion.conditional-control-display-visible>div",
+function getActiveElement() {
+  const activeId = getActiveElementId();
+
+  return (
+    documentStore?.document?.tree?._lookupTable?.[activeId] ??
+    bdeStore?.getters?.["ui/activeElement"] ??
+    null
   );
-  while (subtab === null) {
-    subtab = document.querySelector(
-      "#settings .properties-panel-accordion.conditional-control-display-visible>div",
-    );
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
+}
 
-  if (!subtab.parentElement.classList.contains("expanded")) {
-    subtab.click();
-  }
+function getActiveElementClasses() {
+  const activeElement = getActiveElement();
+  const activeElementData = activeElement?.data ?? activeElement;
 
-  let inp = document.querySelector(
-    '#breakdance-class-input-search input[placeholder=".my-cool-class"]',
-  );
-
-  while (inp === null) {
-    inp = document.querySelector(
-      '#breakdance-class-input-search input[placeholder=".my-cool-class"]',
-    );
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
-  // focus the input
-  inp.focus();
-
-  // type the value to the input like a human
-  const text = "windpressbreakdance";
-  inp.value = text;
-  inp.dispatchEvent(new Event("input", { bubbles: true }));
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
-  const btn = document.querySelector("#breakdance-class-input-search>button");
-  btn.click();
-
-  return true;
+  return activeElementData?.properties?.settings?.advanced?.classes;
 }
 
 // delay to 50ms
 const debouncedClassUpstream = debounce(classUpstream, 50);
 
-async function classUpstream() {
-  if (!(await checkUpstreamPath())) {
-    logger("Upstream path not found!", { module: "plain-classes", type: "error" });
-    return;
+function classUpstream() {
+  const classes = textInput.value.trim().split(/\s+/).filter(Boolean);
+  const elementId = getActiveElementId();
+
+  if (documentStore?.unthrottledPropertyChanged && elementId) {
+    documentStore.unthrottledPropertyChanged({
+      elementId,
+      path: "settings.advanced.classes",
+      value: classes,
+      meta: { snapshotLabel: "Update Plain Classes" },
+    });
+  } else {
+    const activeElement = getActiveElement();
+    const activeElementData = activeElement?.data ?? activeElement;
+
+    if (activeElementData) {
+      set(activeElementData, "properties.settings.advanced.classes", classes);
+    }
   }
-
-  // bring back the focus to the input
-  textInput.focus();
-
-  set(
-    bdeV.$store.getters["ui/activeElement"].data,
-    "properties.settings.advanced.classes",
-    textInput.value
-      .trim()
-      .split(" ")
-      .filter((c) => c.trim() !== "") || [],
-  );
 
   // TODO: register class as global selectors.
 }
 
-textInput.addEventListener("input", function (e) {
+textInput.addEventListener("input", function () {
   debouncedClassUpstream();
 });
 
@@ -319,7 +346,7 @@ function onTextInputChanges() {
   nextTick(() => {
     try {
       hit.handleInput();
-    } catch (error) {}
+    } catch {}
     autosize.update(textInput);
     // tribute.setMenuContainer(document.querySelector('div.hit-container'));
     tribute.hideMenu();
@@ -332,15 +359,15 @@ const observerAutocomplete = new MutationObserver(function (mutations) {
       mutation.addedNodes.forEach((node) => {
         const className = node.querySelector(".class-name").dataset.tributeClassName;
 
-        node.addEventListener("mouseenter", (e) => {
+        node.addEventListener("mouseenter", () => {
           previewAddClass(className);
         });
 
-        node.addEventListener("mouseleave", (e) => {
+        node.addEventListener("mouseleave", () => {
           previewResetClass();
         });
 
-        node.addEventListener("click", (e) => {
+        node.addEventListener("click", () => {
           previewResetClass();
           previewAddClass(className);
         });
@@ -351,7 +378,7 @@ const observerAutocomplete = new MutationObserver(function (mutations) {
 
 let menuAutocompleteItemeEl = null;
 
-textInput.addEventListener("tribute-active-true", function (e) {
+textInput.addEventListener("tribute-active-true", function () {
   if (menuAutocompleteItemeEl === null) {
     menuAutocompleteItemeEl = document.querySelector(".windpressbreakdance-tribute-container>ul");
   }
@@ -368,8 +395,13 @@ textInput.addEventListener("tribute-active-true", function (e) {
 });
 
 function previewAddClass(className) {
-  const activeEl = bdeIframeV.$store.getters["ui/activeElement"].id;
-  const elementNode = bdeIframeCanvas.querySelector(`[data-node-id="${activeEl}"]`);
+  const activeEl = getActiveElementId();
+  const elementNode = bdeIframeCanvas?.querySelector(`[data-node-id="${activeEl}"]`);
+
+  if (!elementNode) {
+    return;
+  }
+
   // add class to the element
   elementNode.classList.add(className);
 
@@ -389,15 +421,16 @@ function previewTributeEventCallbackUpDown() {
 }
 
 function resetTributeClass() {
-  const activeEl = bdeIframeV.$store.getters["ui/activeElement"].id;
-  const elementNode = bdeIframeCanvas.querySelector(`[data-node-id="${activeEl}"]`);
-  if (elementNode.dataset.tributeClassName) {
+  const activeEl = getActiveElementId();
+  const elementNode = bdeIframeCanvas?.querySelector(`[data-node-id="${activeEl}"]`);
+
+  if (elementNode?.dataset.tributeClassName) {
     elementNode.classList.remove(elementNode.dataset.tributeClassName);
     elementNode.dataset.tributeClassName = "";
   }
 }
 
-textInput.addEventListener("highlights-updated", function (e) {
+textInput.addEventListener("highlights-updated", function () {
   hoverPreviewProvider();
 });
 
@@ -431,7 +464,11 @@ function hoverPreviewProvider() {
     tippyInstance.setContent(
       shikiHighlighter.codeToHtml(generatedCssCode, {
         lang: "css",
-        theme: document.querySelector("div#app.theme--light") !== null ? "light-plus" : "dark-plus",
+        theme: document.querySelector(
+          ".breakdance-dark-mode, .v-theme--dark, #app.theme--dark",
+        )
+          ? "dark-plus"
+          : "light-plus",
       }),
     );
 
@@ -458,7 +495,7 @@ function hoverPreviewProvider() {
   // when mouse are entering the `.hit-container` element, get the coordinates of the mouse and check if the mouse is hovering the `mark` element
   hitContainerEl.addEventListener("mousemove", debouncedMousemoveHandler);
 
-  hitContainerEl.addEventListener("mouseleave", function (event) {
+  hitContainerEl.addEventListener("mouseleave", function () {
     debouncedMousemoveHandler.cancel();
     currentMarkWordElement.value = null;
   });

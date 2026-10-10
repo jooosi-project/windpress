@@ -6,6 +6,12 @@ import { bde } from "@/integration/breakdance/constant.js";
 const variableApp = inject("variableApp");
 const isOpen = inject("isOpen");
 
+function setBuilderPointerEvents(value) {
+  const appWrapper = bde.querySelector(".v-application--wrap, .v-application__wrap");
+
+  appWrapper?.style.setProperty("pointer-events", value);
+}
+
 function allowDragPanel() {
   const draggable = variableApp.querySelector("#windpressbreakdance-variable-app-header");
   let isDragging = ref(false);
@@ -15,12 +21,12 @@ function allowDragPanel() {
   watch(isDragging, (value) => {
     if (!value) {
       document.body.style.removeProperty("user-select");
-      bde.querySelector("div.v-application--wrap").style.removeProperty("pointer-events");
+      setBuilderPointerEvents("");
 
       draggable.style.cursor = "grab";
     } else {
       document.body.style.userSelect = "none";
-      bde.querySelector("div.v-application--wrap").style.pointerEvents = "none";
+      setBuilderPointerEvents("none");
       draggable.style.cursor = "grabbing";
     }
   });

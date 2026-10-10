@@ -4,12 +4,18 @@ import { logger } from "@/integration/common/logger";
 logger("Loading...");
 
 (async () => {
-  while (!document.querySelector("#app")?.__vue__) {
+  while (
+    !document.querySelector("#app")?.__vue__ &&
+    !document.querySelector("#app")?.__vue_app__ &&
+    !window.Breakdance?.stores?.uiStore
+  ) {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   while (
-    !document.querySelector("#app #iframe")?.contentDocument.querySelector("#breakdance_canvas")
+    !document
+      .querySelector("#app #iframe")
+      ?.contentDocument?.querySelector("#breakdance_canvas")
   ) {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }

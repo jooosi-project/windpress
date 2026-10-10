@@ -1,7 +1,13 @@
 const bde = document.querySelector("#app");
-const bdeV = bde.__vue__;
-const bdeIframe = document.querySelector("#app #iframe");
-const bdeIframeCanvas = bdeIframe?.contentDocument.querySelector("#breakdance_canvas");
-const bdeIframeV = bdeIframeCanvas.__vue__;
+const bdeIframe = bde?.querySelector("#iframe") ?? null;
+const bdeIframeCanvas =
+  bdeIframe?.contentDocument?.querySelector("#breakdance_canvas") ?? null;
+const bdeStores = window.Breakdance?.stores;
+const bdeDocumentStore = bdeStores?.documentStore;
+const bdeUiStore = bdeStores?.uiStore;
+const bdeStore =
+  bde?.__vue__?.$store ??
+  bde?.__vue_app__?.config?.globalProperties?.$store ??
+  null;
 
-export { bde, bdeV, bdeIframe, bdeIframeCanvas, bdeIframeV };
+export { bde, bdeDocumentStore, bdeIframe, bdeIframeCanvas, bdeStore, bdeUiStore };
