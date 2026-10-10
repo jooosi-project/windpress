@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.91] - 2026-10-10
+
 ### Fixed
 
 - [Breakdance] Improved builder compatibility and plain class synchronization.
@@ -923,7 +925,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 🐣 Initial release.
 
-[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.90...HEAD
+[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.91...HEAD
+[3.3.91]: https://github.com/jooosi-project/windpress/compare/v3.3.90...v3.3.91
 [3.3.90]: https://github.com/jooosi-project/windpress/compare/v3.3.89...v3.3.90
 [3.3.89]: https://github.com/jooosi-project/windpress/compare/v3.3.88...v3.3.89
 [3.3.88]: https://github.com/jooosi-project/windpress/compare/v3.3.87...v3.3.88
