@@ -398,10 +398,6 @@
     "file": "assets/constant-BRHMowQF.js",
     "name": "constant"
   },
-  "_constant-Bodr-Y8K.js": {
-    "file": "assets/constant-Bodr-Y8K.js",
-    "name": "constant"
-  },
   "_constant-DJVVaZN0.js": {
     "file": "assets/constant-DJVVaZN0.js",
     "name": "constant"
@@ -420,6 +416,10 @@
     "imports": [
       "_virtualRef-BXDDmgQA.js"
     ]
+  },
+  "_constant-VTDeQD3l.js": {
+    "file": "assets/constant-VTDeQD3l.js",
+    "name": "constant"
   },
   "_constant-d2GFTaEb.js": {
     "file": "assets/constant-d2GFTaEb.js",
@@ -813,8 +813,8 @@
     "file": "assets/style-DadGt3jf.css",
     "src": "_style-DadGt3jf.css"
   },
-  "_tailwindcss-eARKZvci.js": {
-    "file": "assets/tailwindcss-eARKZvci.js",
+  "_tailwindcss-DxemUVhO.js": {
+    "file": "assets/tailwindcss-DxemUVhO.js",
     "name": "tailwindcss",
     "imports": [
       "_log-DzOPjEDi.js",
@@ -973,8 +973,8 @@
     "file": "assets/windpress-KUK3ZM4O.js",
     "name": "windpress"
   },
-  "_worker-CEgZFR5Q.js": {
-    "file": "assets/worker-CEgZFR5Q.js",
+  "_worker-D35Muf5_.js": {
+    "file": "assets/worker-D35Muf5_.js",
     "name": "worker",
     "imports": [
       "_log-DzOPjEDi.js",
@@ -1735,7 +1735,7 @@
     "isDynamicEntry": true
   },
   "resources/dashboard/main.ts": {
-    "file": "assets/dashboard-DbbqGwqT.js",
+    "file": "assets/dashboard-Cw-tddi5.js",
     "name": "dashboard",
     "src": "resources/dashboard/main.ts",
     "isEntry": true,
@@ -1770,7 +1770,7 @@
       "_virtualizer-D8PsHw5M.js",
       "_useGenerateCache-Cj9HaUYS.js",
       "_preload-helper-CtT0-S4g.js",
-      "_worker-CEgZFR5Q.js"
+      "_worker-D35Muf5_.js"
     ],
     "dynamicImports": [
       "resources/dashboard/pages/File.vue",
@@ -1911,7 +1911,7 @@
     ]
   },
   "resources/dashboard/pages/File.vue": {
-    "file": "assets/File-B-0K-kXJ.js",
+    "file": "assets/File-iGLyf1uI.js",
     "name": "File",
     "src": "resources/dashboard/pages/File.vue",
     "isDynamicEntry": true,
@@ -1934,7 +1934,7 @@
       "_debounce-C59yzpSY.js",
       "_path-browserify-CEJ-BPl0.js",
       "_intellisense-IiqZusqm.js",
-      "_tailwindcss-eARKZvci.js",
+      "_tailwindcss-DxemUVhO.js",
       "_register-Dj0LtGMG.js",
       "_DashboardNavbar-BB_G4f_l.js",
       "_DashboardSidebarCollapse-D49r1vm9.js",
@@ -2432,16 +2432,16 @@
     ]
   },
   "resources/integration/breakdance/constant.js": {
-    "file": "assets/constant-BzVEcrup.js",
+    "file": "assets/constant-ChFocSO3.js",
     "name": "constant",
     "src": "resources/integration/breakdance/constant.js",
     "isDynamicEntry": true,
     "imports": [
-      "_constant-Bodr-Y8K.js"
+      "_constant-VTDeQD3l.js"
     ]
   },
   "resources/integration/breakdance/main.js": {
-    "file": "assets/integration/breakdance-BR8cZrtZ.js",
+    "file": "assets/integration/breakdance-32JEAKE3.js",
     "name": "integration/breakdance",
     "src": "resources/integration/breakdance/main.js",
     "isEntry": true,
@@ -2470,7 +2470,7 @@
     ]
   },
   "resources/integration/breakdance/modules/plain-classes/main.js": {
-    "file": "assets/main-_MnLj2mA.js",
+    "file": "assets/main-k1qNBAta.js",
     "name": "main",
     "src": "resources/integration/breakdance/modules/plain-classes/main.js",
     "isDynamicEntry": true,
@@ -2485,7 +2485,7 @@
       "_dist-Ofks0uYq.js",
       "_highlight-in-textarea-Deq3QzJh.js",
       "_tribute.min-x4-sVeF9.js",
-      "_constant-Bodr-Y8K.js"
+      "_constant-VTDeQD3l.js"
     ],
     "dynamicImports": [
       "node_modules/.pnpm/shiki@4.4.3/node_modules/shiki/dist/themes/dark-plus.mjs",
@@ -2494,11 +2494,11 @@
       "node_modules/.pnpm/shiki@4.4.3/node_modules/shiki/dist/wasm.mjs"
     ],
     "css": [
-      "assets/main-6heHhsPc.css"
+      "assets/main-DUJfSmfG.css"
     ]
   },
   "resources/integration/breakdance/modules/variable-picker/main.js": {
-    "file": "assets/main-XtQELmp_.js",
+    "file": "assets/main-Dnft8gt5.js",
     "name": "main",
     "src": "resources/integration/breakdance/modules/variable-picker/main.js",
     "isDynamicEntry": true,
@@ -2509,27 +2509,27 @@
       "_set-BW9M3BmR.js",
       "_vfs-DGZNrgMJ.js",
       "_intellisense-IiqZusqm.js",
-      "_tailwindcss-eARKZvci.js",
+      "_tailwindcss-DxemUVhO.js",
       "_logger-CvF98D4V.js",
       "__plugin-vue_export-helper-BDNMzG2s.js",
-      "_constant-Bodr-Y8K.js",
+      "_constant-VTDeQD3l.js",
       "_chevron-right-D2cLlQsL.js"
     ],
     "css": [
-      "assets/main-oq8ksCUM.css"
+      "assets/main-BQO3SPp2.css"
     ]
   },
   "resources/integration/breakdance/modules/variables/main.ts": {
-    "file": "assets/main-D1-vJURl.js",
+    "file": "assets/main-V4on69v-.js",
     "name": "main",
     "src": "resources/integration/breakdance/modules/variables/main.ts",
     "isDynamicEntry": true,
     "imports": [
       "_vfs-DGZNrgMJ.js",
       "_intellisense-IiqZusqm.js",
-      "_tailwindcss-eARKZvci.js",
+      "_tailwindcss-DxemUVhO.js",
       "_logger-CvF98D4V.js",
-      "_constant-Bodr-Y8K.js"
+      "_constant-VTDeQD3l.js"
     ]
   },
   "resources/integration/bricks/constant.js": {
@@ -2542,7 +2542,7 @@
     ]
   },
   "resources/integration/bricks/main.js": {
-    "file": "assets/integration/bricks-W-J0sWDO.js",
+    "file": "assets/integration/bricks-Co_C3CGj.js",
     "name": "integration/bricks",
     "src": "resources/integration/bricks/main.js",
     "isEntry": true,
@@ -2563,7 +2563,7 @@
     ]
   },
   "resources/integration/bricks/modules/color-palette/main.ts": {
-    "file": "assets/main-DaLn3oAW.js",
+    "file": "assets/main-CTfSG2My.js",
     "name": "main",
     "src": "resources/integration/bricks/modules/color-palette/main.ts",
     "isDynamicEntry": true,
@@ -2571,7 +2571,7 @@
       "_dist-r-WNftgF.js",
       "_vfs-DGZNrgMJ.js",
       "_intellisense-IiqZusqm.js",
-      "_tailwindcss-eARKZvci.js",
+      "_tailwindcss-DxemUVhO.js",
       "_logger-CvF98D4V.js",
       "_constant-L7pgAiOj.js"
     ]
@@ -2676,7 +2676,7 @@
     ]
   },
   "resources/integration/bricks/modules/variable-picker/main.js": {
-    "file": "assets/main-DV5kzeRA.js",
+    "file": "assets/main-CFgOmW5P.js",
     "name": "main",
     "src": "resources/integration/bricks/modules/variable-picker/main.js",
     "isDynamicEntry": true,
@@ -2687,7 +2687,7 @@
       "_set-BW9M3BmR.js",
       "_vfs-DGZNrgMJ.js",
       "_intellisense-IiqZusqm.js",
-      "_tailwindcss-eARKZvci.js",
+      "_tailwindcss-DxemUVhO.js",
       "_logger-CvF98D4V.js",
       "__plugin-vue_export-helper-BDNMzG2s.js",
       "_chevron-right-D2cLlQsL.js",
@@ -2698,7 +2698,7 @@
     ]
   },
   "resources/integration/bricks/modules/variables/main.ts": {
-    "file": "assets/main-BZ-KXPNr.js",
+    "file": "assets/main-Rz0WUXEO.js",
     "name": "main",
     "src": "resources/integration/bricks/modules/variables/main.ts",
     "isDynamicEntry": true,
@@ -2706,7 +2706,7 @@
       "_index.browser-D_NFvQN9.js",
       "_vfs-DGZNrgMJ.js",
       "_intellisense-IiqZusqm.js",
-      "_tailwindcss-eARKZvci.js",
+      "_tailwindcss-DxemUVhO.js",
       "_logger-CvF98D4V.js",
       "_constant-L7pgAiOj.js"
     ]
@@ -2721,7 +2721,7 @@
     ]
   },
   "resources/integration/builderius/main.js": {
-    "file": "assets/integration/builderius-URvMUT-p.js",
+    "file": "assets/integration/builderius-vD9c8dB5.js",
     "name": "integration/builderius",
     "src": "resources/integration/builderius/main.js",
     "isEntry": true,
@@ -2748,14 +2748,14 @@
     ]
   },
   "resources/integration/builderius/modules/monaco/main.js": {
-    "file": "assets/main-CJpqwzjD.js",
+    "file": "assets/main-DQ4gYw2X.js",
     "name": "main",
     "src": "resources/integration/builderius/modules/monaco/main.js",
     "isDynamicEntry": true,
     "imports": [
       "_vfs-DGZNrgMJ.js",
       "_intellisense-IiqZusqm.js",
-      "_tailwindcss-eARKZvci.js",
+      "_tailwindcss-DxemUVhO.js",
       "_logger-CvF98D4V.js",
       "_constant-BRHMowQF.js"
     ]
@@ -2775,7 +2775,7 @@
     ]
   },
   "resources/integration/builderius/modules/variable-picker/main.js": {
-    "file": "assets/main-D0FQP1Rl.js",
+    "file": "assets/main-ClvvUpzX.js",
     "name": "main",
     "src": "resources/integration/builderius/modules/variable-picker/main.js",
     "isDynamicEntry": true,
@@ -2786,7 +2786,7 @@
       "_set-BW9M3BmR.js",
       "_vfs-DGZNrgMJ.js",
       "_intellisense-IiqZusqm.js",
-      "_tailwindcss-eARKZvci.js",
+      "_tailwindcss-DxemUVhO.js",
       "_logger-CvF98D4V.js",
       "__plugin-vue_export-helper-BDNMzG2s.js",
       "_chevron-right-D2cLlQsL.js",
@@ -2797,14 +2797,14 @@
     ]
   },
   "resources/integration/builderius/modules/variables/main.ts": {
-    "file": "assets/main-BZMuNJpc.js",
+    "file": "assets/main-CvkIsSWH.js",
     "name": "main",
     "src": "resources/integration/builderius/modules/variables/main.ts",
     "isDynamicEntry": true,
     "imports": [
       "_vfs-DGZNrgMJ.js",
       "_intellisense-IiqZusqm.js",
-      "_tailwindcss-eARKZvci.js",
+      "_tailwindcss-DxemUVhO.js",
       "_logger-CvF98D4V.js",
       "_constant-BRHMowQF.js"
     ]
@@ -2958,7 +2958,7 @@
     ]
   },
   "resources/integration/livecanvas/main.js": {
-    "file": "assets/integration/livecanvas-D026ssMZ.js",
+    "file": "assets/integration/livecanvas-CcflGtup.js",
     "name": "integration/livecanvas",
     "src": "resources/integration/livecanvas/main.js",
     "isEntry": true,
@@ -3042,14 +3042,14 @@
     ]
   },
   "resources/integration/livecanvas/modules/variables/main.ts": {
-    "file": "assets/main-sapk84gb.js",
+    "file": "assets/main-exKGvvVu.js",
     "name": "main",
     "src": "resources/integration/livecanvas/modules/variables/main.ts",
     "isDynamicEntry": true,
     "imports": [
       "_vfs-DGZNrgMJ.js",
       "_intellisense-IiqZusqm.js",
-      "_tailwindcss-eARKZvci.js",
+      "_tailwindcss-DxemUVhO.js",
       "_logger-CvF98D4V.js",
       "_constant-d2GFTaEb.js"
     ]
@@ -3064,7 +3064,7 @@
     ]
   },
   "resources/integration/oxygen-classic/editor/main.js": {
-    "file": "assets/integration/oxygen-classic/editor-CcHHbIG7.js",
+    "file": "assets/integration/oxygen-classic/editor-CiLHndIP.js",
     "name": "integration/oxygen-classic/editor",
     "src": "resources/integration/oxygen-classic/editor/main.js",
     "isEntry": true,
@@ -3133,7 +3133,7 @@
     ]
   },
   "resources/integration/oxygen-classic/editor/modules/variable-picker/main.js": {
-    "file": "assets/main-gxP65UiT.js",
+    "file": "assets/main-CNk6D_8b.js",
     "name": "main",
     "src": "resources/integration/oxygen-classic/editor/modules/variable-picker/main.js",
     "isDynamicEntry": true,
@@ -3144,7 +3144,7 @@
       "_set-BW9M3BmR.js",
       "_vfs-DGZNrgMJ.js",
       "_intellisense-IiqZusqm.js",
-      "_tailwindcss-eARKZvci.js",
+      "_tailwindcss-DxemUVhO.js",
       "_logger-CvF98D4V.js",
       "__plugin-vue_export-helper-BDNMzG2s.js",
       "_chevron-right-D2cLlQsL.js",
@@ -3155,14 +3155,14 @@
     ]
   },
   "resources/integration/oxygen-classic/editor/modules/variables/main.ts": {
-    "file": "assets/main-VkCwYY11.js",
+    "file": "assets/main-BwnzbFvJ.js",
     "name": "main",
     "src": "resources/integration/oxygen-classic/editor/modules/variables/main.ts",
     "isDynamicEntry": true,
     "imports": [
       "_vfs-DGZNrgMJ.js",
       "_intellisense-IiqZusqm.js",
-      "_tailwindcss-eARKZvci.js",
+      "_tailwindcss-DxemUVhO.js",
       "_logger-CvF98D4V.js",
       "_constant-DJVVaZN0.js"
     ]
@@ -3183,7 +3183,7 @@
     ]
   },
   "resources/integration/oxygen/main.js": {
-    "file": "assets/integration/oxygen-CJV8rEx_.js",
+    "file": "assets/integration/oxygen-Br_L_wID.js",
     "name": "integration/oxygen",
     "src": "resources/integration/oxygen/main.js",
     "isEntry": true,
@@ -3253,7 +3253,7 @@
     ]
   },
   "resources/integration/oxygen/modules/variable-picker/main.js": {
-    "file": "assets/main-ChVASSu0.js",
+    "file": "assets/main-B6dh8ulZ.js",
     "name": "main",
     "src": "resources/integration/oxygen/modules/variable-picker/main.js",
     "isDynamicEntry": true,
@@ -3264,7 +3264,7 @@
       "_set-BW9M3BmR.js",
       "_vfs-DGZNrgMJ.js",
       "_intellisense-IiqZusqm.js",
-      "_tailwindcss-eARKZvci.js",
+      "_tailwindcss-DxemUVhO.js",
       "_logger-CvF98D4V.js",
       "__plugin-vue_export-helper-BDNMzG2s.js",
       "_chevron-right-D2cLlQsL.js",
@@ -3275,7 +3275,7 @@
     ]
   },
   "resources/integration/oxygen/modules/variables/main.ts": {
-    "file": "assets/main-j5IMb9Pz.js",
+    "file": "assets/main-cOFrxlEU.js",
     "name": "main",
     "src": "resources/integration/oxygen/modules/variables/main.ts",
     "isDynamicEntry": true,
@@ -3283,7 +3283,7 @@
       "_preload-helper-CtT0-S4g.js",
       "_vfs-DGZNrgMJ.js",
       "_intellisense-IiqZusqm.js",
-      "_tailwindcss-eARKZvci.js",
+      "_tailwindcss-DxemUVhO.js",
       "_logger-CvF98D4V.js",
       "_constant-DpZqgQ1m.js"
     ]
@@ -3298,7 +3298,7 @@
     ]
   },
   "resources/packages/core/tailwindcss-v3/play/intellisense.ts": {
-    "file": "assets/packages/core/tailwindcss-v3/play/intellisense-BJMPvV8j.js",
+    "file": "assets/packages/core/tailwindcss-v3/play/intellisense-COmJ8ZWh.js",
     "name": "packages/core/tailwindcss-v3/play/intellisense",
     "src": "resources/packages/core/tailwindcss-v3/play/intellisense.ts",
     "isEntry": true,
@@ -3316,7 +3316,7 @@
       "_intellisense-IiqZusqm.js",
       "_dlv.umd-DFuY2wBb.js",
       "_resolve-config-iWJuAxpQ.js",
-      "_tailwindcss-eARKZvci.js"
+      "_tailwindcss-DxemUVhO.js"
     ]
   },
   "resources/packages/core/tailwindcss-v3/play/observer.ts": {
@@ -3331,7 +3331,7 @@
     ]
   },
   "resources/packages/core/tailwindcss/index.ts": {
-    "file": "assets/tailwindcss-CPL6xtwX.js",
+    "file": "assets/tailwindcss-DAGtDWRv.js",
     "name": "tailwindcss",
     "src": "resources/packages/core/tailwindcss/index.ts",
     "isDynamicEntry": true,
@@ -3340,7 +3340,7 @@
       "_build-C2MWzG7V.js",
       "_vfs-DGZNrgMJ.js",
       "_intellisense-IiqZusqm.js",
-      "_tailwindcss-eARKZvci.js"
+      "_tailwindcss-DxemUVhO.js"
     ]
   },
   "resources/packages/core/tailwindcss/play/intellisense.ts": {
@@ -3368,25 +3368,25 @@
     ]
   },
   "resources/packages/core/tailwindcss/play/worker.ts": {
-    "file": "assets/packages/core/tailwindcss/play/worker-BMSSVHQA.js",
+    "file": "assets/packages/core/tailwindcss/play/worker-ewYM-55j.js",
     "name": "packages/core/tailwindcss/play/worker",
     "src": "resources/packages/core/tailwindcss/play/worker.ts",
     "isEntry": true,
     "imports": [
-      "_worker-CEgZFR5Q.js"
+      "_worker-D35Muf5_.js"
     ]
   },
   "resources/packages/oxide-parser/pkg/oxide_parser.js": {
-    "file": "assets/oxide_parser-j2yU16-m.js",
+    "file": "assets/oxide_parser-B705LFpl.js",
     "name": "oxide_parser",
     "src": "resources/packages/oxide-parser/pkg/oxide_parser.js",
     "isDynamicEntry": true,
     "assets": [
-      "assets/oxide_parser_bg-DsHXdFHJ.wasm"
+      "assets/oxide_parser_bg-Nqeux0J9.wasm"
     ]
   },
   "resources/packages/oxide-parser/pkg/oxide_parser_bg.wasm": {
-    "file": "assets/oxide_parser_bg-DsHXdFHJ.wasm",
+    "file": "assets/oxide_parser_bg-Nqeux0J9.wasm",
     "src": "resources/packages/oxide-parser/pkg/oxide_parser_bg.wasm"
   }
 }
