@@ -1,0 +1,1 @@
+var e=document.querySelector(`#app`),t=e?.querySelector(`#iframe`)??null,n=t?.contentDocument?.querySelector(`#breakdance_canvas`)??null,r=window.Breakdance?.stores,i=r?.documentStore,a=r?.uiStore,o=e?.__vue__?.$store??e?.__vue_app__?.config?.globalProperties?.$store??null;export{o as a,n as i,i as n,a as o,t as r,e as t};
