@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Updated the WordPress compatibility declaration to 7.1.
+
 ## [3.3.91] - 2026-10-10
 
 ### Fixed

@@ -3,7 +3,7 @@ Contributors: suasgn, suabahasa
 Donate link: https://ko-fi.com/Q5Q75XSF7
 Tags: tailwind, tailwindcss, tailwind css, block
 Requires at least: 6.0
-Tested up to: 7.0
+Tested up to: 7.1
 Stable tag: 3.3.91
 Requires PHP: 7.4
 License: GPLv3
