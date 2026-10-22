@@ -1,5 +1,3 @@
-import darkPlus from 'shiki/themes/dark-plus.mjs';
-import lightPlus from 'shiki/themes/light-plus.mjs';
 import type { Workspace } from 'modern-monaco/workspace';
 
 type ModernMonaco = typeof import('modern-monaco/editor-core');
@@ -8,9 +6,6 @@ export const MODERN_MONACO_THEMES = {
   dark: 'dark-plus',
   light: 'light-plus',
 } as const;
-
-const WINDPRESS_LIGHT_THEME = { ...lightPlus, name: MODERN_MONACO_THEMES.light };
-const WINDPRESS_DARK_THEME = { ...darkPlus, name: MODERN_MONACO_THEMES.dark };
 
 let standaloneMonacoPromise: Promise<ModernMonaco> | null = null;
 const workspaceMonacoPromises = new WeakMap<Workspace, Promise<ModernMonaco>>();
@@ -49,8 +44,8 @@ function initializeModernMonaco(workspace?: Workspace): Promise<ModernMonaco> {
   return import('modern-monaco')
     .then(({ init }) =>
       init({
-        defaultTheme: WINDPRESS_LIGHT_THEME,
-        themes: [WINDPRESS_DARK_THEME],
+        defaultTheme: MODERN_MONACO_THEMES.light,
+        themes: [MODERN_MONACO_THEMES.dark],
         workspace,
       }),
     )

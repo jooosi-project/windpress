@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { createHighlighterCore, type HighlighterCore } from "shiki/core";
-import { createOnigurumaEngine } from "shiki/engine/oniguruma";
 import path from "path";
-import { computedAsync, useColorMode } from "@vueuse/core";
-import { ref } from "vue";
+import { useColorMode } from "@vueuse/core";
+import { computed } from "vue";
+import { highlightCode } from "@/packages/core/windpress/highlight";
 
 const props = defineProps<{
   filePath: string;
@@ -14,27 +13,18 @@ const props = defineProps<{
 
 const colorMode = useColorMode();
 
-let shikiHighlighter = ref<HighlighterCore | null>(null);
-
-(async () => {
-  shikiHighlighter.value = await createHighlighterCore({
-    themes: [import("shiki/themes/dark-plus.mjs"), import("shiki/themes/light-plus.mjs")],
-    langs: [import("shiki/langs/css.mjs"), import("shiki/langs/javascript.mjs")],
-    engine: createOnigurumaEngine(import("shiki/wasm")),
-  });
-})();
-
-const snippet = computedAsync(async () => {
-  if (!props.fileContent || !shikiHighlighter.value) {
+const snippet = computed(() => {
+  if (!props.fileContent) {
     return;
   }
 
   const fileExt = path.extname(props.filePath).replace(".", "");
 
-  return shikiHighlighter.value.codeToHtml(props.fileContent, {
-    lang: fileExt === "css" ? "css" : "javascript",
-    theme: colorMode.value === "dark" ? "dark-plus" : "light-plus",
-  });
+  return highlightCode(
+    props.fileContent,
+    fileExt === "css" ? "css" : "javascript",
+    colorMode.value === "dark" ? "dark" : "light",
+  );
 });
 const emit = defineEmits<{ close: [boolean] }>();
 </script>
@@ -52,11 +42,9 @@ const emit = defineEmits<{ close: [boolean] }>();
     </template>
 
     <template #body v-if="fileContent">
-      <Suspense>
-        <div class="flex">
-          <div v-html="snippet" class="flex [&>pre]:p-4 [&>pre]:mr-6"></div>
-        </div>
-      </Suspense>
+      <div class="flex">
+        <div v-html="snippet" class="flex [&>pre]:p-4 [&>pre]:mr-6"></div>
+      </div>
     </template>
 
     <template #footer>

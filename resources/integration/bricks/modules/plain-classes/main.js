@@ -17,8 +17,7 @@ import { nextTick, ref, watch } from "vue";
 import autosize from "autosize";
 import Tribute from "tributejs";
 
-import { createHighlighterCore } from "shiki/core";
-import { createOnigurumaEngine } from "shiki/engine/oniguruma";
+import { highlightCode } from "@/packages/core/windpress/highlight";
 
 import HighlightInTextarea from "@/integration/library/highlight-in-textarea";
 import {
@@ -29,16 +28,6 @@ import {
 } from "@/integration/bricks/constant";
 
 import { debounce } from "lodash-es";
-
-let shikiHighlighter = null;
-
-(async () => {
-  shikiHighlighter = await createHighlighterCore({
-    themes: [import("shiki/themes/dark-plus.mjs"), import("shiki/themes/light-plus.mjs")],
-    langs: [import("shiki/langs/css.mjs")],
-    engine: createOnigurumaEngine(import("shiki/wasm")),
-  });
-})();
 
 const textInput = document
   .createRange()
@@ -432,10 +421,7 @@ function hoverPreviewProvider() {
     }
 
     tippyInstance.setContent(
-      shikiHighlighter.codeToHtml(generatedCssCode, {
-        lang: "css",
-        theme: "dark-plus",
-      }),
+      highlightCode(generatedCssCode, "css"),
     );
 
     tippyInstance.show();

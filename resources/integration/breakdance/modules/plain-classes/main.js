@@ -18,8 +18,7 @@ import autosize from "autosize";
 import Tribute from "tributejs";
 import { debounce, set } from "lodash-es";
 
-import { createHighlighterCore } from "shiki/core";
-import { createOnigurumaEngine } from "shiki/engine/oniguruma";
+import { highlightCode } from "@/packages/core/windpress/highlight";
 
 import HighlightInTextarea from "@/integration/library/highlight-in-textarea.js";
 import {
@@ -29,16 +28,6 @@ import {
   bdeStore,
   bdeUiStore,
 } from "@/integration/breakdance/constant.js";
-
-let shikiHighlighter = null;
-
-(async () => {
-  shikiHighlighter = await createHighlighterCore({
-    themes: [import("shiki/themes/dark-plus.mjs"), import("shiki/themes/light-plus.mjs")],
-    langs: [import("shiki/langs/css.mjs")],
-    engine: createOnigurumaEngine(import("shiki/wasm")),
-  });
-})();
 
 const textInput = document
   .createRange()
@@ -462,14 +451,13 @@ function hoverPreviewProvider() {
     }
 
     tippyInstance.setContent(
-      shikiHighlighter.codeToHtml(generatedCssCode, {
-        lang: "css",
-        theme: document.querySelector(
-          ".breakdance-dark-mode, .v-theme--dark, #app.theme--dark",
-        )
-          ? "dark-plus"
-          : "light-plus",
-      }),
+      highlightCode(
+        generatedCssCode,
+        "css",
+        document.querySelector(".breakdance-dark-mode, .v-theme--dark, #app.theme--dark")
+          ? "dark"
+          : "light",
+      ),
     );
 
     tippyInstance.show();

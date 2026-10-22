@@ -12,10 +12,7 @@ import "./style.scss";
 import { logger } from "@/integration/common/logger";
 import { previewIframe } from "@/integration/livecanvas/constant.js";
 
-import { createHighlighterCore } from "shiki/core";
-import { createOnigurumaEngine } from "shiki/engine/oniguruma";
-
-let shikiHighlighter = null;
+import { highlightCode } from "@/packages/core/windpress/highlight";
 
 // CSS generation cache
 const cssCache = new Map();
@@ -46,14 +43,6 @@ function setCachedCssCode(className, cssCode) {
     timestamp: Date.now(),
   });
 }
-
-(async () => {
-  shikiHighlighter = await createHighlighterCore({
-    themes: [import("shiki/themes/dark-plus.mjs"), import("shiki/themes/light-plus.mjs")],
-    langs: [import("shiki/langs/css.mjs")],
-    engine: createOnigurumaEngine(import("shiki/wasm")),
-  });
-})();
 
 async function searchQuery(query) {
   const suggestions = (
@@ -154,10 +143,7 @@ async function mousemoveHandler(e) {
     hoverTooltip.hide();
   } else {
     hoverTooltip.setHtml(
-      shikiHighlighter.codeToHtml(generatedCssCode, {
-        lang: "css",
-        theme: "dark-plus",
-      }),
+      highlightCode(generatedCssCode, "css"),
     );
     hoverTooltip.setPosition(e.domEvent.clientX + 10, e.domEvent.clientY + 10);
     hoverTooltip.show();

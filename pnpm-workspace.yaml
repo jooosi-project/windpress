@@ -10,7 +10,7 @@ allowBuilds:
   vue-demi: true
 
 patchedDependencies:
-  is-core-module@2.16.2: resources/patches/is-core-module@2.16.2.patch
+  is-core-module@2.17.0: resources/patches/is-core-module@2.17.0.patch
   modern-monaco@0.4.2: resources/patches/modern-monaco@0.4.2.patch
   tailwindcss@3.4.19: resources/patches/tailwindcss@3.4.19.patch
   vm-browserify@1.1.2: resources/patches/vm-browserify@1.1.2.patch
@@ -18,3 +18,9 @@ patchedDependencies:
 updateConfig:
   ignoreDependencies:
     - tailwindcss3
+
+catalog:
+  vite: npm:@voidzero-dev/vite-plus-core@1.3.0
+  vite-plus: 1.3.0
+overrides:
+  vite@*: "catalog:"

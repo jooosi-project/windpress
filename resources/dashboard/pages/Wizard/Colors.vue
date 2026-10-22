@@ -245,9 +245,8 @@ onBeforeMount(() => {
   initializeItems();
 });
 
-onBeforeRouteLeave((_, __, next) => {
+onBeforeRouteLeave(() => {
   updateThemeFromItems();
-  next();
 });
 </script>
 

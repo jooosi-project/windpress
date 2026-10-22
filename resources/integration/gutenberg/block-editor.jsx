@@ -1,8 +1,6 @@
 import "./block-editor.scss";
 
 import tippy, { followCursor } from "tippy.js";
-import { createHighlighterCore } from "shiki/core";
-import { createOnigurumaEngine } from "shiki/engine/oniguruma";
 
 import { __ } from "@wordpress/i18n";
 import { InspectorControls } from "@wordpress/block-editor";
@@ -15,22 +13,13 @@ import HighlightInTextarea from "@/integration/library/highlight-in-textarea.js"
 
 import { useEffect } from "react";
 import { nextTick, ref, watch } from "vue";
-
-let shikiHighlighter = null;
+import { highlightCode } from "@/packages/core/windpress/highlight";
 
 const WindPressIcon = (props) => {
   return (
     <IconWindpressWindpress {...props} width={20} height={20} aria-hidden="true" focusable="false" />
   );
 };
-
-(async () => {
-  shikiHighlighter = await createHighlighterCore({
-    themes: [import("shiki/themes/dark-plus.mjs"), import("shiki/themes/light-plus.mjs")],
-    langs: [import("shiki/langs/css.mjs")],
-    engine: createOnigurumaEngine(import("shiki/wasm")),
-  });
-})();
 
 const textInputRef = ref(null);
 
@@ -164,10 +153,7 @@ function hoverPreviewProvider() {
     }
 
     tippyInstance.setContent(
-      shikiHighlighter.codeToHtml(generatedCssCode, {
-        lang: "css",
-        theme: "dark-plus",
-      }),
+      highlightCode(generatedCssCode, "css"),
     );
 
     tippyInstance.show();

@@ -42,9 +42,8 @@ watch(
   { deep: true },
 );
 
-onBeforeRouteLeave((_, __, next) => {
+onBeforeRouteLeave(() => {
   updateTheme();
-  next();
 });
 </script>
 

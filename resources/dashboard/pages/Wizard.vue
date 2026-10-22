@@ -186,12 +186,11 @@ const links = ref<NavigationMenuItem[][]>([
   ],
 ]);
 
-onBeforeRouteLeave(async (_1, _2, next) => {
+onBeforeRouteLeave(async () => {
   // Save the theme when leaving the route if Tailwind v4 is active
   if (isTailwindV4.value) {
     await saveWizard();
   }
-  next();
 });
 </script>
 

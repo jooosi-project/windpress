@@ -1,8 +1,8 @@
-.ace_tooltip:has(> pre.shiki) {
+.ace_tooltip:has(> pre.highlights) {
   border: none;
   padding: 0;
 
-  & > pre.shiki {
+  & > pre.highlights {
     margin: 0;
     padding: 13px;
   }

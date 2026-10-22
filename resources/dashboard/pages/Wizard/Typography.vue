@@ -275,10 +275,9 @@ onBeforeMount(() => {
   initializeFontItems();
 });
 
-onBeforeRouteLeave((_, __, next) => {
+onBeforeRouteLeave(() => {
   updateTextTheme();
   updateFontTheme();
-  next();
 });
 </script>
 

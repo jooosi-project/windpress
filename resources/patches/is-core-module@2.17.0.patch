@@ -1,0 +1,13 @@
+diff --git a/index.js b/index.js
+index 77419fd79c983b93e3bc867b2d888dfbabdec938..6d4186ffcc89727383f330e6e8a49eb7dea0c183 100644
+--- a/index.js
++++ b/index.js
+@@ -51,7 +51,7 @@
+ 		: nodeVersion;
+ 
+ 	if (typeof current !== 'string') {
+-		throw new TypeError(typeof nodeVersion === 'undefined' ? 'Unable to determine current node version' : 'If provided, a valid node version is required');
++		return true;
+ 	}
+ 
+ 	if (specifierValue && typeof specifierValue === 'object') {
