@@ -1,7 +1,7 @@
 import { compile as _compile } from "tailwindcss";
 import { loadModule } from "./module";
-import lightningcssWasmFile from "~/node_modules/lightningcss-wasm/lightningcss_node.wasm?url";
-import init, { Features, transform } from "lightningcss-wasm";
+import lightningcssWasmFile from "@windpress/lightningcss-wasm/lightningcss_node.wasm?url";
+import init, { Features, transform } from "@windpress/lightningcss-wasm";
 import { loadStylesheet } from "./stylesheet";
 import { preprocess } from "./pre-process";
 import MagicString from "magic-string";

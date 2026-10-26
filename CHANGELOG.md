@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Reduced the bundled Lightning CSS WebAssembly size by about 74% with a WindPress-specific build.
+
 ## [3.3.92] - 2026-10-10
 
 ### Changed

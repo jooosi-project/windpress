@@ -12,6 +12,7 @@
   },
   "include": [
     "lz-string/src/**/*.ts",
+    "lightningcss-wasm/src/**/*.ts",
     "oxide-parser/src/**/*.ts",
     "oxide-parser/pkg/**/*.d.ts",
     "vitest.config.ts"

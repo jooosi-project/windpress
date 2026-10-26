@@ -5,6 +5,7 @@ import { wordpress, wordpressExternals } from "@nabasa/vp-wp";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 import wasm from "vite-plugin-wasm";
 import path from "path";
+import { fileURLToPath } from 'node:url';
 import svgr from "vite-plugin-svgr";
 import Icons from "unplugin-icons/vite";
 import { FileSystemIconLoader } from 'unplugin-icons/loaders';
@@ -12,6 +13,8 @@ import IconsResolver from "unplugin-icons/resolver";
 // import httpsImports from 'vite-plugin-https-imports'; //
 import nuxtUi from "@nuxt/ui/vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
+
+const processShimPath = fileURLToPath(import.meta.resolve('vite-plugin-node-polyfills/shims/process'));
 
 export default defineConfig({
   lint: {
@@ -244,6 +247,9 @@ export default defineConfig({
   publicDir: false,
   resolve: {
     alias: [
+      // Vite+ 1.4's client is transformed by nodePolyfills; resolve the
+      // injected process shim from this project instead of Vite+'s install.
+      { find: 'vite-plugin-node-polyfills/shims/process', replacement: processShimPath },
       { find: '~', replacement: path.resolve(__dirname) },
       { find: '@/dashboard', replacement: path.resolve(__dirname, 'resources/dashboard') },
       { find: '@/integration', replacement: path.resolve(__dirname, 'resources/integration') },
@@ -252,11 +258,12 @@ export default defineConfig({
     ],
   },
   server: {
+    // WordPress is served by Docker on a different origin during development.
     cors: true,
 
     // BrowserStackLocal
-    allowedHosts: true,
-    origin: "http://localhost:3000",
-    port: 3000,
+    // allowedHosts: true,
+    // origin: "http://localhost:3000",
+    // port: 3000,
   },
 });

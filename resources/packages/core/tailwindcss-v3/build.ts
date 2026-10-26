@@ -1,5 +1,5 @@
-import lightningcssWasmFile from "~/node_modules/lightningcss-wasm/lightningcss_node.wasm?url";
-import init, { transform, browserslistToTargets } from "lightningcss-wasm";
+import lightningcssWasmFile from "@windpress/lightningcss-wasm/lightningcss_node.wasm?url";
+import init, { transform, browserslistToTargets } from "@windpress/lightningcss-wasm";
 import { compile } from "./compile";
 import { version as tw3_version } from "tailwindcss3/package.json";
 import type { VFSContainer } from "@/packages/core/tailwindcss/vfs";

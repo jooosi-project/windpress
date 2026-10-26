@@ -1,0 +1,366 @@
+diff --git a/.cargo/config.toml b/.cargo/config.toml
+--- a/.cargo/config.toml
++++ b/.cargo/config.toml
+@@ -15,6 +15,8 @@
+ rustflags = [
+     "-C",
+     "link-arg=--export-table",
++    "-C",
++    "link-arg=--allow-undefined",
+     '--cfg',
+     'getrandom_backend="custom"',
+ ]
+diff --git a/node/Cargo.toml b/node/Cargo.toml
+--- a/node/Cargo.toml
++++ b/node/Cargo.toml
+@@ -9,10 +9,7 @@
+ crate-type = ["cdylib"]
+ 
+ [dependencies]
+-lightningcss-napi = { version = "0.4.9", path = "../napi", features = [
+-  "bundler",
+-  "visitor",
+-] }
++lightningcss-napi = { version = "0.4.9", path = "../napi" }
+ napi = { version = "2.15.4", default-features = false, features = [
+   "compat-mode",
+ ] }
+diff --git a/napi/Cargo.toml b/napi/Cargo.toml
+--- a/napi/Cargo.toml
++++ b/napi/Cargo.toml
+@@ -17,9 +17,10 @@
+ serde-content = { version = "0.1.2", features = ["serde"] }
+ serde_bytes = "0.11.5"
+ cssparser = "0.37.0"
+-lightningcss = { version = "1.0.0-alpha.72", path = "../", features = [
++lightningcss = { version = "1.0.0-alpha.72", path = "../", default-features = false, features = [
+   "nodejs",
+   "serde",
++  "sourcemap",
+ ] }
+ parcel_sourcemap = { version = "2.1.1", features = ["json"] }
+ serde-detach = "0.0.1"
+diff --git a/node/src/lib.rs b/node/src/lib.rs
+--- a/node/src/lib.rs
++++ b/node/src/lib.rs
+@@ -10,32 +10,9 @@
+   lightningcss_napi::transform(ctx)
+ }
+ 
+-#[js_function(1)]
+-fn transform_style_attribute(ctx: CallContext) -> napi::Result<JsUnknown> {
+-  lightningcss_napi::transform_style_attribute(ctx)
+-}
+-
+-#[js_function(1)]
+-pub fn bundle(ctx: CallContext) -> napi::Result<JsUnknown> {
+-  lightningcss_napi::bundle(ctx)
+-}
+-
+-#[cfg(not(target_arch = "wasm32"))]
+-#[js_function(1)]
+-pub fn bundle_async(ctx: CallContext) -> napi::Result<JsObject> {
+-  lightningcss_napi::bundle_async(ctx)
+-}
+-
+ #[cfg_attr(not(target_arch = "wasm32"), napi_derive::module_exports)]
+ fn init(mut exports: JsObject) -> napi::Result<()> {
+   exports.create_named_method("transform", transform)?;
+-  exports.create_named_method("transformStyleAttribute", transform_style_attribute)?;
+-  exports.create_named_method("bundle", bundle)?;
+-  #[cfg(not(target_arch = "wasm32"))]
+-  {
+-    exports.create_named_method("bundleAsync", bundle_async)?;
+-  }
+-
+   Ok(())
+ }
+ 
+@@ -43,7 +20,7 @@
+ #[no_mangle]
+ pub fn register_module() {
+   unsafe fn register(raw_env: napi::sys::napi_env, raw_exports: napi::sys::napi_value) -> napi::Result<()> {
+-    use napi::{Env, JsObject, NapiValue};
++    use napi::{JsObject, NapiValue};
+ 
+     let exports = JsObject::from_raw_unchecked(raw_env, raw_exports);
+     init(exports)
+diff --git a/napi/src/lib.rs b/napi/src/lib.rs
+--- a/napi/src/lib.rs
++++ b/napi/src/lib.rs
+@@ -1,6 +1,7 @@
+ #[cfg(feature = "bundler")]
+ use at_rule_parser::AtRule;
+ use at_rule_parser::{CustomAtRuleConfig, CustomAtRuleParser};
++#[cfg(feature = "bundler")]
+ use lightningcss::bundler::BundleErrorKind;
+ #[cfg(feature = "bundler")]
+ use lightningcss::bundler::{Bundler, SourceProvider};
+@@ -8,10 +9,9 @@
+ use lightningcss::dependencies::{Dependency, DependencyOptions};
+ use lightningcss::error::{Error, ErrorLocation, MinifyErrorKind, ParserError, PrinterErrorKind};
+ use lightningcss::stylesheet::{
+-  MinifyOptions, ParserFlags, ParserOptions, PrinterOptions, PseudoClasses, StyleAttribute, StyleSheet,
++  MinifyOptions, ParserFlags, ParserOptions, PrinterOptions, PseudoClasses, StyleSheet,
+ };
+ use lightningcss::targets::{Browsers, Features, Targets};
+-use napi::bindgen_prelude::{FromNapiValue, ToNapiValue};
+ use napi::{CallContext, Env, JsObject, JsUnknown};
+ use parcel_sourcemap::SourceMap;
+ use serde::{Deserialize, Serialize};
+@@ -24,6 +24,7 @@
+ mod threadsafe_function;
+ #[cfg(feature = "visitor")]
+ mod transformer;
++#[cfg(feature = "visitor")]
+ mod utils;
+ 
+ #[cfg(feature = "visitor")]
+@@ -35,6 +36,7 @@
+ #[cfg(feature = "visitor")]
+ use lightningcss::visitor::Visit;
+ 
++#[cfg(feature = "visitor")]
+ use utils::get_named_property;
+ 
+ #[derive(Serialize)]
+@@ -98,20 +100,6 @@
+ 
+   match res {
+     Ok(res) => res.into_js(*ctx.env),
+-    Err(err) => Err(err.into_js_error(*ctx.env, Some(code))?),
+-  }
+-}
+-
+-pub fn transform_style_attribute(ctx: CallContext) -> napi::Result<JsUnknown> {
+-  let opts = ctx.get::<JsObject>(0)?;
+-  let mut visitor = get_visitor(*ctx.env, &opts);
+-
+-  let config: AttrConfig = ctx.env.from_js_value(opts)?;
+-  let code = unsafe { std::str::from_utf8_unchecked(&config.code) };
+-  let res = compile_attr(code, &config, &mut visitor);
+-
+-  match res {
+-    Ok(res) => res.into_js(ctx),
+     Err(err) => Err(err.into_js_error(*ctx.env, Some(code))?),
+   }
+ }
+@@ -942,118 +930,16 @@
+   })
+ }
+ 
+-#[derive(Debug, Deserialize)]
+-#[serde(rename_all = "camelCase")]
+-struct AttrConfig {
+-  pub filename: Option<String>,
+-  #[serde(with = "serde_bytes")]
+-  pub code: Vec<u8>,
+-  pub targets: Option<Browsers>,
+-  #[serde(default)]
+-  pub include: u32,
+-  #[serde(default)]
+-  pub exclude: u32,
+-  #[serde(default)]
+-  pub minify: bool,
+-  #[serde(default)]
+-  pub analyze_dependencies: bool,
+-  #[serde(default)]
+-  pub error_recovery: bool,
+-}
+-
+-#[derive(Serialize)]
+-#[serde(rename_all = "camelCase")]
+-struct AttrResult<'i> {
+-  #[serde(with = "serde_bytes")]
+-  code: Vec<u8>,
+-  dependencies: Option<Vec<Dependency>>,
+-  warnings: Vec<Warning<'i>>,
+-}
+-
+-impl<'i> AttrResult<'i> {
+-  fn into_js(self, ctx: CallContext) -> napi::Result<JsUnknown> {
+-    // Manually construct buffers so we avoid a copy and work around
+-    // https://github.com/napi-rs/napi-rs/issues/1124.
+-    let mut obj = ctx.env.create_object()?;
+-    let buf = ctx.env.create_buffer_with_data(self.code)?;
+-    obj.set_named_property("code", buf.into_raw())?;
+-    obj.set_named_property("dependencies", ctx.env.to_js_value(&self.dependencies)?)?;
+-    obj.set_named_property("warnings", ctx.env.to_js_value(&self.warnings)?)?;
+-    Ok(obj.into_unknown())
+-  }
+-}
+-
+-fn compile_attr<'i>(
+-  code: &'i str,
+-  config: &AttrConfig,
+-  #[allow(unused_variables)] visitor: &mut Option<JsVisitor>,
+-) -> Result<AttrResult<'i>, CompileError<'i, napi::Error>> {
+-  let warnings = if config.error_recovery {
+-    Some(Arc::new(RwLock::new(Vec::new())))
+-  } else {
+-    None
+-  };
+-  let res = {
+-    let filename = config.filename.clone().unwrap_or_default();
+-    let mut attr = StyleAttribute::parse(
+-      &code,
+-      ParserOptions {
+-        filename,
+-        error_recovery: config.error_recovery,
+-        warnings: warnings.clone(),
+-        ..ParserOptions::default()
+-      },
+-    )?;
+-
+-    #[cfg(feature = "visitor")]
+-    if let Some(visitor) = visitor.as_mut() {
+-      attr.visit(visitor).unwrap();
+-    }
+-
+-    let targets = Targets {
+-      browsers: config.targets,
+-      include: Features::from_bits_truncate(config.include),
+-      exclude: Features::from_bits_truncate(config.exclude),
+-    };
+-
+-    attr.minify(MinifyOptions {
+-      targets,
+-      ..MinifyOptions::default()
+-    });
+-    attr.to_css(PrinterOptions {
+-      minify: config.minify,
+-      source_map: None,
+-      project_root: None,
+-      targets,
+-      analyze_dependencies: if config.analyze_dependencies {
+-        Some(DependencyOptions::default())
+-      } else {
+-        None
+-      },
+-      pseudo_classes: None,
+-    })?
+-  };
+-  Ok(AttrResult {
+-    code: res.code.into_bytes(),
+-    dependencies: res.dependencies,
+-    warnings: warnings.map_or(Vec::new(), |w| {
+-      Arc::try_unwrap(w)
+-        .unwrap()
+-        .into_inner()
+-        .unwrap()
+-        .into_iter()
+-        .map(|w| w.into())
+-        .collect()
+-    }),
+-  })
+-}
+-
+ enum CompileError<'i, E: std::error::Error> {
+   ParseError(Error<ParserError<'i>>),
+   MinifyError(Error<MinifyErrorKind>),
+   PrinterError(Error<PrinterErrorKind>),
+   SourceMapError(parcel_sourcemap::SourceMapError),
++  #[cfg(feature = "bundler")]
+   BundleError(Error<BundleErrorKind<'i, E>>),
++  #[cfg(not(feature = "bundler"))]
++  #[allow(dead_code)]
++  BundleDisabled(std::marker::PhantomData<E>),
+   PatternError(PatternParseError),
+   #[cfg(feature = "visitor")]
+   JsError(napi::Error),
+@@ -1065,7 +951,10 @@
+       CompileError::ParseError(err) => err.kind.fmt(f),
+       CompileError::MinifyError(err) => err.kind.fmt(f),
+       CompileError::PrinterError(err) => err.kind.fmt(f),
++      #[cfg(feature = "bundler")]
+       CompileError::BundleError(err) => err.kind.fmt(f),
++      #[cfg(not(feature = "bundler"))]
++      CompileError::BundleDisabled(_) => unreachable!(),
+       CompileError::PatternError(err) => err.fmt(f),
+       CompileError::SourceMapError(err) => write!(f, "{}", err.to_string()), // TODO: switch to `fmt::Display` once parcel_sourcemap supports this
+       #[cfg(feature = "visitor")]
+@@ -1074,35 +963,36 @@
+   }
+ }
+ 
+-impl<'i, E: IntoJsError + std::error::Error> CompileError<'i, E> {
++impl<'i, E: std::error::Error> CompileError<'i, E> {
+   fn into_js_error(self, env: Env, code: Option<&str>) -> napi::Result<napi::Error> {
+     let reason = self.to_string();
+     let data = match &self {
+       CompileError::ParseError(Error { kind, .. }) => env.to_js_value(kind)?,
+       CompileError::PrinterError(Error { kind, .. }) => env.to_js_value(kind)?,
+       CompileError::MinifyError(Error { kind, .. }) => env.to_js_value(kind)?,
++      #[cfg(feature = "bundler")]
+       CompileError::BundleError(Error { kind, .. }) => env.to_js_value(kind)?,
+       _ => env.get_null()?.into_unknown(),
+     };
+ 
++    let syntax_error = |loc| -> napi::Result<(JsUnknown, Option<ErrorLocation>)> {
++      let constructor = env.get_global()?.get_named_property::<napi::JsFunction>("SyntaxError")?;
++      let message = env.create_string_from_std(reason.clone())?;
++      let obj = constructor.new_instance(&[message])?;
++      Ok((obj.into_unknown(), loc))
++    };
++
+     let (js_error, loc) = match self {
++      #[cfg(feature = "bundler")]
+       CompileError::BundleError(Error {
+         loc,
+         kind: BundleErrorKind::ResolverError(e),
+-      }) => {
+-        // Add location info to existing JS error if available.
+-        (e.into_js_error(env)?, loc)
+-      }
++      }) => (e.into_js_error(env)?, loc),
+       CompileError::ParseError(Error { loc, .. })
+       | CompileError::PrinterError(Error { loc, .. })
+-      | CompileError::MinifyError(Error { loc, .. })
+-      | CompileError::BundleError(Error { loc, .. }) => {
+-        // Generate an error with location information.
+-        let syntax_error = env.get_global()?.get_named_property::<napi::JsFunction>("SyntaxError")?;
+-        let reason = env.create_string_from_std(reason)?;
+-        let obj = syntax_error.new_instance(&[reason])?;
+-        (obj.into_unknown(), loc)
+-      }
++      | CompileError::MinifyError(Error { loc, .. }) => syntax_error(loc)?,
++      #[cfg(feature = "bundler")]
++      CompileError::BundleError(Error { loc, .. }) => syntax_error(loc)?,
+       _ => return Ok(self.into()),
+     };
+ 
+@@ -1130,26 +1020,6 @@
+   }
+ }
+ 
+-trait IntoJsError {
+-  fn into_js_error(self, env: Env) -> napi::Result<JsUnknown>;
+-}
+-
+-impl IntoJsError for std::io::Error {
+-  fn into_js_error(self, env: Env) -> napi::Result<JsUnknown> {
+-    let reason = self.to_string();
+-    let syntax_error = env.get_global()?.get_named_property::<napi::JsFunction>("SyntaxError")?;
+-    let reason = env.create_string_from_std(reason)?;
+-    let obj = syntax_error.new_instance(&[reason])?;
+-    Ok(obj.into_unknown())
+-  }
+-}
+-
+-impl IntoJsError for napi::Error {
+-  fn into_js_error(self, env: Env) -> napi::Result<JsUnknown> {
+-    unsafe { JsUnknown::from_napi_value(env.raw(), ToNapiValue::to_napi_value(env.raw(), self)?) }
+-  }
+-}
+-
+ impl<'i, E: std::error::Error> From<Error<ParserError<'i>>> for CompileError<'i, E> {
+   fn from(e: Error<ParserError<'i>>) -> CompileError<'i, E> {
+     CompileError::ParseError(e)
+@@ -1174,6 +1044,7 @@
+   }
+ }
+ 
++#[cfg(feature = "bundler")]
+ impl<'i, E: std::error::Error> From<Error<BundleErrorKind<'i, E>>> for CompileError<'i, E> {
+   fn from(e: Error<BundleErrorKind<'i, E>>) -> CompileError<'i, E> {
+     CompileError::BundleError(e)
