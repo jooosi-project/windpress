@@ -4,7 +4,7 @@ Donate link: https://ko-fi.com/Q5Q75XSF7
 Tags: tailwind, tailwindcss, tailwind css, block
 Requires at least: 6.0
 Tested up to: 7.1
-Stable tag: 3.2.93
+Stable tag: 3.2.94
 Requires PHP: 7.4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -118,6 +118,12 @@ No, by default, you do not need an internet connection to use WindPress. However
 WindPress is compatible with any WordPress theme. A small adjustment may be needed for the compiler scanner to detect the used classes in the theme.
 
 == Changelog ==
+
+= 3.2.94 - 2026-10-26 =
+
+**Security**
+
+* [Internal] Updated the `enshrined/svg-sanitize` dependency to v1.0.0 to address a security vulnerability in the previous version.
 
 = 3.2.93 - 2026-10-26 =
 

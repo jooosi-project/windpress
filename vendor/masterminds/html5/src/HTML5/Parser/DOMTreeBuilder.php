@@ -286,9 +286,18 @@ class DOMTreeBuilder implements EventHandler
         try {
             $prefix = ($pos = strpos($lname, ':')) ? substr($lname, 0, $pos) : '';
             if (\false !== $needsWorkaround) {
-                $xml = "<{$lname} xmlns=\"{$needsWorkaround}\" " . (strlen($prefix) && isset($this->nsStack[0][$prefix]) ? "xmlns:{$prefix}=\"" . $this->nsStack[0][$prefix] . '"' : '') . '/>';
+                $xml = "<{$lname} xmlns=\"" . htmlspecialchars($needsWorkaround, \ENT_QUOTES | \ENT_XML1, 'UTF-8') . '" ' . (strlen($prefix) && isset($this->nsStack[0][$prefix]) ? "xmlns:{$prefix}=\"" . htmlspecialchars($this->nsStack[0][$prefix], \ENT_QUOTES | \ENT_XML1, 'UTF-8') . '"' : '') . '/>';
                 $frag = new \DOMDocument('1.0', 'UTF-8');
-                $frag->loadXML($xml);
+                $previous = libxml_use_internal_errors(\true);
+                try {
+                    $loaded = $frag->loadXML($xml);
+                } finally {
+                    libxml_clear_errors();
+                    libxml_use_internal_errors($previous);
+                }
+                if (!$loaded || null === $frag->documentElement) {
+                    throw new \DOMException('Invalid namespace declaration');
+                }
                 $ele = $this->doc->importNode($frag->documentElement, \true);
             } else if (!isset($this->nsStack[0][$prefix]) || '' === $prefix && isset($this->options[self::OPT_DISABLE_HTML_NS]) && $this->options[self::OPT_DISABLE_HTML_NS]) {
                 $ele = $this->doc->createElement($lname);
@@ -296,7 +305,7 @@ class DOMTreeBuilder implements EventHandler
                 $ele = $this->doc->createElementNS($this->nsStack[0][$prefix], $lname);
             }
         } catch (\DOMException $e) {
-            $this->parseError("Illegal tag name: <{$lname}>. Replaced with <invalid>.");
+            $this->parseError("Illegal tag name or namespace: <{$lname}>. Replaced with <invalid>.");
             $ele = $this->doc->createElement('invalid');
         }
         if (Elements::isA($lname, Elements::BLOCK_ONLY_INLINE)) {
@@ -529,6 +538,17 @@ class DOMTreeBuilder implements EventHandler
             if ($working->tagName === $tagName) {
                 $this->current = $working->parentNode;
                 return \true;
+            }
+            // Stop at an ancestor whose own insertion would already have closed
+            // any open <p>. Inserting an AUTOCLOSE_P element calls autoclose('p'),
+            // which moves the insertion point above the <p>, so no <p> can still
+            // be open further up. Without this the walk runs to the document root
+            // on every block-level start tag, making deeply nested markup
+            // quadratic. Elements that are BLOCK_TAG but not AUTOCLOSE_P (table,
+            // address, canvas, dd, hr, noscript, output, tfoot) are NOT boundaries,
+            // because they nest inside a <p> without closing it.
+            if ('p' === $tagName && $working !== $this->current && Elements::isA($working->tagName, Elements::AUTOCLOSE_P)) {
+                return \false;
             }
         } while ($working = $working->parentNode);
         return \false;
