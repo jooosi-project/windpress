@@ -237,8 +237,8 @@ class Plugin extends \EasyDigitalDownloads\Updater\Updaters\Updater
         $limited_data->banners = $this->convert_object_to_array($version_info->banners);
         $limited_data->new_version = $version_info->new_version ?? '';
         $limited_data->tested = $version_info->tested ?? '';
-        $limited_data->requires = $version_info->requires;
-        $limited_data->requires_php = $version_info->requires_php;
+        $limited_data->requires = $version_info->requires ?? '';
+        $limited_data->requires_php = $version_info->requires_php ?? '';
         return $limited_data;
     }
     /**

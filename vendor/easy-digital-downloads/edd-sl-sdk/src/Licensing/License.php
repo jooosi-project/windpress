@@ -155,7 +155,7 @@ class License
         if (empty($license_data->success)) {
             wp_send_json_error(array('message' => wpautop($this->messenger->get_activation_error_message())));
         }
-        update_option($this->get_key_option_name(), $license_key);
+        update_option($this->get_key_option_name(), $license_key, \false);
         $this->save($license_data);
         wp_send_json_success(array('message' => wpautop($this->messenger->get_activation_success_message()), 'actions' => $this->get_actions()));
     }
@@ -209,7 +209,7 @@ class License
         // Save the preference with timestamp
         $option_name = $this->get_key_option_name() . '_allow_tracking';
         $data = array('allowed' => $allow_tracking, 'timestamp' => time());
-        update_option($option_name, $data);
+        update_option($option_name, $data, \false);
         $message = $allow_tracking ? $this->messenger->get_tracking_enabled_message() : $this->messenger->get_tracking_disabled_message();
         wp_send_json_success(array('message' => wpautop($message)));
     }
@@ -259,7 +259,7 @@ class License
      */
     public function save($license_data)
     {
-        update_option($this->get_status_option_name(), $license_data);
+        update_option($this->get_status_option_name(), $license_data, \false);
     }
     /**
      * Get the button parameters based on the status.

@@ -55,7 +55,7 @@ class Theme extends \EasyDigitalDownloads\Updater\Handlers\Handler
      */
     public function auto_updater()
     {
-        if (!current_user_can('manage_options') && !wp_doing_cron()) {
+        if (!$this->can_auto_update()) {
             return;
         }
         $license_key = $this->get_license_key();

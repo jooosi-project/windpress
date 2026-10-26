@@ -182,6 +182,7 @@ return array(
     'WindPressDeps\\enshrined\\svgSanitize\\ElementReference\\Subject' => $vendorDir . '/enshrined/svg-sanitize/src/ElementReference/Subject.php',
     'WindPressDeps\\enshrined\\svgSanitize\\ElementReference\\Usage' => $vendorDir . '/enshrined/svg-sanitize/src/ElementReference/Usage.php',
     'WindPressDeps\\enshrined\\svgSanitize\\Exceptions\\NestingException' => $vendorDir . '/enshrined/svg-sanitize/src/Exceptions/NestingException.php',
+    'WindPressDeps\\enshrined\\svgSanitize\\Exceptions\\RegexException' => $vendorDir . '/enshrined/svg-sanitize/src/Exceptions/RegexException.php',
     'WindPressDeps\\enshrined\\svgSanitize\\Helper' => $vendorDir . '/enshrined/svg-sanitize/src/Helper.php',
     'WindPressDeps\\enshrined\\svgSanitize\\Sanitizer' => $vendorDir . '/enshrined/svg-sanitize/src/Sanitizer.php',
     'WindPressDeps\\enshrined\\svgSanitize\\data\\AllowedAttributes' => $vendorDir . '/enshrined/svg-sanitize/src/data/AllowedAttributes.php',

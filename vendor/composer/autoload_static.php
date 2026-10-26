@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitd0c8754db623c776b87ea01aab90ad11
+class ComposerStaticInitb574964fc3cc34dc25866cd04bfd39b6
 {
     public static $files = array (
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
@@ -306,6 +306,7 @@ class ComposerStaticInitd0c8754db623c776b87ea01aab90ad11
         'WindPressDeps\\enshrined\\svgSanitize\\ElementReference\\Subject' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/ElementReference/Subject.php',
         'WindPressDeps\\enshrined\\svgSanitize\\ElementReference\\Usage' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/ElementReference/Usage.php',
         'WindPressDeps\\enshrined\\svgSanitize\\Exceptions\\NestingException' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/Exceptions/NestingException.php',
+        'WindPressDeps\\enshrined\\svgSanitize\\Exceptions\\RegexException' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/Exceptions/RegexException.php',
         'WindPressDeps\\enshrined\\svgSanitize\\Helper' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/Helper.php',
         'WindPressDeps\\enshrined\\svgSanitize\\Sanitizer' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/Sanitizer.php',
         'WindPressDeps\\enshrined\\svgSanitize\\data\\AllowedAttributes' => __DIR__ . '/..' . '/enshrined/svg-sanitize/src/data/AllowedAttributes.php',
@@ -403,9 +404,9 @@ class ComposerStaticInitd0c8754db623c776b87ea01aab90ad11
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitd0c8754db623c776b87ea01aab90ad11::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitd0c8754db623c776b87ea01aab90ad11::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitd0c8754db623c776b87ea01aab90ad11::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitb574964fc3cc34dc25866cd04bfd39b6::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitb574964fc3cc34dc25866cd04bfd39b6::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitb574964fc3cc34dc25866cd04bfd39b6::$classMap;
 
         }, null, ClassLoader::class);
     }

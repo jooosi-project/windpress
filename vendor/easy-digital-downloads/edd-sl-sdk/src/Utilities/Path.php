@@ -46,13 +46,9 @@ class Path
     {
         self::$sdk_dir = dirname($file);
         self::$sdk_version = $version;
-        // Calculate the URL based on the file path.
-        $is_https = !empty($_SERVER['HTTPS']) && 'off' !== $_SERVER['HTTPS'] || isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && 'https' === $_SERVER['HTTP_X_FORWARDED_PROTO'];
-        $protocol = $is_https ? 'https' : 'http';
-        $relative_path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', self::$sdk_dir);
-        $relative_path = ltrim(str_replace('\\', '/', $relative_path), '/');
-        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        self::$sdk_url = trailingslashit("{$protocol}://{$host}/{$relative_path}");
+        // Calculate the URL based on the file path, relative to WP_CONTENT_DIR.
+        $relative_path = str_replace(wp_normalize_path(\WP_CONTENT_DIR), '', wp_normalize_path(self::$sdk_dir));
+        self::$sdk_url = trailingslashit(content_url($relative_path));
     }
     /**
      * Gets the SDK directory.

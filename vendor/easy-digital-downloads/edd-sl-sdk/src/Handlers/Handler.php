@@ -89,24 +89,20 @@ abstract class Handler
      */
     public function ajax_get_license_overlay()
     {
+        if (!current_user_can('manage_options') || !check_ajax_referer('edd_sdk_notice', 'nonce', \false)) {
+            wp_send_json_error($this->get_overlay_markup(wpautop($this->messenger->get_permission_denied_message())), 403);
+        }
         $template = filter_input(\INPUT_GET, 'template', \FILTER_SANITIZE_SPECIAL_CHARS);
-        if (!$template) {
-            wp_send_json_error('No template provided.');
+        if (!in_array($template, $this->get_allowed_overlay_templates(), \true)) {
+            wp_send_json_error($this->get_overlay_markup(wpautop($this->messenger->get_unknown_error_text())));
         }
         $args = $this->args;
         $args['license'] = $this->license;
         $args['name'] = filter_input(\INPUT_GET, 'name', \FILTER_SANITIZE_SPECIAL_CHARS);
         $args['messenger'] = $this->messenger;
         ob_start();
-        ?>
-		<button class="button-link edd-sdk__notice--dismiss">
-			<span class="screen-reader-text"><?php 
-        echo esc_html($this->messenger->get_dismiss_notice_text());
-        ?></span>
-		</button>
-		<?php 
         \EasyDigitalDownloads\Updater\Templates::load($template, $args);
-        wp_send_json_success(ob_get_clean());
+        wp_send_json_success($this->get_overlay_markup(ob_get_clean()));
     }
     /**
      * Checks the license weekly.
@@ -167,6 +163,44 @@ abstract class Handler
         }
     }
     /**
+     * Gets the template names the overlay request is allowed to ask for.
+     *
+     * @since 1.0.4
+     * @return array
+     */
+    private function get_allowed_overlay_templates(): array
+    {
+        /**
+         * Filters the template names the overlay request is allowed to ask for.
+         *
+         * @since 1.0.4
+         * @param array $templates Template names, relative to the templates directory, without the extension.
+         */
+        return apply_filters('edd_sl_sdk_allowed_overlay_templates', array('license-control'));
+    }
+    /**
+     * Wraps overlay content in the overlay's dismiss control.
+     *
+     * Every response from the overlay request is wrapped, so a rejected request opens an overlay
+     * the admin can still close.
+     *
+     * @since 1.0.4
+     * @param string $content The overlay content.
+     * @return string
+     */
+    private function get_overlay_markup(string $content): string
+    {
+        ob_start();
+        ?>
+		<button class="button-link edd-sdk__notice--dismiss">
+			<span class="screen-reader-text"><?php 
+        echo esc_html($this->messenger->get_dismiss_notice_text());
+        ?></span>
+		</button>
+		<?php 
+        return ob_get_clean() . $content;
+    }
+    /**
      * Gets the localization arguments.
      *
      * @since 1.0.0
@@ -201,5 +235,18 @@ abstract class Handler
             $this->slug = basename(dirname($this->args['file']));
         }
         return $this->slug;
+    }
+    /**
+     * Determines if the updater can auto update.
+     *
+     * @since 1.0.4
+     * @return bool
+     */
+    protected function can_auto_update(): bool
+    {
+        if (current_user_can('manage_options') || wp_doing_cron()) {
+            return \true;
+        }
+        return defined('WindPressDeps\WP_CLI') && WP_CLI;
     }
 }
