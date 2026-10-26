@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- [Internal] Updated the `enshrined/svg-sanitize` dependency to v1.0.0 to address a security vulnerability in the previous version.
+
 ## [3.3.93] - 2026-10-26
 
 ### Changed

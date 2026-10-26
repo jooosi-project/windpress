@@ -43,7 +43,7 @@
   "require": {
     "php": ">=7.4",
     "easy-digital-downloads/edd-sl-sdk": "^1.0.3",
-    "enshrined/svg-sanitize": "^0.22.0",
+    "enshrined/svg-sanitize": "^1.0.0",
     "hidehalo/nanoid-php": "^2.0",
     "masterminds/html5": "^2.9",
     "nabasa/vp-wp": "^0.3.1",
