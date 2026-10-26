@@ -119,7 +119,7 @@ overrides:
 
 patchedDependencies:
   is-core-module@2.17.0: 01de691de4f429ee831b318db902b32b1c1911544476488313b910a2bff9577e
-  modern-monaco@0.4.2: f03832cc3d7f423097b46b06ed517748e528587e76413698ae5e1795e193efa4
+  modern-monaco@0.4.2: 20850d0775d35ede50b10a22e7adf54df4eb909adcc5cc39ec6fc99de5378e66
   tailwindcss@3.4.19: 2c67ae88c7a6c17ab27cee835ca0ea389ca97ee49d023935ff6269b2712ee13b
   vm-browserify@1.1.2: e49d94d893f5c1b4bf813fef9cf27845988bb2b4592b4f64fec2b7fa3eb1ad47
 
@@ -231,7 +231,7 @@ importers:
         version: 10.2.6
       modern-monaco:
         specifier: 0.4.2
-        version: 0.4.2(patch_hash=f03832cc3d7f423097b46b06ed517748e528587e76413698ae5e1795e193efa4)(typescript@7.0.2)
+        version: 0.4.2(patch_hash=20850d0775d35ede50b10a22e7adf54df4eb909adcc5cc39ec6fc99de5378e66)(typescript@7.0.2)
       monaco-editor:
         specifier: ^0.57.0
         version: 0.57.0
@@ -11084,7 +11084,7 @@ snapshots:
       pkg-types: 1.3.1
       ufo: 1.6.4
 
-  modern-monaco@0.4.2(patch_hash=f03832cc3d7f423097b46b06ed517748e528587e76413698ae5e1795e193efa4)(typescript@7.0.2):
+  modern-monaco@0.4.2(patch_hash=20850d0775d35ede50b10a22e7adf54df4eb909adcc5cc39ec6fc99de5378e66)(typescript@7.0.2):
     dependencies:
       typescript: 7.0.2
 

@@ -706,7 +706,8 @@ async function handleEditorMount(
       });
       monacoDisposables.value.push(hoverProvider);
 
-      // Register color provider for modern CSS color functions
+      // The CSS worker handles literal CSS colors, including modern functions like oklch().
+      // Keep this provider for Tailwind @apply colors and WindPress-specific presentations.
       const colorProvider = monaco.languages.registerColorProvider("css", {
         provideColorPresentations(model, colorInfo) {
           const { red, green, blue, alpha } = colorInfo.color;
@@ -884,6 +885,7 @@ async function handleEditorMount(
           const nonEditableDecorations: monacoEditor.editor.IModelDeltaDecoration[] = [];
           const text = model.getValue();
           const processedRanges = new Set<string>();
+          const applyRanges: Array<{ start: number; end: number }> = [];
           const isEditableColor = (className: string): boolean => {
             return /\[([#].+|rgb.+|rgba.+|hsl.+|hsla.+|lch.+|oklch.+|lab.+|oklab.+|hwb.+|color-mix.+)\]/.test(
               className,
@@ -1004,6 +1006,11 @@ async function handleEditorMount(
           let applyMatch: RegExpExecArray | null;
 
           while ((applyMatch = applyRegex.exec(text)) !== null) {
+            applyRanges.push({
+              start: applyMatch.index,
+              end: applyMatch.index + applyMatch[0].length,
+            });
+
             const classList = applyMatch[1];
             const classNames = classList.split(/\s+/).filter(Boolean);
 
@@ -1092,92 +1099,33 @@ async function handleEditorMount(
             }
           }
 
-          // 2. Find colors in @theme blocks
-          const themeBlockRegex = /@theme\s*\{([^}]*)\}/gs;
-          let themeMatch;
+          // 2. Add editable previews for literal color values in Tailwind @theme blocks.
+          const themeBlockRegex = /@theme\b[^{}]*\{([^}]*)\}/gs;
+          let themeMatch: RegExpExecArray | null;
 
           while ((themeMatch = themeBlockRegex.exec(text)) !== null) {
             const themeContent = themeMatch[1];
             const themeStartIndex = themeMatch.index + themeMatch[0].indexOf("{") + 1;
-
-            // Find all property values in the theme block that could be colors
-            const propertyRegex = /--color-(?!\*)[^:]+:\s*([^;]+);/g;
-            let propertyMatch;
+            const propertyRegex = /--color-[^\s:]+\s*:\s*([^;]+);/g;
+            let propertyMatch: RegExpExecArray | null;
 
             while ((propertyMatch = propertyRegex.exec(themeContent)) !== null) {
-              const fullMatch = propertyMatch[0]; // e.g., "--color-primary: #007bff;"
-              const value = propertyMatch[1].trim(); // e.g., "#007bff"
-
-              // Find the actual position of the value in the original text
-              const propertyStartInTheme = propertyMatch.index;
+              const fullMatch = propertyMatch[0];
+              const value = propertyMatch[1].trim();
               const colonIndex = fullMatch.indexOf(":");
-              const valueStartInProperty = fullMatch.substring(colonIndex + 1).search(/\S/); // Find first non-whitespace after colon
-              const valueStartInTheme =
-                propertyStartInTheme + colonIndex + 1 + valueStartInProperty;
-              const valueStart = themeStartIndex + valueStartInTheme;
-              const valueEnd = valueStart + value.length;
+              const valueOffset = fullMatch.slice(colonIndex + 1).search(/\S/);
+              const color = getMonacoColor(value, variablesList);
 
-              // Handle all colors in @theme blocks - these are always editable since they're custom values
-              parseAndAddColor(value, valueStart, valueEnd, true);
-            }
-          }
-
-          // 3. Find modern color functions outside @theme blocks and @apply directives that Monaco doesn't support by default
-          // Only handle modern CSS color functions, let Monaco handle standard ones (rgb, hsl, hex, etc.)
-          const colorPatterns = [
-            /\b(oklch|oklab|lch|lab)\(([^)]*(?!\bvar\b|\benv\b|\bcalc\b)[^)]*)\)/gi,
-          ];
-
-          // Create a set of ranges that are inside @theme blocks and @apply directives to avoid duplicates
-          const excludedRanges: Array<{ start: number; end: number }> = [];
-          const applyRanges: Array<{ start: number; end: number }> = [];
-
-          // Add @theme block ranges
-          const themeBlockRegexForRanges = /@theme\s*\{([^}]*)\}/gs;
-          let themeRangeMatch;
-          while ((themeRangeMatch = themeBlockRegexForRanges.exec(text)) !== null) {
-            const blockStart = themeRangeMatch.index;
-            const blockEnd = themeRangeMatch.index + themeRangeMatch[0].length;
-            excludedRanges.push({ start: blockStart, end: blockEnd });
-          }
-
-          // Add @apply directive ranges
-          const applyRegexForRanges = /@apply\s+([^;}]+)/g;
-          let applyRangeMatch;
-          while ((applyRangeMatch = applyRegexForRanges.exec(text)) !== null) {
-            const blockStart = applyRangeMatch.index;
-            const blockEnd = applyRangeMatch.index + applyRangeMatch[0].length;
-            excludedRanges.push({ start: blockStart, end: blockEnd });
-            applyRanges.push({ start: blockStart, end: blockEnd });
-          }
-
-          colorPatterns.forEach((pattern) => {
-            let match: RegExpExecArray | null;
-            while ((match = pattern.exec(text)) !== null) {
-              // Skip if contains variables or functions we don't want to process
-              if (
-                match[0].includes("var(") ||
-                match[0].includes("env(") ||
-                match[0].includes("calc(")
-              ) {
+              if (!value || valueOffset === -1 || !color) {
                 continue;
               }
 
-              // Check if this color is inside any excluded range (@theme blocks or @apply directives)
-              const isInsideExcludedRange = excludedRanges.some(
-                (range) =>
-                  match!.index >= range.start && match!.index + match![0].length <= range.end,
-              );
-
-              if (!isInsideExcludedRange) {
-                // Modern CSS color functions outside @theme/@apply are always editable since they're custom values
-                parseAndAddColor(match[0], match.index, match.index + match[0].length, true);
-              }
+              const valueStart = themeStartIndex + propertyMatch.index + colonIndex + 1 + valueOffset;
+              parseAndAddColor(color, valueStart, valueStart + value.length, true);
             }
-            pattern.lastIndex = 0; // Reset regex state
-          });
+          }
 
-          // 4. Add a preview before CSS variable references whose values resolve to a color.
+          // 3. Add a preview before CSS variable references whose values resolve to a color.
           const variableReferenceRegex = /\bvar\(\s*(--[^,\s)]+)/g;
           let variableReferenceMatch: RegExpExecArray | null;
 
@@ -1219,10 +1167,9 @@ async function handleEditorMount(
             variableReferenceRegex.lastIndex = endIndex;
           }
 
-          // Apply non-editable color decorations to the model
-          if (nonEditableDecorations.length > 0) {
-            // Store current decorations to clean up later
-            const currentDecorations = (model as any).__windpressColorDecorations || [];
+          // Replace prior decorations even when none remain, so removed previews do not linger.
+          const currentDecorations = (model as any).__windpressColorDecorations || [];
+          if (currentDecorations.length > 0 || nonEditableDecorations.length > 0) {
             (model as any).__windpressColorDecorations = model.deltaDecorations(
               currentDecorations,
               nonEditableDecorations,
@@ -1236,7 +1183,7 @@ async function handleEditorMount(
       monacoDisposables.value.push(colorProvider);
     }; // End registerProviders
 
-    const getTailwindImportThemeRanges = (model: monacoEditor.editor.ITextModel) => {
+    const getTailwindImportRanges = (model: monacoEditor.editor.ITextModel) => {
       const text = model.getValue();
       const ranges: Array<{ start: number; end: number }> = [];
       const importRegex = /@import\s+[^;]*\btheme\s*\(\s*[-\w]+\s*\)\s*;/g;
@@ -1248,8 +1195,10 @@ async function handleEditorMount(
           continue;
         }
 
-        const start = importMatch.index + themeMatch.index;
-        ranges.push({ start, end: start + themeMatch[0].length });
+        // Monaco's CSS parser can anchor these diagnostics anywhere on the import
+        // statement, including after the closing parenthesis. Suppress only the
+        // parser errors within imports that use Tailwind's theme() extension.
+        ranges.push({ start: importMatch.index, end: importMatch.index + importMatch[0].length });
       }
 
       return ranges;
@@ -1276,8 +1225,8 @@ async function handleEditorMount(
         return;
       }
 
-      const themeRanges = getTailwindImportThemeRanges(model);
-      if (themeRanges.length === 0) {
+      const importRanges = getTailwindImportRanges(model);
+      if (importRanges.length === 0) {
         return;
       }
 
@@ -1302,16 +1251,11 @@ async function handleEditorMount(
           lineNumber: marker.startLineNumber,
           column: marker.startColumn,
         });
-        const markerEnd = model.getOffsetAt({
-          lineNumber: marker.endLineNumber,
-          column: marker.endColumn,
-        });
+        const isTailwindImportMarker = importRanges.some(
+          (range) => markerStart >= range.start && markerStart < range.end,
+        );
 
-        const isTailwindThemeMarker = themeRanges.some((range) => {
-          return markerStart >= range.start && markerEnd <= range.end;
-        });
-
-        if (isTailwindThemeMarker) {
+        if (isTailwindImportMarker) {
           didFilter = true;
           return false;
         }
