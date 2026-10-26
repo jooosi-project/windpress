@@ -1,4 +1,4 @@
-import type * as monacoEditor from 'monaco-editor';
+import type * as monacoEditor from 'modern-monaco/editor-core';
 import { useVolumeStore, type Entry } from '@/dashboard/stores/volume';
 
 export type WorkspaceFileType = 1 | 2;
@@ -62,7 +62,7 @@ export interface WorkspaceViewState {
   save(path: string, viewState: monacoEditor.editor.ICodeEditorViewState): Promise<void>;
 }
 
-type MonacoEditor = typeof import('monaco-editor');
+type MonacoEditor = typeof import('modern-monaco/editor-core');
 
 interface WorkspaceWatcher {
   filename: string;

@@ -105,7 +105,7 @@ export default defineConfig({
     __dirname: JSON.stringify("/"),
   },
   optimizeDeps: {
-    include: ["modern-monaco > typescript"],
+    include: ["modern-monaco-typescript"],
     // modern-monaco creates workers from relative module URLs. Pre-bundling it
     // moves the editor entry into `.vite/deps` without its worker entry points.
     exclude: ["@windpress/oxide-parser", "modern-monaco"],
@@ -247,6 +247,7 @@ export default defineConfig({
   publicDir: false,
   resolve: {
     alias: [
+      { find: /^typescript$/, replacement: "modern-monaco-typescript" },
       // Vite+ 1.4's client is transformed by nodePolyfills; resolve the
       // injected process shim from this project instead of Vite+'s install.
       { find: 'vite-plugin-node-polyfills/shims/process', replacement: processShimPath },

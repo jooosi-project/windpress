@@ -12,13 +12,13 @@ import {
   getClassList,
   candidatesToCss,
 } from "@/packages/core/tailwindcss";
-import type * as monacoEditor from "monaco-editor";
-import { cssDefaults as monacoCssDefaults } from "monaco-editor/languages/features/css/register";
+import type * as monacoEditor from "modern-monaco/editor-core";
 import Color from "colorjs.io";
 import { debounce, throttle } from "lodash-es";
 import { useThemeJsonStore } from "@/dashboard/stores/themeJson";
 import { twToWp } from "@/dashboard/composables/useThemeJson";
 import { useWorkspace } from "@/dashboard/composables/useWorkspace";
+import MonacoEditorComponent from "@/dashboard/components/File/MonacoEditor.vue";
 
 type MonacoEditor = typeof monacoEditor;
 
@@ -55,6 +55,62 @@ let providerRegistrationTimer: ReturnType<typeof setTimeout> | null = null;
 // Shared style element for color decorations to reduce DOM manipulation
 let colorStyleElement: HTMLStyleElement | null = null;
 const colorDecorationClasses = new Set<string>();
+
+interface DesignSystemVariable {
+  key: string;
+  value: unknown;
+}
+
+function getMonacoColor(value: unknown, variablesList: DesignSystemVariable[]): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  let colorValue = value.trim();
+  const resolvedVariables = new Set<string>();
+
+  for (let depth = 0; depth < 10; depth++) {
+    const variableMatch = /^var\(\s*(--[^,\s)]+)\s*(?:,\s*(.*))?\)$/.exec(colorValue);
+    if (!variableMatch) {
+      break;
+    }
+
+    const variableName = variableMatch[1];
+    const fallbackValue = variableMatch[2]?.trim();
+    const variable = variablesList.find((entry) => entry.key === variableName);
+
+    if (resolvedVariables.has(variableName) || typeof variable?.value !== "string") {
+      if (!fallbackValue) {
+        return null;
+      }
+
+      colorValue = fallbackValue;
+      continue;
+    }
+
+    resolvedVariables.add(variableName);
+    colorValue = variable.value.trim();
+  }
+
+  try {
+    const color = new Color(colorValue);
+
+    if (color.alpha < 1) {
+      const srgb = color.to("srgb");
+      const [red, green, blue] = srgb.coords;
+      const r = Math.round((red ?? 0) * 255);
+      const g = Math.round((green ?? 0) * 255);
+      const b = Math.round((blue ?? 0) * 255);
+      const alpha = srgb.alpha ?? 1;
+
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    return color.toString({ format: "hex" });
+  } catch {
+    return null;
+  }
+}
 
 // Error state for CSS validation
 const cssErrors = ref<{
@@ -357,38 +413,10 @@ async function handleEditorMount(
                     };
 
                     if (color) {
-                      try {
-                        let actualColorValue = color;
-
-                        // If color is a CSS variable (var(--color-name)), resolve it
-                        const cssVarMatch = color.match(/var\((--[^)]+)\)/);
-                        if (cssVarMatch) {
-                          const varName = cssVarMatch[1];
-                          const variable = variablesList.find((v: any) => v.key === varName);
-                          if (variable && variable.value) {
-                            actualColorValue = variable.value;
-                          } else {
-                            return suggestion;
-                          }
-                        }
-
-                        const colorObj = new Color(actualColorValue);
-
-                        let monacoDetectableColor;
-                        if (colorObj.alpha < 1) {
-                          const srgb = colorObj.to("srgb");
-                          const [red, green, blue] = srgb.coords;
-                          const r = Math.round((red ?? 0) * 255);
-                          const g = Math.round((green ?? 0) * 255);
-                          const b = Math.round((blue ?? 0) * 255);
-                          const a = srgb.alpha ?? 1;
-                          monacoDetectableColor = `rgba(${r}, ${g}, ${b}, ${a})`;
-                        } else {
-                          monacoDetectableColor = colorObj.toString({ format: "hex" });
-                        }
-
-                        suggestion.documentation = `${monacoDetectableColor}\n\n${classEntity.css || ""}`;
-                      } catch (e) {}
+                      const monacoColor = getMonacoColor(color, variablesList);
+                      if (monacoColor) {
+                        suggestion.documentation = `${monacoColor}\n\n${classEntity.css || ""}`;
+                      }
                     }
 
                     return suggestion;
@@ -412,6 +440,7 @@ async function handleEditorMount(
 
                 const mappedVariables = variablesList.map((entry: any, index: number) => {
                   const isColor = entry.key.includes("--color");
+                  const color = isColor ? getMonacoColor(entry.value, variablesList) : null;
                   return {
                     kind: isColor
                       ? monaco.languages.CompletionItemKind.Color
@@ -419,6 +448,7 @@ async function handleEditorMount(
                     label: entry.key,
                     insertText: entry.key,
                     detail: entry.value,
+                    documentation: color ? `${color}\n\n${entry.value}` : undefined,
                     range: {
                       startLineNumber: position.lineNumber,
                       startColumn: wordInfo.startColumn,
@@ -1100,6 +1130,7 @@ async function handleEditorMount(
 
           // Create a set of ranges that are inside @theme blocks and @apply directives to avoid duplicates
           const excludedRanges: Array<{ start: number; end: number }> = [];
+          const applyRanges: Array<{ start: number; end: number }> = [];
 
           // Add @theme block ranges
           const themeBlockRegexForRanges = /@theme\s*\{([^}]*)\}/gs;
@@ -1117,6 +1148,7 @@ async function handleEditorMount(
             const blockStart = applyRangeMatch.index;
             const blockEnd = applyRangeMatch.index + applyRangeMatch[0].length;
             excludedRanges.push({ start: blockStart, end: blockEnd });
+            applyRanges.push({ start: blockStart, end: blockEnd });
           }
 
           colorPatterns.forEach((pattern) => {
@@ -1144,6 +1176,48 @@ async function handleEditorMount(
             }
             pattern.lastIndex = 0; // Reset regex state
           });
+
+          // 4. Add a preview before CSS variable references whose values resolve to a color.
+          const variableReferenceRegex = /\bvar\(\s*(--[^,\s)]+)/g;
+          let variableReferenceMatch: RegExpExecArray | null;
+
+          while ((variableReferenceMatch = variableReferenceRegex.exec(text)) !== null) {
+            const startIndex = variableReferenceMatch.index;
+            const openParenIndex = text.indexOf("(", startIndex);
+            let depth = 0;
+            let endIndex = -1;
+
+            for (let index = openParenIndex; index < text.length; index++) {
+              if (text[index] === "(") {
+                depth++;
+              } else if (text[index] === ")") {
+                depth--;
+                if (depth === 0) {
+                  endIndex = index + 1;
+                  break;
+                }
+              }
+            }
+
+            if (endIndex === -1) {
+              continue;
+            }
+
+            const isInsideApplyRange = applyRanges.some(
+              (range) => startIndex >= range.start && startIndex < range.end,
+            );
+            if (isInsideApplyRange) {
+              continue;
+            }
+
+            const color = getMonacoColor(text.slice(startIndex, endIndex), variablesList);
+            if (color) {
+              parseAndAddColor(color, startIndex, endIndex, false);
+            }
+
+            // Ignore nested fallback references; the outer var() represents the rendered value.
+            variableReferenceRegex.lastIndex = endIndex;
+          }
 
           // Apply non-editable color decorations to the model
           if (nonEditableDecorations.length > 0) {
@@ -1252,176 +1326,9 @@ async function handleEditorMount(
       monaco.editor.setModelMarkers(model, "css", filteredMarkers.map(toMarkerData));
     };
 
-    if (!(window as any).__windpressMonacoInstantiated) {
-      monacoCssDefaults.setOptions(
-        Object.assign(monacoCssDefaults.options, {
-          data: {
-            useDefaultDataProvider: true,
-            dataProviders: {
-              tailwindcss: {
-                version: 1.1,
-                atDirectives: [
-                  {
-                    name: "@theme",
-                    status: "standard",
-                    description: __(
-                      "Theme variables are special CSS variables defined using the `@theme` directive that influence which utility classes exist in your project.",
-                      "windpress",
-                    ),
-                    references: [
-                      {
-                        name: __("Docs: Theme variables", "windpress"),
-                        url: "https://tailwindcss.com/docs/theme",
-                      },
-                    ],
-                  },
-                  {
-                    name: "@plugin",
-                    status: "standard",
-                    description: __(
-                      "Use the `@plugin` directive to load a legacy JavaScript-based plugin.",
-                      "windpress",
-                    ),
-                    references: [
-                      {
-                        name: __("Docs: Functions & Directives", "windpress"),
-                        url: "https://tailwindcss.com/docs/functions-and-directives#plugin-directive",
-                      },
-                      {
-                        name: __("Docs: Tailwind CSS plugins", "windpress"),
-                        url: "https://jooo.si/docs/windpress/configuration/file-main-css#tailwind-css-plugins",
-                      },
-                    ],
-                  },
-                  {
-                    name: "@config",
-                    status: "standard",
-                    description: __(
-                      "Use the `@config` directive to load a legacy JavaScript-based configuration file.",
-                      "windpress",
-                    ),
-                    references: [
-                      {
-                        name: __("Docs: Functions & Directives", "windpress"),
-                        url: "https://tailwindcss.com/docs/functions-and-directives#config-directive",
-                      },
-                      {
-                        name: __("Docs: Tailwind CSS configuration", "windpress"),
-                        url: "https://jooo.si/docs/windpress/configuration/file-main-css#tailwind-css-configuration",
-                      },
-                    ],
-                  },
-                  {
-                    name: "@tailwind",
-                    status: "standard",
-                    description: __(
-                      "Use the `@tailwind` directive to insert Tailwind's `base`, `components`, `utilities` and `variants` styles into your CSS.",
-                      "windpress",
-                    ),
-                    references: [
-                      {
-                        name: __("Docs: Tailwind CSS functions & directives", "windpress"),
-                        url: "https://v3.tailwindcss.com/docs/functions-and-directives#tailwind",
-                      },
-                    ],
-                  },
-                  {
-                    name: "@apply",
-                    status: "standard",
-                    description: __(
-                      "Use the `@apply` directive to inline any existing utility classes into your own custom CSS.",
-                      "windpress",
-                    ),
-                    references: [
-                      {
-                        name: __("Docs: Tailwind CSS functions & directives", "windpress"),
-                        url: "https://tailwindcss.com/docs/functions-and-directives#apply-directive",
-                      },
-                    ],
-                  },
-                  {
-                    name: "@utility",
-                    status: "standard",
-                    description: __(
-                      "Use the `@utility` directive to add custom utilities to your project that work with variants like `hover`, `focus` and `lg``.",
-                      "windpress",
-                    ),
-                    references: [
-                      {
-                        name: __("Docs: Tailwind CSS functions & directives", "windpress"),
-                        url: "https://tailwindcss.com/docs/functions-and-directives#utility-directive",
-                      },
-                    ],
-                  },
-                  {
-                    name: "@custom-variant",
-                    status: "standard",
-                    description: __(
-                      "Use the `@custom-variant` directive to add a custom variant in your project.",
-                      "windpress",
-                    ),
-                    references: [
-                      {
-                        name: __("Docs: Tailwind CSS functions & directives", "windpress"),
-                        url: "https://tailwindcss.com/docs/functions-and-directives#custom-variant-directive",
-                      },
-                    ],
-                  },
-                  {
-                    name: "@variant",
-                    status: "standard",
-                    description: __(
-                      "Use the `@variant` directive to apply a Tailwind variant to styles in your CSS.",
-                      "windpress",
-                    ),
-                    references: [
-                      {
-                        name: __("Docs: Tailwind CSS functions & directives", "windpress"),
-                        url: "https://tailwindcss.com/docs/functions-and-directives#variant-directive",
-                      },
-                    ],
-                  },
-                  {
-                    name: "@source",
-                    status: "standard",
-                    description: __(
-                      "Use the `@source` directive to scan additional source files.",
-                      "windpress",
-                    ),
-                    references: [
-                      {
-                        name: __("Docs: Scanning additional Sources", "windpress"),
-                        url: "https://jooo.si/docs/windpress/configuration/file-main-css#scanning-additional-sources",
-                      },
-                    ],
-                  },
-                  {
-                    name: "@layer",
-                    status: "standard",
-                    description: __(
-                      "Use the `@layer` directive to tell Tailwind which “bucket” a set of custom styles belong to. Valid layers are `base`, `components`, and `utilities`.",
-                    ),
-                    references: [
-                      {
-                        name: __("Docs: Functions & Directives", "windpress"),
-                        url: "https://v3.tailwindcss.com/docs/functions-and-directives#layer",
-                      },
-                    ],
-                  },
-                ],
-              },
-            },
-          },
-        }),
-      );
-
-      (window as any).__windpressMonacoInstantiated = true;
-    }
-
     // Providers capture the current editor's caches and stores. Register them
     // for this editor instance and dispose them with the component so a later
-    // editor mount does not inherit stale providers or depend on the global
-    // CSS-defaults guard above.
+    // editor mount does not inherit stale providers.
     providerRegistrationTimer = setTimeout(() => {
       providerRegistrationTimer = null;
       registerProviders();
@@ -1678,11 +1585,10 @@ onBeforeUnmount(() => {
         </div>
       </Transition>
 
-      <vue-monaco-editor
+      <MonacoEditorComponent
         v-model:value="props.entry.content"
         :path="workspace.modelUri(entry.relative_path)"
         :language="props.entry.relative_path.endsWith('.css') ? 'css' : 'javascript'"
-        :saveViewState="false"
         :options="{ ...MONACO_EDITOR_OPTIONS, readOnly: props.entry.readonly }"
         @mount="handleEditorMount"
         @change="handleEditorChange"

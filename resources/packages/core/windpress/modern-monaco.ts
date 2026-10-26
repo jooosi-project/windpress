@@ -1,6 +1,12 @@
 import type { Workspace } from 'modern-monaco/workspace';
 
 type ModernMonaco = typeof import('modern-monaco/editor-core');
+type ModernMonacoInitOptions = NonNullable<Parameters<typeof import('modern-monaco').init>[0]>;
+
+export interface ModernMonacoLoadOptions {
+  useBuiltinLSP?: boolean;
+  lsp?: ModernMonacoInitOptions['lsp'];
+}
 
 export const MODERN_MONACO_THEMES = {
   dark: 'dark-plus',
@@ -36,8 +42,11 @@ function setupWorkspaceModelLifecycle(monaco: ModernMonaco, workspace: Workspace
   });
 }
 
-function initializeModernMonaco(workspace?: Workspace): Promise<ModernMonaco> {
-  if (workspace) {
+function initializeModernMonaco(
+  workspace?: Workspace,
+  options?: ModernMonacoLoadOptions,
+): Promise<ModernMonaco> {
+  if (workspace || options?.useBuiltinLSP) {
     enableBuiltinLanguageServices();
   }
 
@@ -47,6 +56,7 @@ function initializeModernMonaco(workspace?: Workspace): Promise<ModernMonaco> {
         defaultTheme: MODERN_MONACO_THEMES.light,
         themes: [MODERN_MONACO_THEMES.dark],
         workspace,
+        lsp: options?.lsp,
       }),
     )
     .then((monaco) => {
@@ -58,10 +68,13 @@ function initializeModernMonaco(workspace?: Workspace): Promise<ModernMonaco> {
     });
 }
 
-export function loadModernMonaco(workspace?: Workspace): Promise<ModernMonaco> {
+export function loadModernMonaco(
+  workspace?: Workspace,
+  options?: ModernMonacoLoadOptions,
+): Promise<ModernMonaco> {
   if (!workspace) {
     if (!standaloneMonacoPromise) {
-      standaloneMonacoPromise = initializeModernMonaco().catch((error: unknown) => {
+      standaloneMonacoPromise = initializeModernMonaco(undefined, options).catch((error: unknown) => {
         standaloneMonacoPromise = null;
         throw error;
       });
@@ -76,7 +89,7 @@ export function loadModernMonaco(workspace?: Workspace): Promise<ModernMonaco> {
     return existing;
   }
 
-  const promise = initializeModernMonaco(workspace).catch((error: unknown) => {
+  const promise = initializeModernMonaco(workspace, options).catch((error: unknown) => {
     workspaceMonacoPromises.delete(workspace);
     throw error;
   });
