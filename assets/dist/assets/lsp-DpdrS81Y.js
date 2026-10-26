@@ -1,0 +1,1 @@
+import{t as e}from"./preload-helper-khBccGFq.js";var t={css:{aliases:[`less`,`sass`],import:()=>e(()=>import(`./setup-Bq8OZtt6.js`),[],import.meta.url)},typescript:{aliases:[`javascript`,`jsx`,`tsx`],import:()=>e(()=>import(`./setup-CKNkv8Fs.js`),[],import.meta.url)}};export{t as builtinLSPProviders};

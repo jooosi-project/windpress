@@ -1,0 +1,1 @@
+import{g as e}from"./runtime-core.esm-bundler-BFN_i1ga.js";import{E as t,T as n}from"./Button-y3dDNgrC.js";function r(r,i){let a=n(r),o=i?t(i):{};return e(()=>({...a.value,...o}))}export{r as t};

@@ -1,0 +1,1 @@
+import{En as e,g as t}from"./runtime-core.esm-bundler-BFN_i1ga.js";import{i as n}from"./dist-BPY_gDaQ.js";function r(r){return t(()=>!e(r)||!!n(r)?.closest(`form`))}export{r as t};
