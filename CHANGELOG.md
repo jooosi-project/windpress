@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.93] - 2026-10-26
+
 ### Changed
 
 - Switched the File editor to modern-monaco, reducing its bundle size by 27%.
@@ -936,7 +938,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 🐣 Initial release.
 
-[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.92...HEAD
+[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.93...HEAD
+[3.3.93]: https://github.com/jooosi-project/windpress/compare/v3.3.92...v3.3.93
 [3.3.92]: https://github.com/jooosi-project/windpress/compare/v3.3.91...v3.3.92
 [3.3.91]: https://github.com/jooosi-project/windpress/compare/v3.3.90...v3.3.91
 [3.3.90]: https://github.com/jooosi-project/windpress/compare/v3.3.89...v3.3.90
