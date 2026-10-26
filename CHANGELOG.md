@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.94] - 2026-10-26
+
 ### Security
 - [Internal] Updated the `enshrined/svg-sanitize` dependency to v1.0.0 to address a security vulnerability in the previous version.
 
@@ -941,7 +943,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 🐣 Initial release.
 
-[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.93...HEAD
+[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.94...HEAD
+[3.3.94]: https://github.com/jooosi-project/windpress/compare/v3.3.93...v3.3.94
 [3.3.93]: https://github.com/jooosi-project/windpress/compare/v3.3.92...v3.3.93
 [3.3.92]: https://github.com/jooosi-project/windpress/compare/v3.3.91...v3.3.92
 [3.3.91]: https://github.com/jooosi-project/windpress/compare/v3.3.90...v3.3.91
