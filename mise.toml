@@ -1,4 +1,4 @@
 [tools]
 node = "latest"
-pnpm = "12"
+pnpm = "latest"
 vp = "latest"

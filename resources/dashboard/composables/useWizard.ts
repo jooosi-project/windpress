@@ -1,4 +1,5 @@
-import { parse as cssToolsParse, stringify as cssToolsStringify } from "@adobe/css-tools";
+import postcss, { type AtRule, type ChildNode, type Declaration, type Root } from "postcss";
+import { markRaw } from "vue";
 
 /**
  * @see https://tailwindcss.com/docs/theme#theme-variable-namespaces
@@ -75,7 +76,7 @@ export interface WizardTheme {
   /** The original CSS content of the wizard file */
   source?: string;
   /** The parsed AST of the CSS file, if available */
-  ast?: any;
+  ast?: Root;
   /** Should always generate all CSS variables? `@theme static` */
   isStatic?: boolean;
   /** Completely disable the default theme. The CSS prop/var is `--* = initial` */
@@ -105,46 +106,20 @@ const SPECIAL_PROPERTIES = {
   SPACING_MULTIPLIER: "--spacing",
 } as const;
 
-function isThemeRule(rule: any): boolean {
-  if (rule?.type === "at-rule") {
-    return rule.name === "theme";
-  }
-
-  return (
-    rule?.type === "rule" &&
-    Array.isArray(rule.selectors) &&
-    rule.selectors.some((selector: string) => selector.startsWith("@theme"))
-  );
+function isThemeRule(node: ChildNode): node is AtRule {
+  return node.type === "atrule" && node.name === "theme";
 }
 
-function getThemeDeclarations(rule: any): any[] {
-  return rule.type === "at-rule" ? rule.rules || [] : rule.declarations || [];
+function getThemeDeclarations(rule: AtRule): Declaration[] {
+  return rule.nodes?.filter((node): node is Declaration => node.type === "decl") ?? [];
 }
 
-function setThemeDeclarations(rule: any, declarations: any[]): void {
-  if (rule.type === "at-rule") {
-    rule.rules = declarations;
-  } else {
-    rule.declarations = declarations;
-  }
+function createThemeRule(theme: WizardTheme): AtRule {
+  return postcss.atRule({ name: "theme", params: theme.isStatic ? "static" : "", nodes: [] });
 }
 
-function createThemeRule(theme: WizardTheme, declarations: any[]): any {
-  return {
-    type: "at-rule",
-    name: "theme",
-    prelude: theme.isStatic ? "static" : "",
-    rules: declarations,
-  };
-}
-
-function isStaticThemeRule(rule: any): boolean {
-  const modifier =
-    rule.type === "at-rule"
-      ? rule.prelude
-      : rule.selectors?.find((selector: string) => selector.startsWith("@theme"));
-
-  return typeof modifier === "string" && modifier.trim().split(/\s+/).includes("static");
+function isStaticThemeRule(rule: AtRule): boolean {
+  return rule.params.trim().split(/\s+/).includes("static");
 }
 
 // =============================================================================
@@ -240,33 +215,31 @@ function flattenNestedObject(obj: any, prefix: string): Array<{ property: string
 }
 
 /**
- * Adds or updates a CSS declaration in a declarations array
+ * Adds or updates a CSS declaration in a theme at-rule
  * If value is empty, removes the declaration instead
- * @param declarations - The declarations array to modify
+ * @param rule - The theme at-rule to modify
  * @param property - The CSS property name
  * @param value - The CSS property value
  */
 function addOrUpdateDeclaration(
-  declarations: Array<{ type: "declaration"; property: string; value: string }>,
+  rule: AtRule,
   property: string,
   value: string,
 ): void {
-  const existingIndex = declarations.findIndex((decl) => decl.property === property);
+  const existing = getThemeDeclarations(rule).find((declaration) => declaration.prop === property);
 
   // If value is empty, null, or undefined, remove the declaration
   if (!value || value.trim() === "") {
-    if (existingIndex !== -1) {
-      declarations.splice(existingIndex, 1);
-    }
+    existing?.remove();
     return;
   }
 
-  if (existingIndex !== -1) {
+  if (existing) {
     // Update existing declaration
-    declarations[existingIndex].value = value;
+    existing.value = value;
   } else {
     // Add new declaration
-    declarations.push({ type: "declaration", property, value });
+    rule.append(postcss.decl({ prop: property, value }));
   }
 }
 
@@ -315,24 +288,17 @@ export function parseWizardFile(fileContent: string): WizardTheme {
   theme.source = fileContent;
 
   try {
-    const ast = cssToolsParse(fileContent);
-    theme.ast = ast;
+    const ast = postcss.parse(fileContent);
+    theme.ast = markRaw(ast);
 
-    // Find and process the @theme rule. css-tools 4.x represents this as an
-    // at-rule, while older versions exposed it as a rule whose selector was
-    // "@theme".
-    const themeRule = ast.stylesheet?.rules?.find(isThemeRule);
+    const themeRule = ast.nodes.find(isThemeRule);
 
     if (themeRule) {
       theme.isStatic = isStaticThemeRule(themeRule);
 
       for (const declaration of getThemeDeclarations(themeRule)) {
-        if (
-          declaration.type === "declaration" &&
-          typeof declaration.property === "string" &&
-          declaration.property.startsWith("--")
-        ) {
-          processDeclaration(theme, declaration.property, declaration.value);
+        if (declaration.prop.startsWith("--")) {
+          processDeclaration(theme, declaration.prop, declaration.value);
         }
       }
     }
@@ -395,11 +361,11 @@ function processDeclaration(theme: WizardTheme, property: string, value: string)
 /**
  * Serializes theme namespaces to CSS declarations
  * @param theme - The theme object
- * @param declarations - The declarations array to modify
+ * @param rule - The theme at-rule to update
  */
 function serializeNamespaces(
   theme: WizardTheme,
-  declarations: Array<{ type: "declaration"; property: string; value: string }>,
+  rule: AtRule,
 ): void {
   const { namespaces } = theme;
 
@@ -410,7 +376,7 @@ function serializeNamespaces(
     // All namespaces now support nesting
     const properties = flattenNestedObject(values, namespace);
     properties.forEach(({ property, value }) => {
-      addOrUpdateDeclaration(declarations, property, value);
+      addOrUpdateDeclaration(rule, property, value);
     });
   });
 }
@@ -441,52 +407,32 @@ export function stringifyTheme(theme: WizardTheme): string {
  * @returns CSS string
  */
 function updateExistingAST(theme: WizardTheme): string {
-  const ast = JSON.parse(JSON.stringify(theme.ast)); // Deep clone the original AST
-  const themeRule = ast.stylesheet?.rules?.find(isThemeRule);
+  const ast = theme.ast?.clone();
+  if (!ast) return createNewAST(theme);
 
+  let themeRule = ast.nodes.find(isThemeRule);
   if (!themeRule) {
-    const declarations: any[] = [];
-
-    if (theme.isInitial) {
-      addOrUpdateDeclaration(declarations, SPECIAL_PROPERTIES.INITIAL_MARKER, "initial");
-    }
-    if (theme.spacing) {
-      addOrUpdateDeclaration(declarations, SPECIAL_PROPERTIES.SPACING_MULTIPLIER, theme.spacing);
-    }
-    serializeNamespaces(theme, declarations);
-
-    ast.stylesheet ||= { rules: [] };
-    ast.stylesheet.rules ||= [];
-    ast.stylesheet.rules.push(createThemeRule(theme, declarations));
-    return cssToolsStringify(ast);
+    themeRule = createThemeRule(theme);
+    ast.append(themeRule);
   }
 
-  // Keep the AST shape produced by the installed css-tools version while
-  // retaining support for the legacy selector-based representation.
-  if (themeRule.type === "at-rule") {
-    themeRule.prelude = theme.isStatic ? "static" : "";
-  } else {
-    themeRule.selectors = [theme.isStatic ? "@theme static" : "@theme"];
-  }
-
-  // Start with existing declarations to preserve comments and positions.
-  const declarations: any[] = [...getThemeDeclarations(themeRule)];
+  themeRule.params = theme.isStatic ? "static" : "";
 
   // First, update/add special properties.
   if (theme.isInitial) {
-    addOrUpdateDeclaration(declarations, SPECIAL_PROPERTIES.INITIAL_MARKER, "initial");
+    addOrUpdateDeclaration(themeRule, SPECIAL_PROPERTIES.INITIAL_MARKER, "initial");
   } else {
-    addOrUpdateDeclaration(declarations, SPECIAL_PROPERTIES.INITIAL_MARKER, "");
+    addOrUpdateDeclaration(themeRule, SPECIAL_PROPERTIES.INITIAL_MARKER, "");
   }
 
   if (theme.spacing) {
-    addOrUpdateDeclaration(declarations, SPECIAL_PROPERTIES.SPACING_MULTIPLIER, theme.spacing);
+    addOrUpdateDeclaration(themeRule, SPECIAL_PROPERTIES.SPACING_MULTIPLIER, theme.spacing);
   } else {
-    addOrUpdateDeclaration(declarations, SPECIAL_PROPERTIES.SPACING_MULTIPLIER, "");
+    addOrUpdateDeclaration(themeRule, SPECIAL_PROPERTIES.SPACING_MULTIPLIER, "");
   }
 
   // Update/add all current namespace declarations.
-  serializeNamespaces(theme, declarations);
+  serializeNamespaces(theme, themeRule);
 
   // Collect all current theme properties for comparison.
   const currentThemeProperties = new Set<string>();
@@ -509,37 +455,32 @@ function updateExistingAST(theme: WizardTheme): string {
 
   // Remove declarations that no longer exist in the Wizard state while
   // preserving non-theme CSS and custom properties from other namespaces.
-  const filteredDeclarations = declarations.filter((decl: any) => {
-    if (decl.type === "declaration" && (!decl.value || decl.value.trim() === "")) {
-      return false;
+  for (const declaration of getThemeDeclarations(themeRule)) {
+    if (!declaration.value || declaration.value.trim() === "") {
+      declaration.remove();
+      continue;
     }
+
+    if (!declaration.prop.startsWith("--")) continue;
 
     if (
-      decl.type !== "declaration" ||
-      typeof decl.property !== "string" ||
-      !decl.property.startsWith("--")
+      declaration.prop === SPECIAL_PROPERTIES.INITIAL_MARKER ||
+      declaration.prop === SPECIAL_PROPERTIES.SPACING_MULTIPLIER
     ) {
-      return true;
+      if (!currentThemeProperties.has(declaration.prop)) declaration.remove();
+      continue;
     }
 
-    if (
-      decl.property === SPECIAL_PROPERTIES.INITIAL_MARKER ||
-      decl.property === SPECIAL_PROPERTIES.SPACING_MULTIPLIER
-    ) {
-      return currentThemeProperties.has(decl.property);
-    }
-
-    const match = decl.property.match(/^--([^-]+)-/);
+    const match = declaration.prop.match(/^--([^-]+)-/);
     if (match && match[1] in THEME_NAMESPACES) {
-      return currentThemeProperties.has(decl.property);
+      if (!currentThemeProperties.has(declaration.prop)) declaration.remove();
+      continue;
     }
 
-    return currentThemeProperties.has(decl.property) || !match;
-  });
+    if (!currentThemeProperties.has(declaration.prop) && match) declaration.remove();
+  }
 
-  setThemeDeclarations(themeRule, filteredDeclarations);
-
-  return cssToolsStringify(ast);
+  return ast.toString();
 }
 
 /**
@@ -548,42 +489,23 @@ function updateExistingAST(theme: WizardTheme): string {
  * @returns CSS string
  */
 function createNewAST(theme: WizardTheme): string {
-  const declarations: Array<{ type: "declaration"; property: string; value: string }> = [];
+  const ast = postcss.root();
+  const themeRule = createThemeRule(theme);
 
   // Add special properties
   if (theme.isInitial) {
-    declarations.push({
-      type: "declaration",
-      property: SPECIAL_PROPERTIES.INITIAL_MARKER,
-      value: "initial",
-    });
+    addOrUpdateDeclaration(themeRule, SPECIAL_PROPERTIES.INITIAL_MARKER, "initial");
   }
 
   if (theme.spacing) {
-    declarations.push({
-      type: "declaration",
-      property: SPECIAL_PROPERTIES.SPACING_MULTIPLIER,
-      value: theme.spacing,
-    });
+    addOrUpdateDeclaration(themeRule, SPECIAL_PROPERTIES.SPACING_MULTIPLIER, theme.spacing);
   }
 
   // Serialize all namespaces
-  serializeNamespaces(theme, declarations);
+  serializeNamespaces(theme, themeRule);
+  ast.append(themeRule);
 
-  // Filter out any declarations with empty values
-  const filteredDeclarations = declarations.filter(
-    (decl) => decl.value && decl.value.trim() !== "",
-  );
-
-  // Create the AST structure used by the current css-tools parser.
-  const ast: any = {
-    type: "stylesheet",
-    stylesheet: {
-      rules: [createThemeRule(theme, filteredDeclarations)],
-    },
-  };
-
-  return cssToolsStringify(ast);
+  return ast.toString();
 }
 
 // =============================================================================

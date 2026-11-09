@@ -2,9 +2,7 @@
 
 Internal Rust/WASM wrapper around Tailwind CSS Oxide's candidate extractor.
 
-The package source was absorbed from `wind-press/oxide-parser` version `1.0.42`. WindPress consumes
-the TypeScript source directly through the pnpm workspace. Generated WASM bindings are disposable
-build artifacts and are excluded from Git.
+WindPress consumes the TypeScript source directly through the pnpm workspace. Generated WASM bindings are disposable build artifacts and are excluded from Git.
 
 ## Regenerating WASM
 
