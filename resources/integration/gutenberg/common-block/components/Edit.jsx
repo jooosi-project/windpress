@@ -8,7 +8,6 @@ import {
   useInnerBlocksProps,
 } from "@wordpress/block-editor";
 import { useMemo, useCallback, useState, useEffect, memo, useRef } from "@wordpress/element";
-import { createBlock } from "@wordpress/blocks";
 import { useDispatch, useSelect } from "@wordpress/data";
 import {
   PanelBody,
@@ -33,9 +32,136 @@ const CONTENT_TYPE_OPTIONS = [
   { label: "─── None ───", value: "empty" },
 ];
 
+const UNSAFE_TAG_NAMES = new Set([
+  "base",
+  "embed",
+  "link",
+  "meta",
+  "noembed",
+  "noframes",
+  "noscript",
+  "object",
+  "plaintext",
+  "script",
+  "style",
+  "xmp",
+]);
+
+const SAFE_GLOBAL_ATTRIBUTES = new Set([
+  "accept",
+  "accept-charset",
+  "accesskey",
+  "action",
+  "align",
+  "alt",
+  "autocomplete",
+  "autofocus",
+  "capture",
+  "checked",
+  "cite",
+  "cols",
+  "colspan",
+  "contenteditable",
+  "controls",
+  "datetime",
+  "decoding",
+  "dir",
+  "disabled",
+  "download",
+  "draggable",
+  "enctype",
+  "for",
+  "form",
+  "formaction",
+  "formenctype",
+  "formmethod",
+  "formnovalidate",
+  "formtarget",
+  "height",
+  "hidden",
+  "href",
+  "hreflang",
+  "id",
+  "inputmode",
+  "kind",
+  "label",
+  "lang",
+  "loading",
+  "loop",
+  "max",
+  "maxlength",
+  "media",
+  "method",
+  "min",
+  "minlength",
+  "multiple",
+  "muted",
+  "name",
+  "open",
+  "pattern",
+  "placeholder",
+  "playsinline",
+  "poster",
+  "preload",
+  "readonly",
+  "rel",
+  "required",
+  "role",
+  "rows",
+  "rowspan",
+  "scope",
+  "selected",
+  "size",
+  "span",
+  "src",
+  "srclang",
+  "start",
+  "step",
+  "tabindex",
+  "target",
+  "title",
+  "type",
+  "value",
+  "width",
+]);
+
+const URL_GLOBAL_ATTRIBUTES = new Set(["action", "cite", "formaction", "href", "poster", "src"]);
+
 const INNER_BLOCKS_CONFIG = {
   renderAppender: InnerBlocks.ButtonBlockAppender,
 };
+
+function getSafeTagName(tagName) {
+  if (typeof tagName !== "string") {
+    return "div";
+  }
+
+  const normalizedTagName = tagName.toLowerCase();
+  if (!/^[a-z][a-z0-9-]*$/.test(normalizedTagName) || UNSAFE_TAG_NAMES.has(normalizedTagName)) {
+    return "div";
+  }
+
+  return normalizedTagName;
+}
+
+function isSafePreviewAttribute(attrName) {
+  const normalizedName = attrName.toLowerCase();
+
+  if (!/^[a-z][a-z0-9_.:-]*$/.test(normalizedName) || normalizedName.startsWith("on")) {
+    return false;
+  }
+
+  return (
+    SAFE_GLOBAL_ATTRIBUTES.has(normalizedName) ||
+    /^data-[a-z0-9_.:-]+$/.test(normalizedName) ||
+    /^aria-[a-z0-9_.:-]+$/.test(normalizedName)
+  );
+}
+
+function isSafePreviewUrl(value) {
+  const normalizedValue = String(value).trim().replace(/\s+/g, "");
+  return !/^(javascript|data|vbscript):/i.test(normalizedValue);
+}
 
 function Edit({ attributes, setAttributes, clientId }) {
   const {
@@ -49,7 +175,7 @@ function Edit({ attributes, setAttributes, clientId }) {
   const [showHtmlExport, setShowHtmlExport] = useState(false);
   const [htmlExportCode, setHtmlExportCode] = useState("");
   const [customTagInput, setCustomTagInput] = useState("");
-  const { replaceInnerBlocks, updateBlockAttributes } = useDispatch("core/block-editor");
+  const { updateBlockAttributes } = useDispatch("core/block-editor");
   const { innerBlocks, isRoot } = useSelect(
     (select) => {
       const blockEditorStore = select("core/block-editor");
@@ -101,20 +227,35 @@ function Edit({ attributes, setAttributes, clientId }) {
     }
   }, [tagName, globalAttrs?.id, clientId, updateBlockAttributes, attributes, generateBlockName]);
 
-  // Memoize filtered global attributes with deep equality check
+  // Filter global attributes before applying them to the editor preview.
   const filteredGlobalAttrs = useMemo(() => {
     const out = {};
-    for (const k in globalAttrs) {
-      if (k !== "class") {
-        out[k] = globalAttrs[k];
+    const currentGlobalAttrs =
+      globalAttrs && typeof globalAttrs === "object" && !Array.isArray(globalAttrs) ? globalAttrs : {};
+
+    for (const [key, value] of Object.entries(currentGlobalAttrs)) {
+      const normalizedKey = key.toLowerCase();
+      // React's style prop needs an object; the PHP renderer handles validated CSS strings.
+      if (normalizedKey === "class" || normalizedKey === "style" || !isSafePreviewAttribute(normalizedKey)) {
+        continue;
       }
+
+      if (typeof value !== "string" && typeof value !== "number" && typeof value !== "boolean") {
+        continue;
+      }
+
+      if (URL_GLOBAL_ATTRIBUTES.has(normalizedKey) && !isSafePreviewUrl(value)) {
+        continue;
+      }
+
+      out[normalizedKey] = value;
     }
     // Add default id if not present
     if (!out.id) {
       out.id = `block-${clientId}`;
     }
     return out;
-  }, [JSON.stringify(globalAttrs), clientId]);
+  }, [globalAttrs, clientId]);
 
   // Memoize className separately to prevent recreation
   const blockClassName = useMemo(
@@ -293,15 +434,9 @@ function Edit({ attributes, setAttributes, clientId }) {
   }, [customTagInput, onTagChange]);
 
   // Determine which tag to render
-  const TagElement = tagName;
+  const TagElement = getSafeTagName(tagName);
 
   // Split renderContent into smaller memos for better performance
-  // Store innerBlocks children separately to avoid re-renders
-  const innerBlocksChildren = useMemo(() => {
-    if (contentType !== "blocks") return null;
-    return innerBlocksProps.children;
-  }, [contentType, innerBlocksProps.children]);
-
   // Memoize block content rendering separately from props
   const renderBlocksContent = useCallback(() => {
     const { children, ...restProps } = innerBlocksProps;

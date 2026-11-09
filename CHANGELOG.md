@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- [Gutenberg] Prevented stored XSS through unsafe Common Block attributes and content.
+
 ## [3.3.94] - 2026-10-26
 
 ### Security

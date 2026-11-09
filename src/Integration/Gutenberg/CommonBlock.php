@@ -30,6 +30,145 @@ use WindPress\WindPress\Utils\Vite;
 class CommonBlock
 {
     /**
+     * HTML elements whose contents or behavior can execute active content.
+     *
+     * @var string[]
+     */
+    private const UNSAFE_TAG_NAMES = [
+        'base',
+        'embed',
+        'link',
+        'meta',
+        'noembed',
+        'noframes',
+        'noscript',
+        'object',
+        'plaintext',
+        'script',
+        'style',
+        'xmp',
+    ];
+
+    /**
+     * Global attributes that are safe to render on Common Block elements.
+     *
+     * @var string[]
+     */
+    private const SAFE_GLOBAL_ATTRIBUTES = [
+        'accept',
+        'accept-charset',
+        'accesskey',
+        'action',
+        'align',
+        'alt',
+        'autocomplete',
+        'autofocus',
+        'capture',
+        'checked',
+        'cite',
+        'cols',
+        'colspan',
+        'contenteditable',
+        'controls',
+        'datetime',
+        'decoding',
+        'dir',
+        'disabled',
+        'download',
+        'draggable',
+        'enctype',
+        'for',
+        'form',
+        'formaction',
+        'formenctype',
+        'formmethod',
+        'formnovalidate',
+        'formtarget',
+        'height',
+        'hidden',
+        'href',
+        'hreflang',
+        'id',
+        'inputmode',
+        'kind',
+        'label',
+        'lang',
+        'loading',
+        'loop',
+        'max',
+        'maxlength',
+        'media',
+        'method',
+        'min',
+        'minlength',
+        'multiple',
+        'muted',
+        'name',
+        'open',
+        'pattern',
+        'placeholder',
+        'playsinline',
+        'poster',
+        'preload',
+        'readonly',
+        'rel',
+        'required',
+        'role',
+        'rows',
+        'rowspan',
+        'scope',
+        'selected',
+        'size',
+        'span',
+        'src',
+        'srclang',
+        'start',
+        'step',
+        'tabindex',
+        'target',
+        'title',
+        'type',
+        'value',
+        'width',
+    ];
+
+    /**
+     * URL-valued attributes that require protocol validation.
+     *
+     * @var string[]
+     */
+    private const URL_ATTRIBUTES = [
+        'action',
+        'cite',
+        'formaction',
+        'href',
+        'poster',
+        'src',
+    ];
+
+    /**
+     * Boolean HTML attributes, rendered only when their value is enabled.
+     *
+     * @var string[]
+     */
+    private const BOOLEAN_ATTRIBUTES = [
+        'autofocus',
+        'checked',
+        'controls',
+        'disabled',
+        'formnovalidate',
+        'hidden',
+        'loop',
+        'multiple',
+        'muted',
+        'open',
+        'playsinline',
+        'readonly',
+        'required',
+        'selected',
+    ];
+
+    /**
      * Stores the instance, implementing a Singleton pattern.
      */
     private static self $instance;
@@ -135,47 +274,62 @@ class CommonBlock
      */
     public function render_callback($attributes, $content, $block)
     {
-        $tag_name = $attributes['tagName'] ?? 'div';
-        $content_type = $attributes['contentType'] ?? 'blocks';
-        $global_attrs = $attributes['globalAttrs'] ?? [];
-        $text_content = $attributes['content'] ?? '';
-        $self_closing = $attributes['selfClosing'] ?? false;
+        $tag_name = $this->sanitize_tag_name($attributes['tagName'] ?? 'div');
+        $content_type = is_string($attributes['contentType'] ?? null) ? $attributes['contentType'] : 'blocks';
+        $global_attrs = is_array($attributes['globalAttrs'] ?? null) ? $attributes['globalAttrs'] : [];
+        $text_content = is_string($attributes['content'] ?? null) ? $attributes['content'] : '';
+        $self_closing_value = $attributes['selfClosing'] ?? false;
+        $self_closing = is_scalar($self_closing_value) && filter_var($self_closing_value, FILTER_VALIDATE_BOOLEAN);
         $class_name = $attributes['className'] ?? '';
 
         // Handle cb-text-node (wrapper for TEXT_NODE in html2blocks parser)
         // Just output the text content without wrapper tags
         if ($tag_name === 'cb-text-node') {
-            return $text_content;
+            return esc_html($text_content);
         }
-
-        // Sanitize tag name (allow only alphanumeric, dash, and custom elements with dash)
-        $tag_name = preg_replace('/[^a-zA-Z0-9\-]/', '', $tag_name);
 
         // Build attributes array
         $attrs = [];
 
-        // Add className if present
-        // Decode HTML entities to preserve arbitrary variants like [&>img]:rounded-lg
-        // Apply decoding twice to handle double-encoded entities (e.g., &amp;amp; -> &amp; -> &)
-        if (!empty($class_name)) {
-            $decoded_class = html_entity_decode($class_name, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            $decoded_class = html_entity_decode($decoded_class, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            $attrs['class'] = $decoded_class;
+        // Add className if present. Escaping preserves the browser-visible class value
+        // while preventing it from breaking out of the quoted attribute.
+        if (is_string($class_name) && $class_name !== '') {
+            $attrs['class'] = esc_attr($class_name);
         }
 
         // Add globalAttrs
         foreach ($global_attrs as $attr_name => $attr_value) {
+            if (! is_string($attr_name) || ! is_scalar($attr_value)) {
+                continue;
+            }
+
+            $attr_name = strtolower($attr_name);
+
             // Skip 'class' as it's handled by className
             if ($attr_name === 'class') {
                 continue;
             }
 
-            // Sanitize attribute name (only alphanumeric, dash, underscore, at, and colon)
-            // $attr_name = sanitize_key($attr_name);
-            $attr_name = preg_replace('/[^a-zA-Z0-9\-\_\:\@]/', '', $attr_name);
+            if (! $this->is_safe_global_attribute($attr_name)) {
+                continue;
+            }
+
+            $is_false_value = $attr_value === false;
+            $attr_value = (string) $attr_value;
 
             // Sanitize attribute value based on type
-            if ($attr_name === 'href' || $attr_name === 'src') {
+            if (in_array($attr_name, self::BOOLEAN_ATTRIBUTES, true)) {
+                if ($is_false_value || in_array(strtolower(trim($attr_value)), ['false', '0', 'off', 'no'], true)) {
+                    continue;
+                }
+
+                $attrs[$attr_name] = $attr_name;
+            } elseif ($attr_name === 'style') {
+                $sanitized_style = safecss_filter_attr($attr_value);
+                if ($sanitized_style !== '') {
+                    $attrs[$attr_name] = esc_attr($sanitized_style);
+                }
+            } elseif (in_array($attr_name, self::URL_ATTRIBUTES, true)) {
                 $attrs[$attr_name] = esc_url($attr_value);
             } else {
                 $attrs[$attr_name] = esc_attr($attr_value);
@@ -185,7 +339,7 @@ class CommonBlock
         // Build attribute string
         $attr_string = '';
         foreach ($attrs as $attr_name => $attr_value) {
-            $attr_string .= sprintf(' %s="%s"', $attr_name, $attr_value);
+            $attr_string .= sprintf(' %s="%s"', esc_attr($attr_name), $attr_value);
         }
 
         // Determine final content based on content type
@@ -194,8 +348,8 @@ class CommonBlock
             // Use inner blocks content
             $final_content = $content;
         } elseif ($content_type === 'text') {
-            // Use text content (already sanitized by WordPress)
-            $final_content = $text_content;
+            // Imported text content may include inline HTML; retain only post-safe markup.
+            $final_content = wp_kses_post($text_content);
         } elseif ($content_type === 'html') {
             // For SVG elements, use SVG sanitizer
             if ($tag_name === 'svg') {
@@ -271,5 +425,45 @@ class CommonBlock
          * @return string Modified HTML
          */
         return apply_filters('f!windpress/integration/gutenberg/common_block:render', $html, $attributes, $content);
+    }
+
+    /**
+     * Validate the requested element name and reject elements with active content behavior.
+     *
+     * @param mixed $tag_name Requested element name.
+     * @return string Safe element name.
+     */
+    private function sanitize_tag_name($tag_name): string
+    {
+        if (! is_string($tag_name)) {
+            return 'div';
+        }
+
+        $tag_name = strtolower($tag_name);
+
+        if (! preg_match('/^[a-z][a-z0-9-]*$/', $tag_name) || in_array($tag_name, self::UNSAFE_TAG_NAMES, true)) {
+            return 'div';
+        }
+
+        return $tag_name;
+    }
+
+    /**
+     * Check whether a global attribute name is allowed on a Common Block element.
+     *
+     * @param string $attr_name Attribute name.
+     * @return bool
+     */
+    private function is_safe_global_attribute(string $attr_name): bool
+    {
+        if (! preg_match('/^[a-z][a-z0-9_.:-]*$/', $attr_name) || strpos($attr_name, 'on') === 0) {
+            return false;
+        }
+
+        if (preg_match('/^data-[a-z0-9_.:-]+$/', $attr_name) || preg_match('/^aria-[a-z0-9_.:-]+$/', $attr_name)) {
+            return true;
+        }
+
+        return $attr_name === 'style' || in_array($attr_name, self::SAFE_GLOBAL_ATTRIBUTES, true);
     }
 }
