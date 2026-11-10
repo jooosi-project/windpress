@@ -70,26 +70,9 @@ export async function buildCache(opts: BuildCacheOptions = {}) {
 
   log.add({ message: "Starting cache build...", type: "info" });
 
-  const options: BuildCacheOptions = Object.assign(
-    {
-      store: true,
-      kind: "full",
-    },
-    opts,
-  );
+  const options: BuildCacheOptions = { store: true, kind: "full", ...opts };
   const kind = options.kind ?? 'full';
 
-  let providers: Provider[] = [];
-  let volume: { [key: string]: string } = {};
-
-  let css_cache: CSS_Cache = {
-    generation: '',
-    source_revision: '',
-    last_generated: null,
-    last_full_build: null,
-    file_url: null,
-    file_size: 0,
-  };
   let idb_unavailable_logged = false;
 
   async function getProviderCache(key: string) {
@@ -110,13 +93,11 @@ export async function buildCache(opts: BuildCacheOptions = {}) {
 
   log.add({ message: "Getting the latest Simple File System data...", type: "info" });
 
-  await api.get("admin/settings/cache/providers").then((resp) => {
-    providers = resp.data.providers;
-  });
+  const providersResponse = await api.get("admin/settings/cache/providers");
+  const providers: Provider[] = providersResponse.data.providers;
 
-  await api.get("admin/settings/cache/index").then((resp: { data: { cache: CSS_Cache } }) => {
-    css_cache = resp.data.cache;
-  });
+  const cacheResponse: { data: { cache: CSS_Cache } } = await api.get("admin/settings/cache/index");
+  let css_cache = cacheResponse.data.cache;
 
   const generation = css_cache.generation;
   const sourceRevision = css_cache.source_revision;
@@ -127,38 +108,33 @@ export async function buildCache(opts: BuildCacheOptions = {}) {
     throw new Error('The server did not return a valid source revision. Reload WindPress and retry.');
   }
 
-  await api
-    .request("/admin/volume/index", { method: "GET" })
-    .then((response) => response.data)
-    .then(
-      (res: {
-        entries: Array<{ relative_path: string; content: string; directory?: boolean }>;
-      }) => {
-        volume = res.entries.reduce((acc: { [key: string]: string }, entry) => {
-          if (!entry.directory) {
-            acc[`/${entry.relative_path}`] = entry.content;
-          }
-          return acc;
-        }, {});
-      },
-    );
+  const volumeResponse = await api.request("/admin/volume/index", { method: "GET" });
+  const volumeEntries = (volumeResponse.data as {
+    entries: Array<{ relative_path: string; content: string; directory?: boolean }>;
+  }).entries;
+  const volume = volumeEntries.reduce((entries, entry) => {
+    if (!entry.directory) {
+      entries[`/${entry.relative_path}`] = entry.content;
+    }
+    return entries;
+  }, {} as Record<string, string>);
 
   // if the version or the sourcemap is not set, then get the setting from the server
   if (!options.tailwindcss_version || typeof options.sourcemap !== "boolean") {
-    await api.request("/admin/settings/options/index", { method: "GET" }).then((response) => {
-      const version = Number(get(response.data.options, "general.tailwindcss.version", 4));
-      const sourcemap = Boolean(get(response.data.options, "performance.cache.source_map", false));
-      if (version === 3 || version === 4) {
-        options.tailwindcss_version = version;
-        options.sourcemap = sourcemap;
-      } else {
-        options.tailwindcss_version = 4;
-        options.sourcemap = false;
-      }
-    });
+    const response = await api.request("/admin/settings/options/index", { method: "GET" });
+    const version = Number(get(response.data.options, "general.tailwindcss.version", 4));
+    const sourcemap = Boolean(get(response.data.options, "performance.cache.source_map", false));
+    if (version === 3 || version === 4) {
+      options.tailwindcss_version = version;
+      options.sourcemap = sourcemap;
+    } else {
+      options.tailwindcss_version = 4;
+      options.sourcemap = false;
+    }
   }
 
-  if (providers.length === 0 || providers.filter((provider) => provider.enabled).length === 0) {
+  const enabledProviders = providers.filter((provider) => provider.enabled);
+  if (enabledProviders.length === 0) {
     log.add({
       message:
         "No scanner provider found. If this is unexpected, please check the integrations setting page.",
@@ -266,7 +242,7 @@ export async function buildCache(opts: BuildCacheOptions = {}) {
   let providerContents: string[][];
   try {
     providerContents = await mapConcurrent(
-      providers.filter((provider) => provider.enabled),
+      enabledProviders,
       fetchProviderContents,
     );
   } catch (error) {
@@ -356,19 +332,16 @@ export async function buildCache(opts: BuildCacheOptions = {}) {
 
   // store to server?
   if (options.store === true) {
-    await api
-      .post("admin/settings/cache/store", {
-        // @see https://developer.mozilla.org/en-US/docs/Glossary/Base64#the_unicode_problem
-        content: encodeBase64((sourcemap ? normal : minified) || ""),
-        sourcemap: sourcemap ? encodeBase64(sourcemap) : null,
-        full_build: kind === 'full',
-        expected_generation: generation,
-        expected_source_revision: sourceRevision,
-      })
-      .then((resp) => {
-        css_cache = resp.data.cache;
-        log.add({ message: "Cache stored", type: "success" });
-      });
+    const response = await api.post("admin/settings/cache/store", {
+      // @see https://developer.mozilla.org/en-US/docs/Glossary/Base64#the_unicode_problem
+      content: encodeBase64((sourcemap ? normal : minified) || ""),
+      sourcemap: sourcemap ? encodeBase64(sourcemap) : null,
+      full_build: kind === 'full',
+      expected_generation: generation,
+      expected_source_revision: sourceRevision,
+    });
+    css_cache = response.data.cache;
+    log.add({ message: "Cache stored", type: "success" });
 
     try {
       if (typeof css_cache.generation !== 'string' || !css_cache.generation) {
@@ -392,9 +365,9 @@ export async function buildCache(opts: BuildCacheOptions = {}) {
   }
 
   return {
-    normal: normal,
-    sourcemap: sourcemap,
-    minified: minified,
-    css_cache: css_cache,
+    normal,
+    sourcemap,
+    minified,
+    css_cache,
   };
 }

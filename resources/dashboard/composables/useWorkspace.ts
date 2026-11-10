@@ -191,16 +191,16 @@ class VolumeFileSystem implements WorkspaceFileSystem {
   async readDirectory(filename: string): Promise<[string, WorkspaceFileType][]> {
     const normalizedDirectory = normalizeWorkspacePath(filename);
 
-    if (normalizedDirectory && !(await this.isDirectory(normalizedDirectory))) {
+    if (normalizedDirectory && !this.isDirectory(normalizedDirectory)) {
       throw new Error(`Not a directory: ${normalizedDirectory}`);
     }
 
     const prefix = normalizedDirectory ? `${normalizedDirectory}/` : '';
     const children = new Map<string, WorkspaceFileType>();
 
-    this.visibleEntries().forEach((entry) => {
-      if (!entry.relative_path.startsWith(prefix)) {
-        return;
+    for (const entry of this.volumeStore.data.entries) {
+      if (entry.hidden || !entry.relative_path.startsWith(prefix)) {
+        continue;
       }
 
       const remainder = entry.relative_path.slice(prefix.length);
@@ -209,7 +209,7 @@ class VolumeFileSystem implements WorkspaceFileSystem {
       if (child) {
         children.set(child, entry.directory || rest.length ? 2 : 1);
       }
-    });
+    }
 
     return [...children.entries()].sort(([firstName, firstType], [secondName, secondType]) => {
       if (firstType !== secondType) {
@@ -288,7 +288,7 @@ class VolumeFileSystem implements WorkspaceFileSystem {
       };
     }
 
-    if (await this.isDirectory(normalizedFilename)) {
+    if (this.isDirectory(normalizedFilename)) {
       return {
         type: 2,
         ctime: 0,
@@ -356,32 +356,29 @@ class VolumeFileSystem implements WorkspaceFileSystem {
   }
 
   private findEntry(filename: string): Entry | undefined {
-    return this.visibleEntries().find((entry) => entry.relative_path === filename);
+    return this.volumeStore.data.entries.find(
+      (entry) => !entry.hidden && entry.relative_path === filename,
+    );
   }
 
   private findFileEntry(filename: string): Entry | undefined {
-    return this.visibleEntries().find(
-      (entry) => entry.relative_path === filename && !entry.directory,
+    return this.volumeStore.data.entries.find(
+      (entry) => !entry.hidden && entry.relative_path === filename && !entry.directory,
     );
   }
 
-  private findDirectoryEntry(filename: string): Entry | undefined {
-    return this.visibleEntries().find(
-      (entry) => entry.relative_path === filename && entry.directory,
-    );
-  }
-
-  private async isDirectory(filename: string): Promise<boolean> {
+  private isDirectory(filename: string): boolean {
     if (!filename) {
       return true;
     }
 
-    if (this.findDirectoryEntry(filename)) {
-      return true;
-    }
-
     const prefix = `${filename}/`;
-    return this.visibleEntries().some((entry) => entry.relative_path.startsWith(prefix));
+    return this.volumeStore.data.entries.some(
+      (entry) => !entry.hidden && (
+        (entry.relative_path === filename && entry.directory)
+        || entry.relative_path.startsWith(prefix)
+      ),
+    );
   }
 
   private assertCanModify(entry: Entry): void {
