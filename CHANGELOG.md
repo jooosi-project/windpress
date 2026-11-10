@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Updated bundled Tailwind CSS v4 to 4.3.5.
+
 ### Security
 
 - [Gutenberg] Prevented stored XSS through unsafe Common Block attributes and content.

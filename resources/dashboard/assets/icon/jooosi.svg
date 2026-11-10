@@ -1,3 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
-  <path fill="currentColor" fill-rule="evenodd" d="M0 0h400v400H0zm195 61-37 38 242 234v-74zM0 75v74l195 190 37-38z" />
+<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+  <defs>
+    <radialGradient id="jooosi-brand-glow" cx="70%" cy="20%" r="52%">
+      <stop offset="0%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="28" height="28" rx="8" fill="#17171c" />
+  <rect width="28" height="28" rx="8" fill="url(#jooosi-brand-glow)" />
+  <g transform="translate(6 6) scale(0.8)">
+    <path
+      d="M4 4.5h8.2c2.1 0 3.8 1.7 3.8 3.8v3.4c0 2.1-1.7 3.8-3.8 3.8H7.8A3.8 3.8 0 0 1 4 11.7V4.5Z"
+      fill="none"
+      stroke="#fff"
+      stroke-width="1.6"
+    />
+    <path d="M8 8h4v4H8z" fill="#fff" />
+  </g>
 </svg>
