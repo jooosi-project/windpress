@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.95] - 2026-11-10
+
 ### Added
 
 - Updated bundled Tailwind CSS v4 to 4.3.5.
@@ -951,7 +953,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 🐣 Initial release.
 
-[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.94...HEAD
+[unreleased]: https://github.com/jooosi-project/windpress/compare/v3.3.95...HEAD
+[3.3.95]: https://github.com/jooosi-project/windpress/compare/v3.3.94...v3.3.95
 [3.3.94]: https://github.com/jooosi-project/windpress/compare/v3.3.93...v3.3.94
 [3.3.93]: https://github.com/jooosi-project/windpress/compare/v3.3.92...v3.3.93
 [3.3.92]: https://github.com/jooosi-project/windpress/compare/v3.3.91...v3.3.92
