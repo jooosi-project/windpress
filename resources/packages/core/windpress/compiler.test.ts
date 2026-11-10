@@ -12,7 +12,7 @@ const mocks = vi.hoisted(() => ({
   readCache: vi.fn(),
   writeCaches: vi.fn(),
   compile: vi.fn(),
-  getCandidates: vi.fn(),
+  scanFiles: vi.fn(),
   loadSource: vi.fn(),
   optimize: vi.fn(),
   log: { add: vi.fn(), update: vi.fn() },
@@ -34,9 +34,15 @@ vi.mock('idb-keyval', () => ({
 }));
 vi.mock('@/packages/core/tailwindcss', () => ({
   compile: mocks.compile,
-  getCandidates: mocks.getCandidates,
   loadSource: mocks.loadSource,
   optimize: mocks.optimize,
+}));
+vi.mock('@windpress/oxide-wasi', () => ({
+  Scanner: class {
+    scanFiles(contents: Array<{ content: string; extension: string }>) {
+      return mocks.scanFiles(contents);
+    }
+  },
 }));
 
 const options = { tailwindcss_version: 4, sourcemap: false } as const;
@@ -62,6 +68,10 @@ function cacheState() {
     file_url: null,
     file_size: 0,
   };
+}
+
+function scannerInput(contents: string[]) {
+  return contents.map((content) => ({ content, extension: 'html' }));
 }
 
 function scanResponse(
@@ -125,7 +135,7 @@ beforeEach(() => {
     sources: [],
     build: () => '.flex { display: flex; }',
   });
-  mocks.getCandidates.mockResolvedValue(['flex']);
+  mocks.scanFiles.mockReturnValue(['flex']);
   mocks.loadSource.mockResolvedValue([]);
   mocks.optimize.mockResolvedValue({ code: '.flex{display:flex;}' });
 });
@@ -134,7 +144,7 @@ describe('cache build publication', () => {
   it('commits source caches using the returned generation only after CSS publication', async () => {
     const result = await buildCache(options);
 
-    expect(mocks.getCandidates).toHaveBeenCalledWith([source, source]);
+    expect(mocks.scanFiles).toHaveBeenCalledWith(scannerInput([source, source]));
     expect(mocks.post).toHaveBeenCalledWith('admin/settings/cache/store', expect.objectContaining({
       expected_generation: 'initial-generation',
       expected_source_revision: 'initial-source-revision',
@@ -177,7 +187,7 @@ describe('cache build publication', () => {
       },
     });
     expect(scans[1][1].provider_id).toBe('b');
-    expect(mocks.getCandidates).toHaveBeenLastCalledWith([source, source]);
+    expect(mocks.scanFiles).toHaveBeenLastCalledWith(scannerInput([source, source]));
   });
 
   it('rescans an outdated or corrupt provider cache', async () => {
@@ -210,7 +220,7 @@ describe('cache build publication', () => {
 
     await buildCache({ ...options, kind: 'incremental', incremental: { providers: ['a'] } });
 
-    expect(mocks.getCandidates).toHaveBeenCalledWith([source, 'text-from-other-device']);
+    expect(mocks.scanFiles).toHaveBeenCalledWith(scannerInput([source, 'text-from-other-device']));
     const entries: [string, string][] = mocks.writeCaches.mock.calls[0][0];
     const updated = entries.find(([key]) => key === providerCacheKey('https://example.test/site-a/wp-json/windpress/v1', 'b'))!;
     expect(readProviderCache(updated[1], currentGeneration).snapshot?.revision).toBe(nextRevision);
@@ -234,7 +244,7 @@ describe('cache build publication', () => {
 
     await buildCache({ ...options, kind: 'incremental' });
 
-    expect(mocks.getCandidates).toHaveBeenCalledWith([source]);
+    expect(mocks.scanFiles).toHaveBeenCalledWith(scannerInput([source]));
     const entries: [string, string][] = mocks.writeCaches.mock.calls[0][0];
     const updated = entries.find(([key]) => key === providerCacheKey('https://example.test/site-a/wp-json/windpress/v1', 'b'))!;
     expect(readProviderCache(updated[1], currentGeneration).snapshot?.sources).toEqual([]);
@@ -251,7 +261,7 @@ describe('cache build publication', () => {
 
     await buildCache({ ...options, kind: 'incremental' });
 
-    expect(mocks.getCandidates).toHaveBeenCalledWith(['new-only', 'new-only']);
+    expect(mocks.scanFiles).toHaveBeenCalledWith(scannerInput(['new-only', 'new-only']));
   });
 
   it('fully fetches legacy providers on every build instead of reusing a provider-level cache', async () => {
@@ -317,13 +327,13 @@ describe('cache build publication', () => {
     await buildCache({ ...options, kind: 'incremental', incremental: { providers: [] } });
 
     expect(mocks.post.mock.calls.filter(([url]) => url.endsWith('/scan'))).toHaveLength(2);
-    expect(mocks.getCandidates).toHaveBeenCalledWith([source, source]);
+    expect(mocks.scanFiles).toHaveBeenCalledWith(scannerInput([source, source]));
   });
 
   it('includes caller-supplied incremental sources', async () => {
     await buildCache({ ...options, kind: 'incremental', incremental: { sources: ['text-xl'] } });
 
-    expect(mocks.getCandidates).toHaveBeenCalledWith([source, source, 'text-xl']);
+    expect(mocks.scanFiles).toHaveBeenCalledWith(scannerInput([source, source, 'text-xl']));
   });
 
   it('does not save partial provider caches if a later scan batch fails', async () => {

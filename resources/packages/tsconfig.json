@@ -13,8 +13,8 @@
   "include": [
     "lz-string/src/**/*.ts",
     "lightningcss-wasm/src/**/*.ts",
-    "oxide-parser/src/**/*.ts",
-    "oxide-parser/pkg/**/*.d.ts",
+    "oxide-wasi/src/**/*.ts",
+    "oxide-wasi/pkg/**/*.d.ts",
     "vitest.config.ts"
   ]
 }

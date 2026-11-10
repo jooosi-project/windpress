@@ -18,7 +18,7 @@ const processShimPath = fileURLToPath(import.meta.resolve('vite-plugin-node-poly
 
 export default defineConfig({
   lint: {
-    ignorePatterns: ["dist/**", "resources/packages/oxide-parser/pkg/**"],
+    ignorePatterns: ["dist/**", "resources/packages/oxide-wasi/pkg/**"],
     plugins: ["oxc", "typescript", "unicorn", "react", "vue"],
     categories: {
       correctness: "warn",
@@ -106,9 +106,11 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ["modern-monaco-typescript"],
+    // Oxide's browser loader fetches its WASM relative to import.meta.url. Keep it
+    // unbundled so Vite can preserve and rewrite that asset reference.
     // modern-monaco creates workers from relative module URLs. Pre-bundling it
     // moves the editor entry into `.vite/deps` without its worker entry points.
-    exclude: ["@windpress/oxide-parser", "modern-monaco"],
+    exclude: ["@windpress/oxide-wasi", "modern-monaco"],
   },
   build: {
     target: "esnext",

@@ -1,6 +1,5 @@
 export { decodeVFSContainer } from "./vfs";
 export { compile, build, optimize } from "./build";
-export { getCandidates, getCandidatesSync, init, isInitialized } from "@windpress/oxide-parser";
 export {
   getClassList,
   getVariableList,

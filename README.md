@@ -133,14 +133,15 @@ Seamless integration with the most popular visual/page builders:
    pnpm install
    ```
 
-4. Generate the local Tailwind Oxide WASM bindings:
+4. Generate Tailwind Oxide's single-threaded browser WASM:
 
    ```bash
-   pnpm build:oxide
+   pnpm build:oxide-wasi
    ```
 
-   Run this command again whenever you want to refresh the bindings from Tailwind's current default
-   branch. `pnpm build` runs it automatically before creating production assets.
+   This builds the pinned upstream browser implementation in Docker. Run it again after changing
+   the pinned Tailwind revision. `pnpm build` runs it automatically before creating production
+   assets.
 
 5. Start the development server:
 

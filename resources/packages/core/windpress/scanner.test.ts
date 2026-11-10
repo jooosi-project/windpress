@@ -3,7 +3,6 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import { compressToUTF16 } from '@windpress/lz-string';
 
-import { getCandidates, initSync } from '../../oxide-parser/pkg/oxide_parser.js';
 import {
   decodeProviderContent,
   encodeProviderCache,
@@ -197,16 +196,27 @@ describe('provider source decoding', () => {
     expect(isProviderContents([{ content: 'ZmxleA==', type: null }, { content: 'ZmxleA==' }])).toBe(true);
   });
 
-  it('preserves Unicode arbitrary values through the actual Oxide parser', () => {
-    initSync({ module: readFileSync(new URL('../../oxide-parser/pkg/oxide_parser_bg.wasm', import.meta.url)) });
+  it('preserves Unicode arbitrary values through the actual Oxide scanner', async () => {
     const html = `<div class="before:content-['✓'] font-[café]"></div>`;
     const encoded = Buffer.from(html, 'utf8').toString('base64');
     const decoded = decodeProviderContent(encoded);
 
     expect(decoded).toBe(html);
-    expect(new Set(getCandidates(decoded))).toEqual(
-      new Set(['class', "before:content-['✓']", 'font-[café]']),
-    );
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => new Response(readFileSync(
+      new URL('../../oxide-wasi/pkg/tailwindcss-oxide.browser.wasm', import.meta.url),
+    ));
+
+    try {
+      const { Scanner } = await import('@windpress/oxide-wasi');
+      const scanner = new Scanner({});
+      const candidates = scanner.scanFiles([{ content: decoded, extension: 'html' }]);
+      expect(new Set(candidates)).toEqual(
+        new Set(['class', "before:content-['✓']", 'font-[café]']),
+      );
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   });
 
   it('rejects invalid base64 and invalid UTF-8', () => {

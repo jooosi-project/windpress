@@ -261,22 +261,32 @@ export async function buildCache(opts: BuildCacheOptions = {}) {
 
   if (options.tailwindcss_version === 4) {
     // import the modules dynamically to avoid bundling them in the main bundle
-    const {
-      compile: buildV4,
-      getCandidates,
-      optimize: optimizeV4,
-      loadSource,
-    } = await import("@/packages/core/tailwindcss");
+    const [
+      {
+        compile: buildV4,
+        optimize: optimizeV4,
+        loadSource,
+      },
+      { Scanner },
+    ] = await Promise.all([
+      import("@/packages/core/tailwindcss"),
+      import('@windpress/oxide-wasi'),
+    ]);
 
     const compiled = await buildV4({
       entrypoint: "/main.css",
       volume,
     });
 
-    const candidates: string[] = await getCandidates([
+    const scanContents = [
       ...contents,
       ...(await loadSource(compiled.sources, { kind, sourceRevision, indexedCache: sourceCacheSession })),
-    ]);
+    ];
+    const scanner = new Scanner({});
+    const candidates = scanner.scanFiles(scanContents.map((content) => ({
+      content,
+      extension: 'html',
+    })));
 
     log.add({ message: "Scanning complete", type: "success" });
 

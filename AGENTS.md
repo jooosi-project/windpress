@@ -25,7 +25,7 @@ Keep it updated when project rules change.
 - `resources/packages` holds shared internal packages (Tailwind compiler, core utilities, and workers).
 - `resources/packages/*` is a pnpm workspace for private packages; use `workspace:*` for dependencies between the root application and these packages.
 - `resources/packages/lz-string` contains the attributed `lz-string` 2.0 UTF-16 implementation and compatibility fixtures.
-- `resources/packages/oxide-parser` contains the Rust/WASM Tailwind Oxide wrapper; generated bindings are ignored build artifacts.
+- `resources/packages/oxide-wasi` builds Tailwind Oxide's single-threaded WASI browser package; generated bindings are ignored build artifacts.
 - `resources/integration` contains legacy frontend integrations for page builders.
 - `resources/patches` contains dependency patches referenced by `pnpm-workspace.yaml`.
 - `resources/declarations.d.ts` contains shared frontend module and browser globals.
@@ -83,14 +83,13 @@ Keep it updated when project rules change.
 
 - Keep WindPress-owned browser packages under `resources/packages/` with private package manifests and source exports.
 - Do not replace workspace dependencies with npm, GitHub, or preview-registry references.
-- Do not edit or commit `resources/packages/oxide-parser/pkg/`; regenerate it with `pnpm build:oxide`.
-- `pnpm build:oxide` runs through Docker so the unpinned Tailwind Rust dependency and its build scripts do not execute directly on the host.
-- The oxide package intentionally omits `Cargo.lock` and a Git revision for `tailwindcss-oxide`; each regeneration follows Tailwind's current default branch and may require compatibility fixes.
-- The builder stage bypasses Docker's layer cache so each regeneration resolves the latest upstream source; BuildKit cache mounts reuse Cargo downloads, compiled dependencies, and `wasm-pack` helper binaries.
-- `pnpm build` regenerates Oxide before Vite runs and therefore requires Docker. Other development, typecheck, and test commands consume existing local bindings; run `pnpm build:oxide` explicitly when they need regeneration.
+- Do not edit or commit `resources/packages/oxide-wasi/pkg/`; regenerate it with `pnpm build:oxide-wasi`.
+- `pnpm build:oxide-wasi` runs the pinned Tailwind PR build in Docker; it requires Docker and network access when the upstream source or build inputs are not cached.
+- Keep the upstream Tailwind revision pinned in `resources/packages/oxide-wasi/Dockerfile`. The builder uses Tailwind's own Cargo and NAPI build scripts and only copies the browser loader, declarations, and WASM artifact into `pkg/`.
+- `pnpm build` regenerates the Oxide browser WASM before Vite runs and therefore requires Docker. Other development, typecheck, and test commands consume existing local bindings; run `pnpm build:oxide-wasi` explicitly when they need regeneration.
 - Preserve the Pieroxy MIT notice in `licenses/lz-string-MIT.txt` and its SPDX headers in `resources/packages/lz-string` source files.
 - Keep `licenses/` in release artifacts because `resources/` is removed during packaging.
-- Run `pnpm test` after changing either private package; the lz-string fixtures protect stored cache compatibility and the oxide test executes the freshly generated WASM.
+- Run `pnpm test` after changing either private package; the lz-string fixtures protect stored cache compatibility and the Oxide WASI test executes the freshly generated WASM.
 
 ## Vue Dashboard Template Conventions
 

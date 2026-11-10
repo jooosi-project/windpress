@@ -157,9 +157,6 @@ importers:
       '@tailwindcss/language-service':
         specifier: ^0.16.0
         version: 0.16.0
-      '@tailwindcss/oxide-wasm32-wasi':
-        specifier: 4.3.5
-        version: 4.3.5
       '@tailwindcss/root':
         specifier: github:tailwindlabs/tailwindcss
         version: https://codeload.github.com/tailwindlabs/tailwindcss/tar.gz/9b2c925c19aae46ff4f9cf54a2fa6d2dbac7fa19
@@ -175,9 +172,9 @@ importers:
       '@windpress/lz-string':
         specifier: workspace:*
         version: link:resources/packages/lz-string
-      '@windpress/oxide-parser':
+      '@windpress/oxide-wasi':
         specifier: workspace:*
-        version: link:resources/packages/oxide-parser
+        version: link:resources/packages/oxide-wasi
       '@wordpress/block-editor':
         specifier: 20.0.0
         version: 20.0.0(@date-fns/tz@1.5.0)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -455,7 +452,26 @@ importers:
 
   resources/packages/lz-string: {}
 
-  resources/packages/oxide-parser: {}
+  resources/packages/oxide-wasi:
+    dependencies:
+      '@emnapi/core':
+        specifier: ^1.11.3
+        version: 1.11.3
+      '@emnapi/runtime':
+        specifier: ^1.11.3
+        version: 1.11.3
+      '@emnapi/wasi-threads':
+        specifier: ^1.2.3
+        version: 1.2.3
+      '@napi-rs/wasm-runtime':
+        specifier: ^1.2.2
+        version: 1.2.7(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)
+      '@tybys/wasm-util':
+        specifier: ^0.10.3
+        version: 0.10.4
+      tslib:
+        specifier: ^2.8.1
+        version: 2.9.1
 
 packages:
 
@@ -683,6 +699,15 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  '@emnapi/core@1.11.3':
+    resolution: {integrity: sha512-zLpS5asjEb7lq8jYLq37N6XKaE41DIexlY1rF/z4/tIl3wo13Sqm28fRyfIsKZD+NZ8mM5RoKkpW/rBcuoSZSg==}
+
+  '@emnapi/runtime@1.11.3':
+    resolution: {integrity: sha512-Xz4Tpyki7XyrpbUK1jR1AhdAdaXyhhY4lZ3neLodmhpuWfy2PAQN5B46sAiU4liOXGLkHypn/qU+jvfWSCYYLA==}
+
+  '@emnapi/wasi-threads@1.2.3':
+    resolution: {integrity: sha512-ELEBe8PsLvvJ6QMr0zLt8ffvOHW/dc1m3CEzNMg7aJUv3bMaoDtw2TXyDAwkYBuroxxuHEwhRTLJSe5sya547g==}
 
   '@esbuild/aix-ppc64@0.27.7':
     resolution: {integrity: sha512-EKX3Qwmhz1eMdEJokhALr0YiD0lhQNwDqkPYyPhiSwKrh7/4KRjQc04sZ8db+5DVVnZ1LmbNDI1uAMPEUBnQPg==}
@@ -1149,6 +1174,13 @@ packages:
     resolution: {integrity: sha512-1oDue5wVWD4JisRlTalaJiEnD7R4ExR9hQSyp6CcCgfO+QFzbhm29DGgjKv26ON1JuN1kxDTSjPM6aadIZgokg==}
     peerDependencies:
       vite-plus: ^0.1.13
+
+  '@napi-rs/wasm-runtime@1.2.7':
+    resolution: {integrity: sha512-zJccwplOAbgfZju95IUHazLnx9RAPtPN2YGJXI6UbrgeaR9QfPjGrQL6ERkSAtnVCA4Q+83ApGyaX5zdpCaKkQ==}
+    engines: {node: ^20.19.0 || ^22.13.0 || >=23.5.0}
+    peerDependencies:
+      '@emnapi/core': ^1.7.1 || 2.0.0-beta.2 || 2.0.0-beta.3
+      '@emnapi/runtime': ^1.7.1 || 2.0.0-beta.2 || 2.0.0-beta.3
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -2445,6 +2477,9 @@ packages:
       prosemirror-view: ^1.9.10
       y-protocols: ^1.0.1
       yjs: ^13.6.13
+
+  '@tybys/wasm-util@0.10.4':
+    resolution: {integrity: sha512-W3c4gRigFS0T/Ma4qIYF3GDAc5AQdHb1yL5znJT1Zv1YaD9Kitx656wBjvr19qbiosmZT8lWDM5BEMynUqX65A==}
 
   '@types/aria-query@5.0.4':
     resolution: {integrity: sha512-rfT93uj5s0PRL7EzccGMs3brplhcrghnDoV26NqKhCAS1hVo+WdNsPvE/yb6ilfr5hi2MEk6d5EWJTKdxg8jVw==}
@@ -6774,6 +6809,19 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
+  '@emnapi/core@1.11.3':
+    dependencies:
+      '@emnapi/wasi-threads': 1.2.3
+      tslib: 2.9.1
+
+  '@emnapi/runtime@1.11.3':
+    dependencies:
+      tslib: 2.9.1
+
+  '@emnapi/wasi-threads@1.2.3':
+    dependencies:
+      tslib: 2.9.1
+
   '@esbuild/aix-ppc64@0.27.7':
     optional: true
 
@@ -7188,6 +7236,12 @@ snapshots:
     transitivePeerDependencies:
       - rollup
       - supports-color
+
+  '@napi-rs/wasm-runtime@1.2.7(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)':
+    dependencies:
+      '@emnapi/core': 1.11.3
+      '@emnapi/runtime': 1.11.3
+      '@tybys/wasm-util': 0.10.4
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -8103,7 +8157,8 @@ snapshots:
   '@tailwindcss/oxide-linux-x64-musl@4.3.5':
     optional: true
 
-  '@tailwindcss/oxide-wasm32-wasi@4.3.5': {}
+  '@tailwindcss/oxide-wasm32-wasi@4.3.5':
+    optional: true
 
   '@tailwindcss/oxide-win32-arm64-msvc@4.3.5':
     optional: true
@@ -8414,6 +8469,10 @@ snapshots:
       prosemirror-view: 1.42.9
       y-protocols: 1.0.7(yjs@13.6.33)
       yjs: 13.6.33
+
+  '@tybys/wasm-util@0.10.4':
+    dependencies:
+      tslib: 2.9.1
 
   '@types/aria-query@5.0.4': {}
 
