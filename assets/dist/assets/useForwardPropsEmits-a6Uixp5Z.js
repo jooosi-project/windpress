@@ -1,0 +1,1 @@
+import{E as e,T as t}from"./Button-B38-U9Q5.js";import{u as n}from"./runtime-core.esm-bundler-Darmppj_.js";function r(r,i){let a=t(r),o=i?e(i):{};return n(()=>({...a.value,...o}))}export{r as t};

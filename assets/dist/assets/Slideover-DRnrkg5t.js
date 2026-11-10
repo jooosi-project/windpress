@@ -1,1 +1,0 @@
-export{t as default}from"./Slideover-CYz0ZOXR.js";

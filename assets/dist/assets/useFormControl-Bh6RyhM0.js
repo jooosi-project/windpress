@@ -1,0 +1,1 @@
+import{St as e,u as t}from"./runtime-core.esm-bundler-Darmppj_.js";import{i as n}from"./dist-DNS2180k.js";function r(r){return t(()=>!e(r)||!!n(r)?.closest(`form`))}export{r as t};
